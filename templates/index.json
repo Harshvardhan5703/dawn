@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "image_banner": {
@@ -29,33 +38,32 @@
       "settings": {
         "image_overlay_opacity": 40,
         "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
         "image_behavior": "none",
+        "desktop_content_position": "bottom-center",
         "desktop_content_alignment": "center",
+        "show_text_box": false,
         "color_scheme": "scheme-3",
-        "mobile_content_alignment": "center",
         "stack_images_on_mobile": false,
+        "mobile_content_alignment": "center",
         "show_text_below": false
       }
     },
     "featured_collection": {
       "type": "featured-collection",
       "settings": {
+        "collection": "all",
+        "products_to_show": 8,
         "title": "Featured products",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
         "description_style": "body",
-        "collection": "all",
-        "products_to_show": 8,
         "columns_desktop": 4,
-        "color_scheme": "scheme-1",
+        "enable_desktop_slider": false,
         "full_width": false,
         "show_view_all": true,
         "view_all_style": "solid",
-        "enable_desktop_slider": false,
-        "swipe_on_mobile": false,
+        "color_scheme": "scheme-1",
         "image_ratio": "adapt",
         "image_shape": "default",
         "show_secondary_image": true,
@@ -63,13 +71,63 @@
         "show_rating": false,
         "quick_add": "none",
         "columns_mobile": "2",
+        "swipe_on_mobile": false,
         "padding_top": 44,
         "padding_bottom": 36
+      }
+    },
+    "buzzko_hero_zCzTHk": {
+      "type": "buzzko-hero",
+      "blocks": {
+        "slide_DrwhGW": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/IMG20260309143011.jpg",
+            "alt_text": ""
+          }
+        },
+        "slide_RyUJNF": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/IMG20260309142908.jpg",
+            "alt_text": ""
+          }
+        },
+        "slide_E3RHdz": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/IMG20260309142801.jpg",
+            "alt_text": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide_DrwhGW",
+        "slide_RyUJNF",
+        "slide_E3RHdz"
+      ],
+      "name": "BuzzKo Hero",
+      "settings": {
+        "heading_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_04_49_23_PM.png",
+        "heading_alt": "Cute, Custom & Made to Stand Out",
+        "description": "<p>Handcrafted accessories designed to add personality and intention to your daily essentials.</p>",
+        "button_label": "Shop New Arrivals",
+        "button_link": "shopify://collections/all",
+        "show_customer_proof": true,
+        "avatar_1": "shopify://shop_images/close-up-portrait-of-young-man.jpg",
+        "avatar_2": "shopify://shop_images/man.png",
+        "avatar_3": "shopify://shop_images/nicolas-horn-MTZTGvDsHFY-unsplash.jpg",
+        "avatar_4": "shopify://shop_images/luis-villasmil-6qf1uljGpU4-unsplash.jpg",
+        "customer_text": "Loved by 5,000+ happy customers",
+        "autoplay": true,
+        "interval": 5,
+        "show_slide_controls": true
       }
     }
   },
   "order": [
     "image_banner",
-    "featured_collection"
+    "featured_collection",
+    "buzzko_hero_zCzTHk"
   ]
 }
