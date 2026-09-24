@@ -1,0 +1,503 @@
+<section
+  id="BuzzkoCategories-{{ section.id }}"
+  class="buzzko-categories"
+>
+  <div class="buzzko-categories__container">
+
+    <!-- HEADER -->
+    <div class="buzzko-categories__header">
+
+      <h2 class="buzzko-categories__heading">
+        {{ section.settings.heading }}
+      </h2>
+
+      {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
+        <a
+          href="{{ section.settings.view_all_link }}"
+          class="buzzko-categories__view-all"
+        >
+          {{ section.settings.view_all_text }}
+          <span>→</span>
+        </a>
+      {% endif %}
+
+    </div>
+
+
+    <!-- CATEGORY CARDS -->
+    <div class="buzzko-categories__grid">
+
+      {% for block in section.blocks %}
+
+        {% assign collection = block.settings.collection %}
+
+        {% if collection != blank %}
+          {% assign card_title = collection.title %}
+          {% assign card_url = collection.url %}
+        {% else %}
+          {% assign card_title = block.settings.title %}
+          {% assign card_url = block.settings.link %}
+        {% endif %}
+
+
+        <a
+          href="{{ card_url | default: '#' }}"
+          class="buzzko-category-card"
+          style="--card-bg: {{ block.settings.background_color }};"
+          {{ block.shopify_attributes }}
+        >
+
+          <!-- IMAGE -->
+          <div class="buzzko-category-card__image">
+
+            {% if block.settings.image != blank %}
+
+              {{
+                block.settings.image
+                | image_url: width: 900
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '400,600,750,900',
+                  sizes: '(min-width: 990px) 25vw, 80vw',
+                  alt: block.settings.image_alt
+              }}
+
+            {% elsif collection != blank and collection.image != blank %}
+
+              {{
+                collection.image
+                | image_url: width: 900
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '400,600,750,900',
+                  sizes: '(min-width: 990px) 25vw, 80vw',
+                  alt: collection.title
+              }}
+
+            {% endif %}
+
+          </div>
+
+
+          <!-- TEXT -->
+          <div class="buzzko-category-card__content">
+
+            <span class="buzzko-category-card__title">
+              {{ card_title }}
+            </span>
+
+            <span class="buzzko-category-card__arrow">
+              →
+            </span>
+
+          </div>
+
+        </a>
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+
+  #BuzzkoCategories-{{ section.id }} {
+    --buzzko-page-bg: #fffaf5;
+    --buzzko-text: #111111;
+
+    background: var(--buzzko-page-bg);
+    width: 100%;
+  }
+
+
+  /* CONTAINER */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__container {
+    width: min(1400px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 28px 0 64px;
+  }
+
+
+  /* HEADER */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 26px;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__heading {
+    margin: 0;
+
+    color: var(--buzzko-text);
+
+    font-size: clamp(30px, 3vw, 44px);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    color: #111;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    transition: gap 180ms ease;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all span {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all:hover {
+    gap: 15px;
+  }
+
+
+  /* GRID */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+
+  /* CARD */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: var(--card-bg);
+
+    border-radius: 28px;
+
+    color: #111;
+    text-decoration: none;
+
+    aspect-ratio: 1 / 0.82;
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+
+
+  /* IMAGE */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__image {
+    position: absolute;
+    inset: 0;
+
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__image img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+
+
+  /* CONTENT */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content {
+    position: absolute;
+    inset: 0;
+
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 22px;
+  }
+
+
+  /* TITLE */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__title {
+    max-width: 70%;
+
+    font-size: clamp(20px, 2vw, 30px);
+    line-height: 0.95;
+    font-weight: 700;
+
+    color: #111;
+  }
+
+
+  /* ARROW */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__arrow {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid #111;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.18);
+
+    font-size: 23px;
+    line-height: 1;
+
+    transition:
+      transform 180ms ease,
+      background 180ms ease;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card:hover
+  .buzzko-category-card__arrow {
+    transform: translateX(3px);
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+
+  /* TABLET */
+
+  @media screen and (max-width: 989px) {
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__container {
+      width: min(100% - 40px, 700px);
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
+      aspect-ratio: 1 / 0.82;
+    }
+
+  }
+
+
+  /* MOBILE */
+
+  @media screen and (max-width: 749px) {
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__container {
+      width: calc(100% - 28px);
+      padding: 24px 0 44px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__header {
+      margin-bottom: 18px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__heading {
+      font-size: 28px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all {
+      font-size: 13px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
+      display: flex;
+
+      overflow-x: auto;
+
+      gap: 12px;
+
+      margin-right: -14px;
+      padding-right: 14px;
+      padding-bottom: 8px;
+
+      scroll-snap-type: x mandatory;
+
+      scrollbar-width: none;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
+      flex: 0 0 76%;
+
+      aspect-ratio: 1 / 0.86;
+
+      border-radius: 22px;
+
+      scroll-snap-align: start;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content {
+      padding: 18px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-category-card__title {
+      font-size: 24px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-category-card__arrow {
+      width: 38px;
+      height: 38px;
+
+      font-size: 20px;
+    }
+
+  }
+
+</style>
+
+
+{% schema %}
+
+{
+  "name": "BuzzKo Categories",
+
+  "settings": [
+
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Category ✦"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show View All link",
+      "default": true
+    },
+
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View All text",
+      "default": "View All"
+    },
+
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "View All link"
+    }
+
+  ],
+
+  "blocks": [
+
+    {
+      "type": "category",
+      "name": "Category",
+
+      "settings": [
+
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Card image",
+          "info": "Use a custom image to match the BuzzKo design. If left empty, the collection image will be used."
+        },
+
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title",
+          "info": "Used only when no collection is selected."
+        },
+
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link",
+          "info": "Used only when no collection is selected."
+        },
+
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Card background",
+          "default": "#F8B5D1"
+        },
+
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
+        }
+
+      ]
+
+    }
+
+  ],
+
+  "max_blocks": 8,
+
+  "presets": [
+
+    {
+      "name": "BuzzKo Categories",
+
+      "blocks": [
+        {
+          "type": "category"
+        },
+        {
+          "type": "category"
+        },
+        {
+          "type": "category"
+        },
+        {
+          "type": "category"
+        }
+      ]
+
+    }
+
+  ]
+
+}
+
+{% endschema %}

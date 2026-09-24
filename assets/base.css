@@ -11,6 +11,22 @@ collection-component {
   --focused-base-outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
   --focused-base-outline-offset: 0.3rem;
   --focused-base-box-shadow: 0 0 0 0.3rem rgb(var(--color-background)), 0 0 0.5rem 0.4rem rgba(var(--color-foreground), 0.3);
+
+  --custom-main-bg: #000;       /* Main Background */
+  
+  /* Category Backgrounds */
+  --custom-cat-bg-1: #e0f7fa;      /* Category 1 Background */
+  --custom-cat-bg-2: #e8f5e9;      /* Category 2 Background */
+  --custom-cat-bg-3: #fff3e0;      /* Category 3 Background */
+  --custom-cat-bg-4: #f3e5f5;      /* Category 4 Background */
+
+  /* Button & Interactive Colors */
+  --custom-btn-bg: #007bff;        /* Button Background */
+  --custom-btn-text: #ffffff;      /* Button Text */
+
+  /* Text & Special Backgrounds */
+  --custom-text-color: #212529;    /* Main Text Color */
+  --custom-blob-bg: #ff4081;       /* Blob Shape Background */
 }
 
 .product-card-wrapper .card,
@@ -2972,7 +2988,7 @@ details-disclosure > details {
 }
 
 .gradient {
-  background: rgb(var(--color-background));
+  background: rgb(var(--custom-main-bg));
   background: var(--gradient-background);
   background-attachment: fixed;
 }

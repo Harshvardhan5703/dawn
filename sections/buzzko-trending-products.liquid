@@ -1,0 +1,764 @@
+{% comment %}
+  BuzzKo - Trending Products
+{% endcomment %}
+
+<section
+  id="buzzko-trending-{{ section.id }}"
+  class="buzzko-trending"
+>
+  <div class="buzzko-trending__container">
+
+    <div class="buzzko-trending__header">
+      <h2 class="buzzko-trending__heading">
+        {{ section.settings.heading }}
+        <span class="buzzko-trending__sparkles">✦</span>
+      </h2>
+
+      {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
+        <a
+          href="{{ section.settings.view_all_link }}"
+          class="buzzko-trending__view-all"
+        >
+          {{ section.settings.view_all_text }}
+          <span>→</span>
+        </a>
+      {% endif %}
+    </div>
+
+
+    <div class="buzzko-trending__grid">
+
+      {% for block in section.blocks %}
+
+        {% assign product = block.settings.product %}
+
+        {% if product != blank %}
+          {% assign variant = product.selected_or_first_available_variant %}
+          {% assign form_id = 'buzzko-form-' | append: section.id | append: '-' | append: block.id %}
+
+          <div
+            class="buzzko-product-card"
+            style="--card-border: {{ block.settings.border_color }};"
+            {{ block.shopify_attributes }}
+          >
+
+            <div class="buzzko-product-card__image-wrapper">
+              <a
+                href="{{ product.url }}"
+                class="buzzko-product-card__image-link"
+                aria-label="{{ product.title | escape }}"
+              >
+                {% if product.featured_image != blank %}
+
+                  {% assign image_alt = product.featured_image.alt | default: product.title %}
+
+                  {{
+                    product.featured_image
+                    | image_url: width: 700
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '300, 450, 600, 700',
+                      sizes: '(min-width: 990px) 22vw, (min-width: 750px) 45vw, 90vw',
+                      alt: image_alt,
+                      class: 'buzzko-product-card__image'
+                  }}
+
+                {% else %}
+
+                  {{ 'product-1' | placeholder_svg_tag: 'buzzko-product-card__placeholder' }}
+
+                {% endif %}
+              </a>
+            </div>
+
+
+            <div class="buzzko-product-card__content">
+
+              <h3 class="buzzko-product-card__title">
+                <a
+                  href="{{ product.url }}"
+                  class="buzzko-product-card__title-link"
+                >
+                  {{ product.title }}
+                </a>
+              </h3>
+
+
+              {% if block.settings.subtitle != blank %}
+                <p class="buzzko-product-card__subtitle">
+                  {{ block.settings.subtitle }}
+                </p>
+              {% endif %}
+
+
+              <div class="buzzko-product-card__footer">
+
+                <div class="buzzko-product-card__price">
+
+                  {% if product.compare_at_price > product.price %}
+                    <span class="buzzko-product-card__price-current">
+                      {{ product.price | money }}
+                    </span>
+
+                    <span class="buzzko-product-card__price-compare">
+                      {{ product.compare_at_price | money }}
+                    </span>
+                  {% else %}
+                    <span class="buzzko-product-card__price-current">
+                      {{ product.price | money }}
+                    </span>
+                  {% endif %}
+
+                </div>
+
+
+                <form
+                  action="/cart/add"
+                  method="post"
+                  class="buzzko-product-card__form"
+                  data-buzzko-atc
+                >
+                  <input
+                    type="hidden"
+                    name="id"
+                    value="{{ variant.id }}"
+                  >
+
+                  <button
+                    type="submit"
+                    name="add"
+                    class="buzzko-product-card__atc"
+                    data-label-default="Add"
+                    data-label-loading="Adding…"
+                    data-label-success="Added ✓"
+                    {% unless variant.available %}disabled{% endunless %}
+                  >
+                    {% if variant.available %}
+                      Add
+                    {% else %}
+                      Sold Out
+                    {% endif %}
+                  </button>
+                </form>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        {% endif %}
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+
+  #buzzko-trending-{{ section.id }} {
+    background: #faf8f6;
+    padding: 55px 0 65px;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__container {
+    width: min(1380px, calc(100% - 108px));
+    margin: 0 auto;
+  }
+
+
+  /* =========================
+     HEADER
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 68px;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__heading {
+    margin: 0;
+    font-size: 38px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    color: #111;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__sparkles {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 30px;
+    font-weight: 400;
+    transform: rotate(-8deg);
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__view-all {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: #111;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__view-all span {
+    font-size: 27px;
+    line-height: 1;
+  }
+
+
+  /* =========================
+     PRODUCT GRID
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+
+  /* =========================
+     PRODUCT CARD
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    background: #faf8f6;
+
+    border: 3px solid var(--card-border);
+    border-radius: 18px;
+
+    padding: 11px;
+
+    color: inherit;
+
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  }
+
+
+  /* =========================
+     IMAGE
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__image-wrapper {
+    width: 100%;
+    aspect-ratio: 1.65 / 1;
+
+    overflow: hidden;
+
+    border-radius: 11px;
+
+    background: #eee;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__image {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: transform 0.3s ease;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card:hover
+  .buzzko-product-card__image {
+    transform: scale(1.025);
+  }
+
+
+  /* =========================
+     CONTENT
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__content {
+    padding: 15px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__title {
+    margin: 0;
+
+    color: #111;
+
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 800;
+
+    letter-spacing: -0.2px;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__title-link:hover {
+    text-decoration: underline;
+  }
+
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__subtitle {
+    margin: 5px 0 0;
+
+    color: #777;
+
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 400;
+  }
+
+
+  /* =========================
+     FOOTER ROW (price + ATC)
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin-top: auto;
+    padding-top: 17px;
+  }
+
+
+  /* =========================
+     PRICE
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__price-current {
+    color: #111;
+
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__price-compare {
+    color: #999;
+
+    font-size: 12px;
+    text-decoration: line-through;
+  }
+
+
+  /* =========================
+     ADD TO CART
+  ========================= */
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__form {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 14px;
+
+    background: #FF60B9;
+    color: #201e1e;
+
+    border: 0;
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+
+    line-height: 1;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      transform 0.15s ease;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc:hover:not(:disabled):not([data-state="loading"]):not([data-state="success"]) {
+    background: #e469af;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc:disabled {
+    background: #cccccc;
+    color: #201e1e;
+    cursor: not-allowed;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc[data-state="loading"] {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  #buzzko-trending-{{ section.id }} .buzzko-product-card__atc[data-state="success"] {
+    background: #B9E404;
+  }
+
+
+  /* =========================
+     TABLET
+  ========================= */
+
+  @media screen and (max-width: 989px) {
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__container {
+      width: min(100% - 48px, 700px);
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+  }
+
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media screen and (max-width: 749px) {
+
+    #buzzko-trending-{{ section.id }} {
+      padding: 40px 0 50px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__container {
+      width: calc(100% - 32px);
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__header {
+      margin-bottom: 35px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__heading {
+      font-size: 28px;
+      letter-spacing: -1px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__sparkles {
+      font-size: 22px;
+      margin-left: 4px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__view-all {
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__view-all span {
+      font-size: 20px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card {
+      padding: 7px;
+      border-width: 2px;
+      border-radius: 13px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__image-wrapper {
+      border-radius: 8px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__content {
+      padding: 10px 3px 5px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__title {
+      font-size: 13px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__subtitle {
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__footer {
+      padding-top: 12px;
+      gap: 6px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__price-current {
+      font-size: 13px;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-product-card__atc {
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+
+  }
+
+</style>
+
+
+<script>
+  (function () {
+    var sectionEl = document.getElementById('buzzko-trending-{{ section.id }}');
+    if (!sectionEl) return;
+
+    // Guard against double-init if section is re-rendered in the editor
+    if (sectionEl.dataset.buzzkoAtcInit === 'true') return;
+    sectionEl.dataset.buzzkoAtcInit = 'true';
+
+    // ---------- helpers ----------
+
+    function setButtonState(button, state, label) {
+      if (!button) return;
+      if (state) {
+        button.setAttribute('data-state', state);
+      } else {
+        button.removeAttribute('data-state');
+      }
+      if (typeof label === 'string') {
+        button.textContent = label;
+      }
+    }
+
+    // Broadcast to the theme so the cart drawer / count updates.
+    function notifyTheme(cart) {
+      // Standard events most themes (Dawn, Refresh, Craft, etc.) listen for
+      document.dispatchEvent(new CustomEvent('cart:update', { bubbles: true, detail: { cart: cart } }));
+      document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true, detail: { cart: cart } }));
+
+      // Dawn-specific: if a cart-drawer element exists, tell it to re-render
+      var drawer = document.querySelector('cart-drawer');
+      if (drawer && typeof drawer.renderContents === 'function') {
+        try { drawer.renderContents({}); } catch (e) { /* noop */ }
+      }
+
+      // Belt-and-braces: update any visible cart count bubbles
+      if (cart && typeof cart.item_count === 'number') {
+        document.querySelectorAll('[data-cart-count], .cart-count-bubble span, .cart-count').forEach(function (el) {
+          if (el && el.textContent !== String(cart.item_count)) {
+            el.textContent = cart.item_count;
+          }
+        });
+      }
+    }
+
+    // ---------- main handler ----------
+
+    sectionEl.addEventListener('submit', function (event) {
+      var form = event.target;
+      if (!form.matches('[data-buzzko-atc]')) return;
+
+      event.preventDefault();
+
+      var button = form.querySelector('.buzzko-product-card__atc');
+      if (!button || button.disabled) return;
+
+      // Prevent double-submits while a request is in flight
+      if (button.getAttribute('data-state') === 'loading') return;
+
+      var defaultLabel = button.getAttribute('data-label-default') || 'Add';
+      var loadingLabel = button.getAttribute('data-label-loading') || 'Adding…';
+      var successLabel = button.getAttribute('data-label-success') || 'Added ✓';
+
+      setButtonState(button, 'loading', loadingLabel);
+      button.disabled = true;
+
+      var formData = new FormData(form);
+      formData.append('sections', 'cart-drawer,cart-icon-bubble');
+      formData.append('sections_url', window.location.pathname);
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.json().then(function (err) { throw err; });
+          }
+          return res.json();
+        })
+        .then(function () {
+          // Fetch fresh cart state so the theme can update counts/drawer
+          return fetch('/cart.js', {
+            headers: { 'Accept': 'application/json' }
+          }).then(function (r) { return r.json(); });
+        })
+        .then(function (cart) {
+          setButtonState(button, 'success', successLabel);
+
+          // Try to open the theme cart drawer if one exists
+          var drawer = document.querySelector('cart-drawer');
+          if (drawer && typeof drawer.open === 'function') {
+            try { drawer.open(); } catch (e) { /* noop */ }
+          }
+
+          notifyTheme(cart);
+
+          // Revert button back to "Add" after a beat
+          setTimeout(function () {
+            setButtonState(button, null, defaultLabel);
+            button.disabled = false;
+          }, 1400);
+        })
+        .catch(function (error) {
+          // Revert + surface the error in console; keeps UX intact
+          console.error('[BuzzKo ATC]', error);
+          setButtonState(button, null, 'Try again');
+          button.disabled = false;
+
+          setTimeout(function () {
+            setButtonState(button, null, defaultLabel);
+          }, 1600);
+        });
+    });
+  })();
+</script>
+
+
+{% schema %}
+
+{
+  "name": "BuzzKo Trending Products",
+  "tag": "section",
+
+  "settings": [
+
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Trending Now"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show View All",
+      "default": true
+    },
+
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View All Text",
+      "default": "See All"
+    },
+
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "View All Link"
+    }
+
+  ],
+
+  "blocks": [
+
+    {
+      "type": "product",
+      "name": "Product",
+
+      "settings": [
+
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Professional Premium"
+        },
+
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Card Border Color",
+          "default": "#F7CFCF"
+        }
+
+      ]
+
+    }
+
+  ],
+
+  "presets": [
+
+    {
+      "name": "BuzzKo Trending Products",
+
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+
+  ]
+
+}
+
+{% endschema %}

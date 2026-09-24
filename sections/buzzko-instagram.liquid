@@ -1,0 +1,380 @@
+
+<section id="buzzko-instagram-{{ section.id }}" class="buzzko-instagram">
+  <div class="buzzko-instagram__inner">
+
+    <!-- LEFT TEXT -->
+    <div class="buzzko-instagram__intro">
+      <p class="buzzko-instagram__line-one">
+        {{ section.settings.first_line }}
+      </p>
+      <p class="buzzko-instagram__line-two">
+        {{ section.settings.second_line }}
+      </p>
+    </div>
+
+    <!-- FIVE MEDIA SLOTS -->
+    <div class="buzzko-instagram__gallery">
+      {% for block in section.blocks %}
+        <div class="buzzko-instagram__media" {{ block.shopify_attributes }}>
+          {% if block.settings.video != blank %}
+            {{
+              block.settings.video
+              | video_tag:
+                autoplay: true,
+                loop: true,
+                muted: true,
+                controls: false,
+                playsinline: true,
+                image_size: '400x'
+            }}
+          {% elsif block.settings.image != blank %}
+            {{
+              block.settings.image
+              | image_url: width: 400
+              | image_tag:
+                loading: 'lazy',
+                widths: '180, 280, 400',
+                sizes: '(min-width: 990px) 110px, 28vw',
+                class: 'buzzko-instagram__image'
+            }}
+          {% else %}
+            {{ 'image' | placeholder_svg_tag: 'buzzko-instagram__placeholder' }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- RIGHT INSTAGRAM CARD -->
+    <div class="buzzko-instagram__social">
+      <p class="buzzko-instagram__tag-title">
+        {{ section.settings.tag_title }}
+      </p>
+
+      <p class="buzzko-instagram__handle">
+        {{ section.settings.instagram_handle }}
+      </p>
+
+      {% if section.settings.instagram_url != blank %}
+        <a
+          href="{{ section.settings.instagram_url }}"
+          class="buzzko-instagram__social-link"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Visit BuzzKo on Instagram"
+        >
+          {% if section.settings.instagram_icon != blank %}
+            {{
+              section.settings.instagram_icon
+              | image_url: width: 100
+              | image_tag:
+                loading: 'lazy',
+                width: 30,
+                height: 30,
+                alt: 'Instagram'
+            }}
+          {% else %}
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="ig-gradient-{{ section.id }}" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#FEDA75"/>
+                  <stop offset="40%" stop-color="#FA7E1E"/>
+                  <stop offset="70%" stop-color="#D62976"/>
+                  <stop offset="100%" stop-color="#962FBF"/>
+                </linearGradient>
+              </defs>
+              <rect x="2" y="2" width="20" height="20" rx="6"
+                stroke="url(#ig-gradient-{{ section.id }})" stroke-width="2.2"/>
+              <circle cx="12" cy="12" r="4.2"
+                stroke="url(#ig-gradient-{{ section.id }})" stroke-width="2.2"/>
+              <circle cx="17.5" cy="6.5" r="1.3"
+                fill="#D62976"/>
+            </svg>
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  #buzzko-instagram-{{ section.id }} {
+    background: #FFFAF5;
+    padding: 30px 0;
+    overflow: hidden;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__inner {
+    width: min(1400px, calc(100% - 64px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr) 158px;
+    align-items: center;
+    gap: 25px;
+  }
+
+  /* LEFT TEXT */
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__intro {
+    padding-left: 15px;
+    transform: rotate(-12deg);
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-one,
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-two {
+    margin: 0;
+    font-family: var(--font-heading-family);
+    font-weight: 900;
+    font-size: clamp(23px, 2.4vw, 34px);
+    line-height: 1.2;
+    letter-spacing: -1px;
+    white-space: nowrap;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-one {
+    color: {{ section.settings.first_line_color }};
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-two {
+    color: {{ section.settings.second_line_color }};
+  }
+
+  /* MEDIA GALLERY */
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__gallery {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__media {
+    width: 100%;
+    aspect-ratio: 0.78;
+    overflow: hidden;
+    border-radius: 13px;
+    background: #F0E6DF;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__media img,
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__media video,
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* RIGHT CARD */
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__social {
+    min-height: 115px;
+    padding: 15px 12px;
+    border-radius: 25px;
+    background: {{ section.settings.card_color }};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 9px;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__tag-title,
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__handle {
+    margin: 0;
+    color: #111;
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-top: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__social-link:hover {
+    transform: scale(1.12);
+  }
+
+  #buzzko-instagram-{{ section.id }} .buzzko-instagram__social-link img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+  }
+
+  /* TABLET */
+
+  @media screen and (max-width: 1100px) {
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__inner {
+      grid-template-columns: 190px minmax(0, 1fr) 140px;
+      gap: 16px;
+      width: calc(100% - 40px);
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__gallery {
+      gap: 10px;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__intro {
+      padding-left: 0;
+    }
+  }
+
+  /* MOBILE */
+
+  @media screen and (max-width: 749px) {
+    #buzzko-instagram-{{ section.id }} {
+      padding: 35px 0;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__inner {
+      width: calc(100% - 32px);
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__intro {
+      align-self: flex-start;
+      margin-left: 20px;
+      transform: rotate(-8deg);
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-one,
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__line-two {
+      font-size: 29px;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__gallery {
+      display: flex;
+      width: 100%;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__gallery::-webkit-scrollbar {
+      display: none;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__media {
+      flex: 0 0 34%;
+      scroll-snap-align: start;
+    }
+
+    #buzzko-instagram-{{ section.id }} .buzzko-instagram__social {
+      width: 170px;
+      min-height: 115px;
+      align-self: center;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "BuzzKo Instagram",
+  "settings": [
+    {
+      "type": "text",
+      "id": "first_line",
+      "label": "First line",
+      "default": "Real People"
+    },
+    {
+      "type": "color",
+      "id": "first_line_color",
+      "label": "First line color",
+      "default": "#333333"
+    },
+    {
+      "type": "text",
+      "id": "second_line",
+      "label": "Second line",
+      "default": "Cuter Lives."
+    },
+    {
+      "type": "color",
+      "id": "second_line_color",
+      "label": "Second line color",
+      "default": "#59C8F5"
+    },
+    {
+      "type": "text",
+      "id": "tag_title",
+      "label": "Instagram card heading",
+      "default": "Tag Us"
+    },
+    {
+      "type": "text",
+      "id": "instagram_handle",
+      "label": "Instagram handle",
+      "default": "@buzzko.in"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram profile URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "instagram_icon",
+      "label": "Custom Instagram icon"
+    },
+    {
+      "type": "color",
+      "id": "card_color",
+      "label": "Instagram card color",
+      "default": "#FFEAF2"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media",
+      "name": "Image or video",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "Paste a video link (MP4 or hosted file)."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "BuzzKo Instagram",
+      "blocks": [
+        { "type": "media" },
+        { "type": "media" },
+        { "type": "media" },
+        { "type": "media" },
+        { "type": "media" }
+      ]
+    }
+  ]
+}
+{% endschema %}

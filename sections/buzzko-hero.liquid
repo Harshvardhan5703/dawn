@@ -1,0 +1,716 @@
+{% style %}
+  #BuzzkoHero-{{ section.id }} {
+    --buzzko-pink: #ff5ca8;
+    --buzzko-bg: #fffaf5;
+    --buzzko-radius: 30px;
+  }
+
+  #BuzzkoHero-{{ section.id }} {
+    width: 100%;
+    background: var(--buzzko-bg);
+    overflow: hidden;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+    width: min(1400px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 48px 0 64px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 70px;
+
+    align-items: center;
+  }
+
+  /* LEFT */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image {
+    width: min(100%, 570px);
+    line-height: 0;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
+    margin-top: 24px;
+    max-width: 560px;
+
+    font-size: 18px;
+    line-height: 1.5;
+    color: #252525;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__button {
+    margin-top: 34px;
+
+    min-height: 64px;
+    padding: 0 30px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+
+    background: var(--buzzko-pink);
+    color: #111;
+
+    border-radius: 999px;
+
+    text-decoration: none;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 92, 168, 0.2);
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__button-arrow {
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  /* CUSTOMER PROOF */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
+    margin-top: 28px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatars {
+    display: flex;
+    align-items: center;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar {
+    width: 48px;
+    height: 48px;
+
+    margin-left: -10px;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+    border: 3px solid var(--buzzko-bg);
+
+    background: #eee;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar:first-child {
+    margin-left: 0;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__customer-text {
+    font-size: 14px;
+    line-height: 1.3;
+    color: #333;
+  }
+
+  /* SLIDESHOW */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slideshow {
+    width: 100%;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 1.18 / 1;
+
+    overflow: hidden;
+
+    border-radius: var(--buzzko-radius);
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slide {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+      opacity 500ms ease,
+      visibility 500ms ease;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slide img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+  }
+
+  /* CONTROLS */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
+    margin-top: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
+    width: 38px;
+    height: 38px;
+
+    border: 1px solid #222;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #111;
+
+    cursor: pointer;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
+    display: flex;
+    gap: 7px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__dot {
+    width: 8px;
+    height: 8px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: #ccc;
+
+    cursor: pointer;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__dot.is-active {
+    background: #111;
+  }
+
+  /* EMPTY STATE */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__empty {
+    min-height: 500px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--buzzko-radius);
+
+    background: #eee;
+    color: #666;
+  }
+
+  /* MOBILE */
+
+  @media screen and (max-width: 989px) {
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+      width: min(100% - 40px, 700px);
+      grid-template-columns: 1fr;
+      gap: 36px;
+      padding: 36px 0 48px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__content {
+      align-items: center;
+      text-align: center;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image {
+      width: min(100%, 520px);
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
+      max-width: 600px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
+      justify-content: center;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+      width: calc(100% - 28px);
+      padding: 24px 0 40px;
+      gap: 28px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
+      font-size: 15px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__button {
+      width: 100%;
+      min-height: 58px;
+      font-size: 16px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
+      margin-top: 22px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar {
+      width: 42px;
+      height: 42px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__customer-text {
+      font-size: 12px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
+      display: none;
+    }
+  }
+{% endstyle %}
+
+<section
+  id="BuzzkoHero-{{ section.id }}"
+  class="buzzko-hero"
+>
+  <div class="buzzko-hero__container">
+
+    <!-- LEFT CONTENT -->
+    <div class="buzzko-hero__content">
+
+      {% if section.settings.heading_image != blank %}
+        <div class="buzzko-hero__heading-image">
+          {{
+            section.settings.heading_image
+            | image_url: width: 1200
+            | image_tag:
+              loading: 'eager',
+              widths: '400,600,800,1000,1200',
+              sizes: '(min-width: 990px) 45vw, 90vw',
+              alt: section.settings.heading_alt
+          }}
+        </div>
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <div class="buzzko-hero__description">
+          {{ section.settings.description }}
+        </div>
+      {% endif %}
+
+      {% if section.settings.button_label != blank %}
+        <a
+          href="{{ section.settings.button_link }}"
+          class="buzzko-hero__button"
+        >
+          <span>{{ section.settings.button_label }}</span>
+          <span class="buzzko-hero__button-arrow">→</span>
+        </a>
+      {% endif %}
+
+      <!-- CUSTOMER AVATARS -->
+      {% if section.settings.show_customer_proof %}
+        <div class="buzzko-hero__proof">
+
+          <div class="buzzko-hero__avatars">
+
+            {% if section.settings.avatar_1 != blank %}
+              <div class="buzzko-hero__avatar">
+                {{
+                  section.settings.avatar_1
+                  | image_url: width: 100
+                  | image_tag: loading: 'lazy', alt: ''
+                }}
+              </div>
+            {% endif %}
+
+            {% if section.settings.avatar_2 != blank %}
+              <div class="buzzko-hero__avatar">
+                {{
+                  section.settings.avatar_2
+                  | image_url: width: 100
+                  | image_tag: loading: 'lazy', alt: ''
+                }}
+              </div>
+            {% endif %}
+
+            {% if section.settings.avatar_3 != blank %}
+              <div class="buzzko-hero__avatar">
+                {{
+                  section.settings.avatar_3
+                  | image_url: width: 100
+                  | image_tag: loading: 'lazy', alt: ''
+                }}
+              </div>
+            {% endif %}
+
+            {% if section.settings.avatar_4 != blank %}
+              <div class="buzzko-hero__avatar">
+                {{
+                  section.settings.avatar_4
+                  | image_url: width: 100
+                  | image_tag: loading: 'lazy', alt: ''
+                }}
+              </div>
+            {% endif %}
+
+          </div>
+
+          {% if section.settings.customer_text != blank %}
+            <span class="buzzko-hero__customer-text">
+              {{ section.settings.customer_text }}
+            </span>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT SLIDESHOW -->
+    <div
+      class="buzzko-hero__slideshow"
+      data-buzzko-slideshow
+      data-autoplay="{{ section.settings.autoplay }}"
+      data-interval="{{ section.settings.interval | times: 1000 }}"
+    >
+
+      {% if section.blocks.size > 0 %}
+
+        <div class="buzzko-hero__slides">
+
+          {% for block in section.blocks %}
+
+            {% if block.settings.image != blank %}
+
+              {% liquid
+                assign slide_loading = 'lazy'
+                if forloop.first
+                  assign slide_loading = 'eager'
+                endif
+              %}
+
+              <div
+                class="buzzko-hero__slide{% if forloop.first %} is-active{% endif %}"
+                data-slide
+                {{ block.shopify_attributes }}
+              >
+                {{
+                  block.settings.image
+                  | image_url: width: 1800
+                  | image_tag:
+                    loading: slide_loading,
+                    widths: '600,800,1000,1200,1400,1600,1800',
+                    sizes: '(min-width: 990px) 50vw, 100vw',
+                    alt: block.settings.alt_text
+                }}
+              </div>
+
+            {% endif %}
+
+          {% endfor %}
+
+        </div>
+
+        {% if section.settings.show_slide_controls and section.blocks.size > 1 %}
+          <div class="buzzko-hero__controls">
+
+            <button
+              type="button"
+              class="buzzko-hero__control buzzko-hero__control--prev"
+              data-slide-prev
+              aria-label="Previous slide"
+            >
+              ←
+            </button>
+
+            <div class="buzzko-hero__dots">
+
+              {% for block in section.blocks %}
+
+                {% if block.settings.image != blank %}
+                  <button
+                    type="button"
+                    class="buzzko-hero__dot{% if forloop.first %} is-active{% endif %}"
+                    data-slide-dot="{{ forloop.index0 }}"
+                    aria-label="Go to slide {{ forloop.index }}"
+                  ></button>
+                {% endif %}
+
+              {% endfor %}
+
+            </div>
+
+            <button
+              type="button"
+              class="buzzko-hero__control buzzko-hero__control--next"
+              data-slide-next
+              aria-label="Next slide"
+            >
+              →
+            </button>
+
+          </div>
+        {% endif %}
+
+      {% else %}
+
+        <div class="buzzko-hero__empty">
+          Add a hero slide from the theme editor.
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+</section>
+
+<script>
+  (() => {
+    const section = document.querySelector(
+      '#BuzzkoHero-{{ section.id }}'
+    );
+
+    if (!section) return;
+
+    const slideshow = section.querySelector('[data-buzzko-slideshow]');
+    if (!slideshow) return;
+
+    const slides = Array.from(
+      slideshow.querySelectorAll('[data-slide]')
+    );
+
+    if (slides.length <= 1) return;
+
+    const dots = Array.from(
+      slideshow.querySelectorAll('[data-slide-dot]')
+    );
+
+    const nextButton = slideshow.querySelector('[data-slide-next]');
+    const prevButton = slideshow.querySelector('[data-slide-prev]');
+
+    let currentIndex = 0;
+    let timer = null;
+
+    const showSlide = (index) => {
+      currentIndex = (index + slides.length) % slides.length;
+
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('is-active', i === currentIndex);
+      });
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('is-active', i === currentIndex);
+      });
+    };
+
+    const nextSlide = () => showSlide(currentIndex + 1);
+    const prevSlide = () => showSlide(currentIndex - 1);
+
+    const startAutoplay = () => {
+      if (slideshow.dataset.autoplay !== 'true') return;
+
+      const interval =
+        Number(slideshow.dataset.interval) || 5000;
+
+      clearInterval(timer);
+      timer = setInterval(nextSlide, interval);
+    };
+
+    nextButton?.addEventListener('click', () => {
+      nextSlide();
+      startAutoplay();
+    });
+
+    prevButton?.addEventListener('click', () => {
+      prevSlide();
+      startAutoplay();
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        showSlide(Number(dot.dataset.slideDot));
+        startAutoplay();
+      });
+    });
+
+    showSlide(0);
+    startAutoplay();
+
+    document.addEventListener('shopify:section:unload', (event) => {
+      if (event.detail.sectionId === '{{ section.id }}') {
+        clearInterval(timer);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "BuzzKo Hero",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero content"
+    },
+    {
+      "type": "image_picker",
+      "id": "heading_image",
+      "label": "Heading image"
+    },
+    {
+      "type": "text",
+      "id": "heading_alt",
+      "label": "Heading image alt text",
+      "default": "Cute, Custom & Made to Stand Out"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Handcrafted accessories designed to add personality and intention to your daily essentials.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop New Arrivals"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Customer proof"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_customer_proof",
+      "label": "Show customer proof",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_1",
+      "label": "Avatar 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_2",
+      "label": "Avatar 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_3",
+      "label": "Avatar 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_4",
+      "label": "Avatar 4"
+    },
+    {
+      "type": "text",
+      "id": "customer_text",
+      "label": "Customer text",
+      "default": "Loved by 5,000+ happy customers"
+    },
+    {
+      "type": "header",
+      "content": "Slideshow"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay slideshow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "label": "Slide duration",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "show_slide_controls",
+      "label": "Show slide controls",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Slide image"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Image alt text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BuzzKo Hero",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}
