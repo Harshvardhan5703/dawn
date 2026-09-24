@@ -1,28 +1,82 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "name": "t:sections.footer.name",
   "type": "footer",
   "sections": {
+    "buzzko_footer_qVB4WD": {
+      "type": "buzzko-footer",
+      "blocks": {
+        "menu_CGCUPB": {
+          "type": "menu",
+          "settings": {
+            "heading": "Shop",
+            "menu": "shop-menu"
+          }
+        },
+        "menu_jaGBPF": {
+          "type": "menu",
+          "settings": {
+            "heading": "About",
+            "menu": "about"
+          }
+        },
+        "menu_W3Vg34": {
+          "type": "menu",
+          "settings": {
+            "heading": "Help",
+            "menu": "help"
+          }
+        }
+      },
+      "block_order": [
+        "menu_CGCUPB",
+        "menu_jaGBPF",
+        "menu_W3Vg34"
+      ],
+      "name": "BuzzKo Footer",
+      "settings": {
+        "logo": "shopify://shop_images/buzzkologobgr.png",
+        "logo_alt": "BuzzKo",
+        "club_text": "JOIN THE CLUB",
+        "club_font": "system_ui_n4",
+        "instagram_url": "https://instagram.com/buzz.ko",
+        "pinterest_url": "https://pinterest.com/buzzko",
+        "youtube_url": "https://youtube.com/buzzko",
+        "copyright_text": "Buzzko. All rights reserved.",
+        "made_with_text": "Made with love in India",
+        "made_with_emoji": "♡",
+        "made_with_link": "https://hrsh.is-a.dev",
+        "background_color": "#FDE9F1"
+      }
+    },
     "footer": {
       "type": "footer",
-      "blocks": {},
-      "block_order": [],
       "settings": {
         "color_scheme": "scheme-1",
-        "newsletter_enable": true,
+        "newsletter_enable": false,
         "newsletter_heading": "Subscribe to our emails",
-        "enable_follow_on_shop": true,
-        "show_social": true,
-        "enable_country_selector": true,
-        "enable_language_selector": true,
-        "payment_enable": true,
-        "show_policy": true,
+        "enable_follow_on_shop": false,
+        "show_social": false,
+        "enable_country_selector": false,
+        "enable_language_selector": false,
+        "payment_enable": false,
+        "show_policy": false,
         "margin_top": 0,
-        "padding_top": 36,
-        "padding_bottom": 36
+        "padding_top": 0,
+        "padding_bottom": 0
       }
     }
   },
   "order": [
+    "buzzko_footer_qVB4WD",
     "footer"
   ]
 }
