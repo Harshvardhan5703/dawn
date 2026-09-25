@@ -47,6 +47,7 @@
         "logo_alt": "BuzzKo",
         "club_text": "JOIN THE CLUB",
         "club_font": "caveat_n7",
+        "footer_text_font": "nunito_n7",
         "instagram_url": "https://instagram.com/buzz.ko",
         "pinterest_url": "https://pinterest.com/buzzko",
         "youtube_url": "https://youtube.com/buzzko",
@@ -54,7 +55,8 @@
         "made_with_text": "Made with love in India",
         "made_with_emoji": "♡",
         "made_with_link": "https://hrsh.is-a.dev",
-        "background_color": "#fde9f1"
+        "background_color": "#fde9f1",
+        "top_background_color": "#fffaf5"
       }
     },
     "footer": {
