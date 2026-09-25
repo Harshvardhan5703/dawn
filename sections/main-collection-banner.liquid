@@ -1,76 +1,344 @@
-{% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
-{{ 'component-collection-hero.css' | asset_url | stylesheet_tag }}
+{% comment %}
+  BuzzKo Collection Banner
+  Keeps Shopify collection title, description and optional collection image dynamic.
+{% endcomment %}
 
 {%- style -%}
+  #BuzzkoCollectionBanner-{{ section.id }} {
+    background: #FFFAF5;
+    padding: 34px 0 28px;
+    overflow: hidden;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-banner {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 5rem;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-inner {
+    position: relative;
+    min-height: 270px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    padding: 42px 55px;
+    overflow: hidden;
+    border-radius: 34px;
+    background: #FFF4E8;
+  }
+
+  /* Decorative organic shapes */
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-one {
+    width: 230px;
+    height: 190px;
+    right: -55px;
+    top: -65px;
+    background: #B9E404;
+    border-radius: 46% 54% 62% 38% / 53% 42% 58% 47%;
+    transform: rotate(16deg);
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-two {
+    width: 155px;
+    height: 135px;
+    right: 220px;
+    bottom: -75px;
+    background: #CDB8F5;
+    border-radius: 63% 37% 42% 58% / 44% 58% 42% 56%;
+    transform: rotate(-18deg);
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-three {
+    width: 105px;
+    height: 105px;
+    left: -35px;
+    bottom: -35px;
+    background: #FF9FC8;
+    border-radius: 50%;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-content {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 12px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #1A1A1A;
+    color: #FFFFFF;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-eyebrow::before {
+    content: '✦';
+    font-size: 12px;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-title {
+    margin: 0;
+    color: #1A1A1A;
+    font-size: clamp(42px, 5vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    font-weight: 800;
+    max-width: 760px;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-description {
+    margin-top: 20px;
+    max-width: 650px;
+    color: #3C3A37;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-description p {
+    margin: 0 0 10px;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-description p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Collection image */
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-image-wrap {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 280px;
+    width: 280px;
+    height: 210px;
+    transform: rotate(3deg);
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: 28px;
+    border: 5px solid #FFFFFF;
+    box-shadow: 8px 10px 0 #1A1A1A;
+  }
+
+  /* Small decorative stars */
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-star {
+    position: absolute;
+    z-index: 2;
+    color: #1A1A1A;
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-star-one {
+    right: 32%;
+    top: 25px;
+    transform: rotate(15deg);
+  }
+
+  #BuzzkoCollectionBanner-{{ section.id }} .buzzko-star-two {
+    right: 8%;
+    bottom: 28px;
+    font-size: 22px;
+    transform: rotate(-12deg);
+  }
+
+  @media screen and (max-width: 989px) {
+    #BuzzkoCollectionBanner-{{ section.id }} {
+      padding: 24px 0;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-banner {
+      padding: 0 2rem;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-inner {
+      min-height: 240px;
+      padding: 38px 38px;
+      gap: 30px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-image-wrap {
+      flex-basis: 220px;
+      width: 220px;
+      height: 175px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-title {
+      font-size: clamp(40px, 6vw, 60px);
+    }
+  }
+
   @media screen and (max-width: 749px) {
-    .collection-hero--with-image .collection-hero__inner {
-      padding-bottom: calc({{ settings.media_shadow_vertical_offset | at_least: 0 }}px + 2rem);
+    #BuzzkoCollectionBanner-{{ section.id }} {
+      padding: 16px 0 22px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-banner {
+      padding: 0 1.5rem;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-inner {
+      min-height: auto;
+      display: block;
+      padding: 30px 24px 34px;
+      border-radius: 26px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-title {
+      font-size: clamp(40px, 12vw, 58px);
+      line-height: 0.94;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-description {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 100%;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-collection-image-wrap {
+      width: 72%;
+      height: 180px;
+      margin: 28px auto 0;
+      transform: rotate(2deg);
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-one {
+      width: 150px;
+      height: 125px;
+      right: -50px;
+      top: -35px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-two {
+      width: 100px;
+      height: 90px;
+      right: 45px;
+      bottom: -50px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-blob-three {
+      width: 75px;
+      height: 75px;
+      left: -25px;
+      bottom: -25px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-star-one {
+      right: 18%;
+      top: 22px;
+      font-size: 24px;
+    }
+
+    #BuzzkoCollectionBanner-{{ section.id }} .buzzko-star-two {
+      right: 7%;
+      bottom: 20px;
+      font-size: 18px;
     }
   }
 {%- endstyle -%}
 
-<div class="collection-hero{% if section.settings.show_collection_image and collection.image %} collection-hero--with-image{% endif %} color-{{ section.settings.color_scheme }} gradient">
-  <div class="collection-hero__inner page-width {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
-    <div class="collection-hero__text-wrapper">
-      <h1 class="collection-hero__title">
-        <span class="visually-hidden">{{ 'sections.collection_template.title' | t }}: </span>
-        {{- collection.title | escape -}}
-      </h1>
+<section id="BuzzkoCollectionBanner-{{ section.id }}">
+  <div class="buzzko-collection-banner">
+    <div class="buzzko-collection-inner">
 
-      {%- if section.settings.show_collection_description -%}
-        <div class="collection-hero__description rte">{{ collection.description }}</div>
-      {%- endif -%}
-    </div>
+      <span class="buzzko-blob buzzko-blob-one"></span>
+      <span class="buzzko-blob buzzko-blob-two"></span>
+      <span class="buzzko-blob buzzko-blob-three"></span>
 
-    {%- if section.settings.show_collection_image and collection.image -%}
-      <div class="collection-hero__image-container media gradient">
-        <img
-          srcset="
-            {%- if collection.image.width >= 165 -%}{{ collection.image | image_url: width: 165 }} 165w,{%- endif -%}
-            {%- if collection.image.width >= 360 -%}{{ collection.image | image_url: width: 360 }} 360w,{%- endif -%}
-            {%- if collection.image.width >= 535 -%}{{ collection.image | image_url: width: 535 }} 535w,{%- endif -%}
-            {%- if collection.image.width >= 750 -%}{{ collection.image | image_url: width: 750 }} 750w,{%- endif -%}
-            {%- if collection.image.width >= 1070 -%}{{ collection.image | image_url: width: 1070 }} 1070w,{%- endif -%}
-            {%- if collection.image.width >= 1500 -%}{{ collection.image | image_url: width: 1500 }} 1500w,{%- endif -%}
-            {{ collection.image | image_url }} {{ collection.image.width }}w
-          "
-          src="{{ collection.image | image_url: width: 750 }}"
-          sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px, (min-width: 750px) calc(50vw - 130px), calc(50vw - 55px)"
-          alt="{{ collection.image.alt | escape }}"
-          width="{{ collection.image.width }}"
-          height="{{ collection.image.height }}"
-        >
+      <span class="buzzko-star buzzko-star-one">✦</span>
+      <span class="buzzko-star buzzko-star-two">✦</span>
+
+      <div class="buzzko-collection-content">
+
+        <div class="buzzko-collection-eyebrow">
+          Shop the collection
+        </div>
+
+        <h1 class="buzzko-collection-title">
+          <span class="visually-hidden">
+            {{ 'sections.collection_template.title' | t }}:
+          </span>
+          {{ collection.title | escape }}
+        </h1>
+
+        {%- if section.settings.show_collection_description and collection.description != blank -%}
+          <div class="buzzko-collection-description rte">
+            {{ collection.description }}
+          </div>
+        {%- endif -%}
+
       </div>
-    {%- endif -%}
+
+      {%- if section.settings.show_collection_image and collection.image -%}
+        <div class="buzzko-collection-image-wrap">
+          <img
+            class="buzzko-collection-image"
+            srcset="
+              {%- if collection.image.width >= 360 -%}
+                {{ collection.image | image_url: width: 360 }} 360w,
+              {%- endif -%}
+              {%- if collection.image.width >= 535 -%}
+                {{ collection.image | image_url: width: 535 }} 535w,
+              {%- endif -%}
+              {%- if collection.image.width >= 750 -%}
+                {{ collection.image | image_url: width: 750 }} 750w,
+              {%- endif -%}
+              {{ collection.image | image_url }} {{ collection.image.width }}w
+            "
+            src="{{ collection.image | image_url: width: 750 }}"
+            sizes="(min-width: 990px) 280px, (min-width: 750px) 220px, 72vw"
+            alt="{{ collection.image.alt | escape }}"
+            width="{{ collection.image.width }}"
+            height="{{ collection.image.height }}"
+          >
+        </div>
+      {%- endif -%}
+
+    </div>
   </div>
-</div>
+</section>
 
 {% schema %}
 {
-  "name": "t:sections.main-collection-banner.name",
+  "name": "BuzzKo Collection Banner",
   "class": "section",
   "settings": [
     {
       "type": "paragraph",
-      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+      "content": "BuzzKo styled collection banner. Collection title and description are pulled automatically from Shopify."
     },
     {
       "type": "checkbox",
       "id": "show_collection_description",
       "default": true,
-      "label": "t:sections.main-collection-banner.settings.show_collection_description.label"
+      "label": "Show collection description"
     },
     {
       "type": "checkbox",
       "id": "show_collection_image",
       "default": false,
-      "label": "t:sections.main-collection-banner.settings.show_collection_image.label"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "scheme-1"
+      "label": "Show collection image"
     }
   ]
 }
