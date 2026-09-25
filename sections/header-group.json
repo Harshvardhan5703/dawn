@@ -11,6 +11,28 @@
   "name": "t:sections.header.name",
   "type": "header",
   "sections": {
+    "1790268402e4bf6aba": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_78bfbc7_FLcArV": {
+          "type": "ai_gen_block_78bfbc7",
+          "settings": {
+            "message": "Free shipping over Rs. 499",
+            "desktop_width_percent": 100,
+            "speed": 25,
+            "text_size": 16,
+            "vertical_padding": 10,
+            "background_color": "#121212",
+            "text_color": "#ffffff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_78bfbc7_FLcArV"
+      ],
+      "settings": {}
+    },
     "header": {
       "type": "header",
       "settings": {
@@ -28,28 +50,6 @@
         "padding_top": 0,
         "padding_bottom": 0
       }
-    },
-    "1790268402e4bf6aba": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_78bfbc7_FLcArV": {
-          "type": "ai_gen_block_78bfbc7",
-          "settings": {
-            "message": "Free shipping over Rs. 499",
-            "desktop_width_percent": 100,
-            "speed": 25,
-            "text_size": 16,
-            "vertical_padding": 10,
-            "background_color": "#121212",
-            "text_color": "#FFFFFF"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_78bfbc7_FLcArV"
-      ],
-      "settings": {}
     }
   },
   "order": [
