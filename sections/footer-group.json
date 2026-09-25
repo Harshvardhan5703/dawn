@@ -54,11 +54,14 @@
         "made_with_text": "Made with love in India",
         "made_with_emoji": "♡",
         "made_with_link": "https://hrsh.is-a.dev",
-        "background_color": "#FDE9F1"
+        "background_color": "#fde9f1"
       }
     },
     "footer": {
       "type": "footer",
+      "custom_css": [
+        ".footer {display: none !important; }"
+      ],
       "settings": {
         "color_scheme": "scheme-1",
         "newsletter_enable": false,

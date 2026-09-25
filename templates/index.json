@@ -65,10 +65,22 @@
           "settings": {
             "collection": "charms",
             "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_00_44_PM.png",
+            "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#F8B5D1",
-            "image_alt": ""
+            "background_color": "#f8b5d1",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left",
+            "arrow_position": "bottom-left",
+            "arrow_size": 48,
+            "arrow_background": "#ffffff",
+            "arrow_background_opacity": 15,
+            "arrow_border_color": "#111111",
+            "arrow_icon_color": "#111111"
           }
         },
         "category_bnx9KM": {
@@ -76,10 +88,22 @@
           "settings": {
             "collection": "frames",
             "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_42_25_PM.png",
+            "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#F8B5D1",
-            "image_alt": ""
+            "background_color": "#BEE3F8",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left",
+            "arrow_position": "bottom-left",
+            "arrow_size": 46,
+            "arrow_background": "#ffffff",
+            "arrow_background_opacity": 0,
+            "arrow_border_color": "#111111",
+            "arrow_icon_color": "#111111"
           }
         },
         "category_VeKkyn": {
@@ -87,10 +111,22 @@
           "settings": {
             "collection": "keychains",
             "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_11_49_PM.png",
+            "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#F8B5D1",
-            "image_alt": ""
+            "background_color": "#FFECB3",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left",
+            "arrow_position": "bottom-left",
+            "arrow_size": 46,
+            "arrow_background": "#ffffff",
+            "arrow_background_opacity": 0,
+            "arrow_border_color": "#111111",
+            "arrow_icon_color": "#111111"
           }
         },
         "category_kWDKP4": {
@@ -98,10 +134,22 @@
           "settings": {
             "collection": "lighters",
             "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
+            "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#F8B5D1",
-            "image_alt": ""
+            "background_color": "#D0F4DE",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left",
+            "arrow_position": "bottom-left",
+            "arrow_size": 46,
+            "arrow_background": "#ffffff",
+            "arrow_background_opacity": 0,
+            "arrow_border_color": "#111111",
+            "arrow_icon_color": "#111111"
           }
         }
       },
@@ -127,7 +175,7 @@
           "settings": {
             "product": "iron-man-charm",
             "subtitle": "Professional Premium",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_K3Rr8p": {
@@ -135,7 +183,7 @@
           "settings": {
             "product": "iron-man-keychain",
             "subtitle": "Professional Premium",
-            "border_color": "#D0F4DE"
+            "border_color": "#d0f4de"
           }
         },
         "product_A8bbKy": {
@@ -143,7 +191,7 @@
           "settings": {
             "product": "lighter",
             "subtitle": "Professional Premium",
-            "border_color": "#FFECB3"
+            "border_color": "#ffecb3"
           }
         },
         "product_7QQrHn": {
@@ -151,7 +199,7 @@
           "settings": {
             "product": "poster",
             "subtitle": "Professional Premium",
-            "border_color": "#BEE3F8"
+            "border_color": "#bee3f8"
           }
         },
         "product_eit7fK": {
@@ -159,7 +207,7 @@
           "settings": {
             "product": "",
             "subtitle": "Professional Premium",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         }
       },
@@ -222,7 +270,7 @@
       ],
       "name": "BuzzKo Benefits",
       "settings": {
-        "background_color": "#FAF8F6",
+        "background_color": "#FFFAF5",
         "text_color": "#111111",
         "description_color": "#777777",
         "padding_top": 40,
@@ -297,11 +345,11 @@
         "first_line": "Real People",
         "first_line_color": "#333333",
         "second_line": "Cuter Lives.",
-        "second_line_color": "#59C8F5",
+        "second_line_color": "#59c8f5",
         "tag_title": "Tag Us",
         "instagram_handle": "@buzzko.in",
         "instagram_url": "https://instagram.com/buzz.ko",
-        "card_color": "#FFEAF2"
+        "card_color": "#ffeaf2"
       }
     }
   },
