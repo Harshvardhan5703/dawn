@@ -1,0 +1,25 @@
+{%- liquid
+  assign sort_by = results.sort_by | default: 'most-relevant'
+-%}
+
+{%- for option in results.sort_options -%}
+  {%- unless option.value == 'title-ascending' or option.value == 'title-descending' -%}
+    {%- assign display_name = option.name -%}
+
+    {%- case option.value -%}
+      {%- when 'most-relevant' -%}
+        {%- assign display_name = 'Most relevant' -%}
+      {%- when 'created-ascending' -%}
+        {%- assign display_name = 'Oldest' -%}
+      {%- when 'created-descending' -%}
+        {%- assign display_name = 'Latest' -%}
+    {%- endcase -%}
+
+    <option
+      value="{{ option.value | escape }}"
+      {% if option.value == sort_by %}selected="selected"{% endif %}
+    >
+      {{ display_name | escape }}
+    </option>
+  {%- endunless -%}
+{%- endfor -%}

@@ -404,16 +404,7 @@
                     id="SortBy"
                     aria-describedby="a11y-refresh-page-message"
                   >
-                    {%- for option in results.sort_options -%}
-                      <option
-                        value="{{ option.value | escape }}"
-                        {% if option.value == sort_by %}
-                          selected="selected"
-                        {% endif %}
-                      >
-                        {{ option.name | escape }}
-                      </option>
-                    {%- endfor -%}
+                      {% render 'buzzko-sort-options', results: results %}
                   </select>
                   <span class="svg-wrapper">
                     {{- 'icon-caret.svg' | inline_asset_content -}}
@@ -737,16 +728,7 @@
                           id="SortBy-mobile"
                           aria-describedby="a11y-refresh-page-message"
                         >
-                          {%- for option in results.sort_options -%}
-                            <option
-                              value="{{ option.value | escape }}"
-                              {% if option.value == sort_by %}
-                                selected="selected"
-                              {% endif %}
-                            >
-                              {{ option.name | escape }}
-                            </option>
-                          {%- endfor -%}
+                            {% render 'buzzko-sort-options', results: results %}
                         </select>
                         <span class="svg-wrapper">
                           {{- 'icon-caret.svg' | inline_asset_content -}}
@@ -844,16 +826,7 @@
                 id="SortBy"
                 aria-describedby="a11y-refresh-page-message"
               >
-                {%- for option in results.sort_options -%}
-                  <option
-                    value="{{ option.value | escape }}"
-                    {% if option.value == sort_by %}
-                      selected="selected"
-                    {% endif %}
-                  >
-                    {{ option.name | escape }}
-                  </option>
-                {%- endfor -%}
+                  {% render 'buzzko-sort-options', results: results %}
               </select>
               <span class="svg-wrapper">
                 {{- 'icon-caret.svg' | inline_asset_content -}}

@@ -15,14 +15,21 @@
       </h2>
 
       {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
-        <a
-          href="{{ section.settings.view_all_link }}"
-          class="buzzko-trending__view-all"
-        >
-          {{ section.settings.view_all_text }}
-          <span>→</span>
-        </a>
-      {% endif %}
+  {%- assign view_all_url = section.settings.view_all_link -%}
+  {%- if view_all_url contains '?' -%}
+    {%- assign view_all_url = view_all_url | append: '&sort_by=best-selling' -%}
+  {%- else -%}
+    {%- assign view_all_url = view_all_url | append: '?sort_by=best-selling' -%}
+  {%- endif -%}
+
+  <a
+    href="{{ view_all_url }}"
+    class="buzzko-trending__view-all"
+  >
+    {{ section.settings.view_all_text }}
+    <span>→</span>
+  </a>
+{% endif %}
     </div>
 
 

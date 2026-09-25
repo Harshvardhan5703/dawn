@@ -336,14 +336,21 @@
       {% endif %}
 
       {% if section.settings.button_label != blank %}
-        <a
-          href="{{ section.settings.button_link }}"
-          class="buzzko-hero__button"
-        >
-          <span>{{ section.settings.button_label }}</span>
-          <span class="buzzko-hero__button-arrow">→</span>
-        </a>
-      {% endif %}
+  {%- assign hero_button_url = section.settings.button_link -%}
+  {%- if hero_button_url contains '?' -%}
+    {%- assign hero_button_url = hero_button_url | append: '&sort_by=created-descending' -%}
+  {%- else -%}
+    {%- assign hero_button_url = hero_button_url | append: '?sort_by=created-descending' -%}
+  {%- endif -%}
+
+  <a
+    href="{{ hero_button_url }}"
+    class="buzzko-hero__button"
+  >
+    <span>{{ section.settings.button_label }}</span>
+    <span class="buzzko-hero__button-arrow">→</span>
+  </a>
+{% endif %}
 
       <!-- CUSTOMER AVATARS -->
       {% if section.settings.show_customer_proof %}
