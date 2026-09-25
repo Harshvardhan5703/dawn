@@ -14,20 +14,26 @@
       preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <!-- Soft, organic wave -->
+      <!-- Irregular, organic wave with varied peaks and valleys -->
       <path
         class="buzzko-footer__splash-front"
-        d="M0,180 L0,100 
-           C50,100 80,30 150,40 
-           C220,50 260,110 330,100 
-           C400,90 440,20 510,30 
-           C580,40 620,100 690,90 
-           C760,80 800,30 870,40 
-           C940,50 980,110 1050,100 
-           C1120,90 1160,40 1230,50 
-           C1300,60 1340,110 1410,100 
-           C1430,97 1440,90 1440,90 
-           L1440,180 Z"
+        d="M0,180
+           L0,105
+           C20,105 40,85 80,85
+           C120,85 150,115 190,115
+           C230,115 250,90 290,90
+           C340,90 360,120 420,120
+           C470,120 490,95 540,95
+           C600,95 620,110 670,110
+           C720,110 740,82 790,82
+           C850,82 870,118 930,118
+           C980,118 1000,95 1050,95
+           C1110,95 1130,115 1180,115
+           C1230,115 1250,88 1300,88
+           C1340,88 1360,112 1400,112
+           C1420,112 1430,98 1440,98
+           L1440,180
+           Z"
         fill="{{ section.settings.background_color }}"
       />
     </svg>
@@ -207,7 +213,8 @@
     --buzzko-splash-h: 130px;
     position: relative;
     overflow: hidden;
-    background: transparent;
+    /* Colour of the area ABOVE the wave */
+    background: {{ section.settings.top_background_color }};
     color: #111;
     padding-top: var(--buzzko-splash-h);
   }
@@ -290,6 +297,9 @@
     font-size: 40px;
     font-weight: 900;
     text-decoration: none;
+    font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
+    font-weight: {{ section.settings.footer_text_font.weight }};
+    font-style: {{ section.settings.footer_text_font.style }};
   }
 
   /* ==================================================
@@ -308,6 +318,9 @@
     font-size: 12px;
     line-height: 1;
     font-weight: 800;
+    font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
+    font-weight: {{ section.settings.footer_text_font.weight }};
+    font-style: {{ section.settings.footer_text_font.style }};
   }
 
   #buzzko-footer-{{ section.id }} .buzzko-footer__menu-list {
@@ -329,6 +342,9 @@
     line-height: 1.35;
     text-decoration: none;
     transition: color 0.2s ease;
+    font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
+    font-weight: {{ section.settings.footer_text_font.weight }};
+    font-style: {{ section.settings.footer_text_font.style }};
   }
 
   #buzzko-footer-{{ section.id }} .buzzko-footer__menu-link:hover {
@@ -478,6 +494,9 @@
     color: #222;
     font-size: 9px;
     line-height: 1.3;
+    font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
+    font-weight: {{ section.settings.footer_text_font.weight }};
+    font-style: {{ section.settings.footer_text_font.style }};
   }
 
   #buzzko-footer-{{ section.id }} .buzzko-footer__made-with {
@@ -620,6 +639,12 @@
       "default": "sans-serif"
     },
     {
+      "type": "font_picker",
+      "id": "footer_text_font",
+      "label": "Footer text font (Menus, Copyright, etc.)",
+      "default": "sans-serif"
+    },
+    {
       "type": "url",
       "id": "instagram_url",
       "label": "Instagram URL"
@@ -677,6 +702,12 @@
       "id": "background_color",
       "label": "Footer background",
       "default": "#FDE9F1"
+    },
+    {
+      "type": "color",
+      "id": "top_background_color",
+      "label": "Area above the wave",
+      "default": "#FFFAF5"
     }
   ],
   "blocks": [
