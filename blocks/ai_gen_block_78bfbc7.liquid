@@ -1,0 +1,143 @@
+{% doc %}
+  @prompt
+    make a marquee with the text free shipping over Rs. 499
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-marquee-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    padding: {{ block.settings.vertical_padding }}px 0;
+  }
+
+  .ai-marquee-{{ ai_gen_id }}__track {
+    display: flex;
+    width: max-content;
+    white-space: nowrap;
+    animation: ai-marquee-scroll-{{ ai_gen_id }} {{ block.settings.speed }}s linear infinite;
+  }
+
+  .ai-marquee-{{ ai_gen_id }}__group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .ai-marquee-{{ ai_gen_id }}__item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 2rem;
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  @keyframes ai-marquee-scroll-{{ ai_gen_id }} {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ai-marquee-{{ ai_gen_id }}__track {
+      animation: none;
+      width: 100%;
+      justify-content: center;
+    }
+    .ai-marquee-{{ ai_gen_id }}__group--duplicate {
+      display: none;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-marquee-{{ ai_gen_id }}" role="region" aria-label="{{ block.settings.message | escape }}" {{ block.shopify_attributes }}>
+  <div class="ai-marquee-{{ ai_gen_id }}__track">
+    <div class="ai-marquee-{{ ai_gen_id }}__group">
+      {% for i in (1..4) %}
+        <span class="ai-marquee-{{ ai_gen_id }}__item">{{ block.settings.message | escape }}</span>
+      {% endfor %}
+    </div>
+    <div class="ai-marquee-{{ ai_gen_id }}__group ai-marquee-{{ ai_gen_id }}__group--duplicate" aria-hidden="true">
+      {% for i in (1..4) %}
+        <span class="ai-marquee-{{ ai_gen_id }}__item">{{ block.settings.message | escape }}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Shipping marquee",
+  "settings": [
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Message",
+      "default": "Free shipping over Rs. 499"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "s",
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Vertical padding",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shipping marquee"
+    }
+  ],
+  "tag": null,
+  "class": "shipping-marquee-block"
+}
+{% endschema %}

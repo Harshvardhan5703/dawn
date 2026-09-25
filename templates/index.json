@@ -1,75 +1,316 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
+    "buzzko_hero_zCzTHk": {
+      "type": "buzzko-hero",
       "blocks": {
-        "heading": {
-          "type": "heading",
+        "slide_DrwhGW": {
+          "type": "slide",
           "settings": {
-            "heading": "Helly Yeah",
-            "heading_size": "h0"
+            "image": "shopify://shop_images/IMG20260309143011.jpg",
+            "alt_text": ""
           }
         },
-        "button": {
-          "type": "buttons",
+        "slide_RyUJNF": {
+          "type": "slide",
           "settings": {
-            "button_label_1": "Shop all",
-            "button_link_1": "shopify://collections/all",
-            "button_style_secondary_1": true,
-            "button_label_2": "",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "image": "shopify://shop_images/IMG20260309142908.jpg",
+            "alt_text": ""
+          }
+        },
+        "slide_E3RHdz": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/IMG20260309142801.jpg",
+            "alt_text": ""
           }
         }
       },
       "block_order": [
-        "heading",
-        "button"
+        "slide_DrwhGW",
+        "slide_RyUJNF",
+        "slide_E3RHdz"
       ],
+      "name": "BuzzKo Hero",
       "settings": {
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
-        "image_behavior": "none",
-        "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
-        "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
+        "heading_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_04_49_23_PM.png",
+        "heading_alt": "Cute, Custom & Made to Stand Out",
+        "description": "<p>Handcrafted accessories designed to add personality and intention to your daily essentials.</p>",
+        "button_label": "Shop New Arrivals",
+        "button_link": "shopify://collections/all",
+        "show_customer_proof": true,
+        "avatar_1": "shopify://shop_images/close-up-portrait-of-young-man.jpg",
+        "avatar_2": "shopify://shop_images/man.png",
+        "avatar_3": "shopify://shop_images/nicolas-horn-MTZTGvDsHFY-unsplash.jpg",
+        "avatar_4": "shopify://shop_images/luis-villasmil-6qf1uljGpU4-unsplash.jpg",
+        "customer_text": "Loved by 5,000+ happy customers",
+        "autoplay": true,
+        "interval": 5,
+        "show_slide_controls": true
       }
     },
-    "featured_collection": {
-      "type": "featured-collection",
+    "buzzko_category_grid_RK8AjK": {
+      "type": "buzzko-category-grid",
+      "blocks": {
+        "category_NVMCiY": {
+          "type": "category",
+          "settings": {
+            "collection": "charms",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_00_44_PM.png",
+            "title": "",
+            "link": "",
+            "background_color": "#F8B5D1",
+            "image_alt": ""
+          }
+        },
+        "category_bnx9KM": {
+          "type": "category",
+          "settings": {
+            "collection": "frames",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_42_25_PM.png",
+            "title": "",
+            "link": "",
+            "background_color": "#F8B5D1",
+            "image_alt": ""
+          }
+        },
+        "category_VeKkyn": {
+          "type": "category",
+          "settings": {
+            "collection": "keychains",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_11_49_PM.png",
+            "title": "",
+            "link": "",
+            "background_color": "#F8B5D1",
+            "image_alt": ""
+          }
+        },
+        "category_kWDKP4": {
+          "type": "category",
+          "settings": {
+            "collection": "lighters",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
+            "title": "",
+            "link": "",
+            "background_color": "#F8B5D1",
+            "image_alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "category_NVMCiY",
+        "category_bnx9KM",
+        "category_VeKkyn",
+        "category_kWDKP4"
+      ],
+      "name": "BuzzKo Categories",
       "settings": {
-        "title": "Featured products",
-        "heading_size": "h2",
-        "description": "",
-        "show_description": false,
-        "description_style": "body",
-        "collection": "all",
-        "products_to_show": 8,
-        "columns_desktop": 4,
-        "color_scheme": "scheme-1",
-        "full_width": false,
+        "heading": "Shop by Category ✦",
         "show_view_all": true,
-        "view_all_style": "solid",
-        "enable_desktop_slider": false,
-        "swipe_on_mobile": false,
-        "image_ratio": "adapt",
-        "image_shape": "default",
-        "show_secondary_image": true,
-        "show_vendor": false,
-        "show_rating": false,
-        "quick_add": "none",
-        "columns_mobile": "2",
-        "padding_top": 44,
-        "padding_bottom": 36
+        "view_all_text": "View All",
+        "view_all_link": "shopify://collections/all"
+      }
+    },
+    "buzzko_trending_products_GjexL4": {
+      "type": "buzzko-trending-products",
+      "blocks": {
+        "product_fqW4Le": {
+          "type": "product",
+          "settings": {
+            "product": "iron-man-charm",
+            "subtitle": "Professional Premium",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_K3Rr8p": {
+          "type": "product",
+          "settings": {
+            "product": "iron-man-keychain",
+            "subtitle": "Professional Premium",
+            "border_color": "#D0F4DE"
+          }
+        },
+        "product_A8bbKy": {
+          "type": "product",
+          "settings": {
+            "product": "lighter",
+            "subtitle": "Professional Premium",
+            "border_color": "#FFECB3"
+          }
+        },
+        "product_7QQrHn": {
+          "type": "product",
+          "settings": {
+            "product": "poster",
+            "subtitle": "Professional Premium",
+            "border_color": "#BEE3F8"
+          }
+        },
+        "product_eit7fK": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "subtitle": "Professional Premium",
+            "border_color": "#F7CFCF"
+          }
+        }
+      },
+      "block_order": [
+        "product_fqW4Le",
+        "product_K3Rr8p",
+        "product_A8bbKy",
+        "product_7QQrHn",
+        "product_eit7fK"
+      ],
+      "name": "BuzzKo Trending Products",
+      "settings": {
+        "heading": "Trending Now",
+        "show_view_all": true,
+        "view_all_text": "See All",
+        "view_all_link": "shopify://collections/all"
+      }
+    },
+    "buzzko_benefits_JHiNpY": {
+      "type": "buzzko-benefits",
+      "blocks": {
+        "benefit_iHUFzF": {
+          "type": "benefit",
+          "settings": {
+            "icon": "shopify://shop_images/tracking.png",
+            "title": "Free Shipping",
+            "description": "Over Rs. 499"
+          }
+        },
+        "benefit_WETMmr": {
+          "type": "benefit",
+          "settings": {
+            "icon": "shopify://shop_images/star.png",
+            "title": "Unique",
+            "description": "and Limited Designs."
+          }
+        },
+        "benefit_wHni9C": {
+          "type": "benefit",
+          "settings": {
+            "icon": "shopify://shop_images/gift.png",
+            "title": "Thoughtful",
+            "description": "Gifting"
+          }
+        },
+        "benefit_eGtN4w": {
+          "type": "benefit",
+          "settings": {
+            "icon": "shopify://shop_images/heart.png",
+            "title": "Handcrafted",
+            "description": "With Love"
+          }
+        }
+      },
+      "block_order": [
+        "benefit_iHUFzF",
+        "benefit_WETMmr",
+        "benefit_wHni9C",
+        "benefit_eGtN4w"
+      ],
+      "name": "BuzzKo Benefits",
+      "settings": {
+        "background_color": "#FAF8F6",
+        "text_color": "#111111",
+        "description_color": "#777777",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "mobile_padding_top": 32,
+        "mobile_padding_bottom": 32
+      }
+    },
+    "buzzko_story_KWnT8h": {
+      "type": "buzzko-story",
+      "name": "BuzzKo Our Story",
+      "settings": {
+        "left_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_12_39_16_PM.png",
+        "left_image_alt": "BuzzKo accessories",
+        "eyebrow": "More Than Accessories",
+        "heading": "A BRIGHTER YOU.",
+        "description": "<p>Thoughtfully designed pieces that bring a little more joy to your everyday.</p>",
+        "button_label": "Our Story",
+        "button_link": "shopify://pages/about",
+        "right_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_01_47_05_PM.png",
+        "right_image_alt": "Create Personalise Carry Joy"
+      }
+    },
+    "buzzko_instagram_JFXwQe": {
+      "type": "buzzko-instagram",
+      "blocks": {
+        "media_pPq4Ur": {
+          "type": "media",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png",
+            "video_url": ""
+          }
+        },
+        "media_AFB39D": {
+          "type": "media",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png",
+            "video_url": ""
+          }
+        },
+        "media_rgcXfG": {
+          "type": "media",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png",
+            "video_url": ""
+          }
+        },
+        "media_GH7eze": {
+          "type": "media",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png",
+            "video_url": ""
+          }
+        },
+        "media_zkCPej": {
+          "type": "media",
+          "settings": {
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141604.png",
+            "video_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "media_pPq4Ur",
+        "media_AFB39D",
+        "media_rgcXfG",
+        "media_GH7eze",
+        "media_zkCPej"
+      ],
+      "name": "BuzzKo Instagram",
+      "settings": {
+        "first_line": "Real People",
+        "first_line_color": "#333333",
+        "second_line": "Cuter Lives.",
+        "second_line_color": "#59C8F5",
+        "tag_title": "Tag Us",
+        "instagram_handle": "@buzzko.in",
+        "instagram_url": "https://instagram.com/buzz.ko",
+        "card_color": "#FFEAF2"
       }
     }
   },
   "order": [
-    "image_banner",
-    "featured_collection"
+    "buzzko_hero_zCzTHk",
+    "buzzko_category_grid_RK8AjK",
+    "buzzko_trending_products_GjexL4",
+    "buzzko_benefits_JHiNpY",
+    "buzzko_story_KWnT8h",
+    "buzzko_instagram_JFXwQe"
   ]
 }
