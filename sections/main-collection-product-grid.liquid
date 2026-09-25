@@ -260,7 +260,52 @@
   #product-grid {
     row-gap: 20px;
   }
+/* BuzzKo: always show 2 products per row on mobile */
+@media screen and (max-width: 749px) {
+  #product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 10px;
+    row-gap: 14px;
+  }
 
+  #product-grid .grid__item {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #product-grid .buzzko-product-card {
+    padding: 8px;
+    border-width: 2px;
+    border-radius: 14px;
+  }
+
+  #product-grid .buzzko-product-card__image-wrapper {
+    border-radius: 9px;
+  }
+
+  #product-grid .buzzko-product-card__content {
+    padding: 10px 3px 5px;
+  }
+
+  #product-grid .buzzko-product-card__title {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  #product-grid .buzzko-product-card__subtitle {
+    font-size: 10px;
+  }
+
+  #product-grid .buzzko-product-card__price {
+    font-size: 13px;
+  }
+
+  #product-grid .buzzko-product-card__atc {
+    min-height: 34px;
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+}
   #product-grid .buzzko-product-card {
     display: flex;
     flex-direction: column;
