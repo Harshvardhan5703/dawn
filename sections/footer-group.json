@@ -46,7 +46,7 @@
         "logo": "shopify://shop_images/buzzkologobgr.png",
         "logo_alt": "BuzzKo",
         "club_text": "JOIN THE CLUB",
-        "club_font": "system_ui_n4",
+        "club_font": "caveat_n7",
         "instagram_url": "https://instagram.com/buzz.ko",
         "pinterest_url": "https://pinterest.com/buzzko",
         "youtube_url": "https://youtube.com/buzzko",
@@ -60,7 +60,7 @@
     "footer": {
       "type": "footer",
       "custom_css": [
-        ".footer {display: none !important; }"
+        ".footer {display: none !important;}"
       ],
       "settings": {
         "color_scheme": "scheme-1",
