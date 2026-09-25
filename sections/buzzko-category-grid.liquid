@@ -2,14 +2,29 @@
   id="BuzzkoCategories-{{ section.id }}"
   class="buzzko-categories"
 >
+  {%- comment -%} Load any custom fonts used by the cards {%- endcomment -%}
+  {%- capture buzzko_font_faces -%}
+    {%- for block in section.blocks -%}
+      {%- assign bf = block.settings.title_font -%}
+      {%- if bf != blank -%}
+        {{ bf | font_face: font_display: 'swap' }}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- if buzzko_font_faces != blank -%}
+    {% style %}{{ buzzko_font_faces }}{% endstyle %}
+  {%- endif -%}
+
   <div class="buzzko-categories__container">
 
     <!-- HEADER -->
     <div class="buzzko-categories__header">
 
-      <h2 class="buzzko-categories__heading">
-        {{ section.settings.heading }}
-      </h2>
+      {% if section.settings.heading != blank %}
+        <h2 class="buzzko-categories__heading">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
 
       {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
         <a
@@ -17,7 +32,7 @@
           class="buzzko-categories__view-all"
         >
           {{ section.settings.view_all_text }}
-          <span>→</span>
+          <span>&rarr;</span>
         </a>
       {% endif %}
 
@@ -29,70 +44,142 @@
 
       {% for block in section.blocks %}
 
-        {% assign collection = block.settings.collection %}
+        {%- liquid
+          assign collection = block.settings.collection
 
-        {% if collection != blank %}
-          {% assign card_title = collection.title %}
-          {% assign card_url = collection.url %}
-        {% else %}
-          {% assign card_title = block.settings.title %}
-          {% assign card_url = block.settings.link %}
-        {% endif %}
+          if collection != blank
+            assign card_title = collection.title
+            assign card_url   = collection.url
+          else
+            assign card_title = block.settings.title
+            assign card_url   = block.settings.link
+          endif
 
+          assign card_image = block.settings.image
+          if card_image == blank and collection != blank
+            assign card_image = collection.image
+          endif
 
-        <a
-          href="{{ card_url | default: '#' }}"
+          assign card_alt = block.settings.image_alt | default: card_title
+
+          assign title_font = block.settings.title_font
+        -%}
+
+        <div
           class="buzzko-category-card"
-          style="--card-bg: {{ block.settings.background_color }};"
+          style="
+            --card-bg: {{ block.settings.background_color | default: '#F8B5D1' }};
+            --title-size: {{ block.settings.title_size | default: 26 }}px;
+            --title-rotate: {{ block.settings.title_rotation | default: 0 }}deg;
+            --title-color: {{ block.settings.title_color | default: '#111111' }};
+            {% if title_font != blank %}
+              --title-font: {{ title_font.family }}, {{ title_font.fallback_families }};
+              --title-weight: {{ title_font.weight }};
+              --title-style: {{ title_font.style }};
+            {% endif %}
+            --arrow-size: {{ block.settings.arrow_size | default: 46 }}px;
+            --arrow-bg: {{ block.settings.arrow_background | default: '#FFFFFF' }};
+            --arrow-bg-opacity: {{ block.settings.arrow_background_opacity | default: 0 }};
+            --arrow-border: {{ block.settings.arrow_border_color | default: '#111111' }};
+            --arrow-icon-color: {{ block.settings.arrow_icon_color | default: '#111111' }};
+          "
           {{ block.shopify_attributes }}
         >
 
+          <!-- WAVY BLOB SHAPE -->
+          <svg
+            class="buzzko-category-card__shape"
+            viewBox="0 0 400 340"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M20 20
+                     C50 2 80 2 110 20
+                     C140 38 170 38 200 20
+                     C230 2 260 2 290 20
+                     C320 38 350 38 380 20
+                     C398 53 398 87 380 120
+                     C362 153 362 187 380 220
+                     C398 253 398 287 380 320
+                     C350 338 320 338 290 320
+                     C260 302 230 302 200 320
+                     C170 338 140 338 110 320
+                     C80 302 50 302 20 320
+                     C2 287 2 253 20 220
+                     C38 187 38 153 20 120
+                     C2 87 2 53 20 20 Z" />
+          </svg>
+
+
           <!-- IMAGE -->
-          <div class="buzzko-category-card__image">
-
-            {% if block.settings.image != blank %}
-
+          <div class="buzzko-category-card__media">
+            {% if card_image != blank %}
               {{
-                block.settings.image
+                card_image
                 | image_url: width: 900
                 | image_tag:
                   loading: 'lazy',
-                  widths: '400,600,750,900',
-                  sizes: '(min-width: 990px) 25vw, 80vw',
-                  alt: block.settings.image_alt
+                  widths: '300,450,600,750,900',
+                  sizes: '(min-width: 990px) 25vw, 76vw',
+                  alt: card_alt,
+                  class: 'buzzko-category-card__img'
               }}
-
-            {% elsif collection != blank and collection.image != blank %}
-
-              {{
-                collection.image
-                | image_url: width: 900
-                | image_tag:
-                  loading: 'lazy',
-                  widths: '400,600,750,900',
-                  sizes: '(min-width: 990px) 25vw, 80vw',
-                  alt: collection.title
-              }}
-
             {% endif %}
-
           </div>
 
 
-          <!-- TEXT -->
-          <div class="buzzko-category-card__content">
-
-            <span class="buzzko-category-card__title">
-              {{ card_title }}
-            </span>
-
-            <span class="buzzko-category-card__arrow">
-              →
-            </span>
-
+          <!-- TITLE -->
+          <div class="buzzko-category-card__content buzzko-category-card__content--v-{{ block.settings.text_vertical }} buzzko-category-card__content--h-{{ block.settings.text_align }}">
+            <span class="buzzko-category-card__title">{{ card_title }}</span>
           </div>
 
-        </a>
+
+          <!-- ARROW (the only link) -->
+          {%- capture buzzko_arrow_icon -%}
+            {%- if block.settings.arrow_icon != blank -%}
+              <img
+                src="{{ block.settings.arrow_icon | image_url: width: 120 }}"
+                alt=""
+                width="{{ block.settings.arrow_icon.width }}"
+                height="{{ block.settings.arrow_icon.height }}"
+                loading="lazy"
+                class="buzzko-category-card__icon buzzko-category-card__icon--img"
+              >
+            {%- else -%}
+              <svg
+                class="buzzko-category-card__icon buzzko-category-card__icon--svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M5 12h13M13 6l6 6-6 6"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          <div class="buzzko-category-card__action buzzko-category-card__action--{{ block.settings.arrow_position }}">
+            {%- if card_url != blank -%}
+              <a
+                href="{{ card_url }}"
+                class="buzzko-category-card__link"
+                aria-label="{{ card_title | escape }}"
+              >
+                {{ buzzko_arrow_icon }}
+              </a>
+            {%- else -%}
+              <span class="buzzko-category-card__link buzzko-category-card__link--static">
+                {{ buzzko_arrow_icon }}
+              </span>
+            {%- endif -%}
+          </div>
+
+        </div>
 
       {% endfor %}
 
@@ -182,56 +269,78 @@
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
     position: relative;
 
-    display: flex;
-    flex-direction: column;
+    display: block;
 
     min-width: 0;
 
-    overflow: hidden;
+    aspect-ratio: 400 / 340;
 
-    background: var(--card-bg);
-
-    border-radius: 28px;
-
-    color: #111;
-    text-decoration: none;
-
-    aspect-ratio: 1 / 0.82;
+    background: transparent;
 
     transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
+      transform 200ms ease,
+      filter 200ms ease;
   }
 
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.10));
   }
 
 
-  /* IMAGE */
+  /* WAVY SHAPE */
 
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__image {
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__shape {
     position: absolute;
     inset: 0;
 
-    z-index: 1;
-
-    width: 100%;
-    height: 100%;
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__image img {
     display: block;
 
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    z-index: 0;
+
+    overflow: visible;
+
+    pointer-events: none;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__shape path {
+    fill: var(--card-bg, #F8B5D1);
   }
 
 
-  /* CONTENT */
+  /* IMAGE */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__media {
+    position: absolute;
+
+    inset: 17% 9% 15% 9%;
+
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+    object-position: center;
+
+    mix-blend-mode: normal;
+  }
+
+
+  /* TEXT WRAPPER */
 
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content {
     position: absolute;
@@ -241,53 +350,148 @@
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
 
-    padding: 22px;
+    padding: 9% 9% 11% 9%;
+
+    pointer-events: none;
   }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--v-top    { justify-content: flex-start; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--v-middle { justify-content: center; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--v-bottom { justify-content: flex-end; }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-left   { align-items: flex-start; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-center { align-items: center; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-right  { align-items: flex-end; }
 
 
   /* TITLE */
 
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card__title {
-    max-width: 70%;
+    display: inline-block;
 
-    font-size: clamp(20px, 2vw, 30px);
-    line-height: 0.95;
-    font-weight: 700;
+    max-width: 78%;
 
-    color: #111;
+    font-family: var(--title-font, inherit);
+    font-weight: var(--title-weight, 700);
+    font-style: var(--title-style, normal);
+
+    font-size: var(--title-size, 26px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+
+    color: var(--title-color, #111);
+
+    transform: rotate(var(--title-rotate, 0deg));
+
+    white-space: pre-line;
+    overflow-wrap: break-word;
   }
 
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-left
+  .buzzko-category-card__title { transform-origin: left center; }
 
-  /* ARROW */
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-center
+  .buzzko-category-card__title { transform-origin: center center; text-align: center; }
 
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__arrow {
-    width: 42px;
-    height: 42px;
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-right
+  .buzzko-category-card__title { transform-origin: right center; text-align: right; }
+
+
+  /* ARROW POSITIONING */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action {
+    position: absolute;
+
+    z-index: 3;
 
     display: flex;
+
+    pointer-events: none;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-left   { left: 8%;  bottom: 18%; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-center { left: 50%; bottom: 9%; transform: translateX(-50%); }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-right  { right: 8%; bottom: 9%; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--top-left      { left: 8%;  top: 9%; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--top-right     { right: 8%; top: 9%; }
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--center        { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+
+  /* ARROW CIRCLE (the only clickable element) */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link {
+    position: relative;
+
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    border: 2px solid #111;
+    width: clamp(34px, 12%, var(--arrow-size, 46px));
+    aspect-ratio: 1 / 1;
+
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid var(--arrow-border, #111);
 
-    font-size: 23px;
-    line-height: 1;
+    background: transparent;
 
-    transition:
-      transform 180ms ease,
-      background 180ms ease;
+    color: var(--arrow-icon-color, #111);
+
+    text-decoration: none;
+
+    pointer-events: auto;
+
+    transition: transform 200ms ease, border-color 200ms ease;
   }
 
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card:hover
-  .buzzko-category-card__arrow {
-    transform: translateX(3px);
-    background: rgba(255, 255, 255, 0.35);
+  /* soft tinted fill behind the circle, opacity controlled by setting */
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    z-index: -1;
+
+    border-radius: 50%;
+
+    background: var(--arrow-bg, #FFFFFF);
+
+    opacity: calc(var(--arrow-bg-opacity, 0) / 100);
+
+    transition: opacity 200ms ease;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link:hover {
+    transform: scale(1.09);
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link:hover::before {
+    opacity: calc((var(--arrow-bg-opacity, 0) + 25) / 100);
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link--static {
+    cursor: default;
+  }
+
+
+  /* ARROW ICON */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__icon {
+    display: block;
+
+    width: 44%;
+    height: 44%;
+
+    object-fit: contain;
+
+    pointer-events: none;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__icon--svg {
+    width: 46%;
+    height: 46%;
   }
 
 
@@ -302,10 +506,6 @@
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-    }
-
-    #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
-      aspect-ratio: 1 / 0.82;
     }
 
   }
@@ -341,7 +541,7 @@
 
       margin-right: -14px;
       padding-right: 14px;
-      padding-bottom: 8px;
+      padding-bottom: 10px;
 
       scroll-snap-type: x mandatory;
 
@@ -355,26 +555,16 @@
     #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
       flex: 0 0 76%;
 
-      aspect-ratio: 1 / 0.86;
-
-      border-radius: 22px;
-
       scroll-snap-align: start;
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content {
-      padding: 18px;
+      padding: 10% 10% 12% 10%;
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-category-card__title {
-      font-size: 24px;
-    }
-
-    #BuzzkoCategories-{{ section.id }} .buzzko-category-card__arrow {
-      width: 38px;
-      height: 38px;
-
-      font-size: 20px;
+      font-size: calc(var(--title-size, 26px) * 0.86);
+      max-width: 84%;
     }
 
   }
@@ -427,6 +617,11 @@
       "settings": [
 
         {
+          "type": "header",
+          "content": "Content"
+        },
+
+        {
           "type": "collection",
           "id": "collection",
           "label": "Collection"
@@ -436,21 +631,27 @@
           "type": "image_picker",
           "id": "image",
           "label": "Card image",
-          "info": "Use a custom image to match the BuzzKo design. If left empty, the collection image will be used."
+          "info": "Use a transparent PNG cut-out for the best result. If left empty, the collection image is used."
+        },
+
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
         },
 
         {
           "type": "text",
           "id": "title",
           "label": "Custom title",
-          "info": "Used only when no collection is selected."
+          "info": "Only used when no collection is selected."
         },
 
         {
           "type": "url",
           "id": "link",
           "label": "Custom link",
-          "info": "Used only when no collection is selected."
+          "info": "Only used when no collection is selected."
         },
 
         {
@@ -461,9 +662,139 @@
         },
 
         {
-          "type": "text",
-          "id": "image_alt",
-          "label": "Image alt text"
+          "type": "header",
+          "content": "Title text"
+        },
+
+        {
+          "type": "font_picker",
+          "id": "title_font",
+          "label": "Font",
+          "default": "assistant_n4"
+        },
+
+        {
+          "type": "range",
+          "id": "title_size",
+          "label": "Font size",
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "default": 26
+        },
+
+        {
+          "type": "range",
+          "id": "title_rotation",
+          "label": "Rotation",
+          "min": -45,
+          "max": 45,
+          "step": 1,
+          "unit": "deg",
+          "default": 0
+        },
+
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Text color",
+          "default": "#111111"
+        },
+
+        {
+          "type": "select",
+          "id": "text_vertical",
+          "label": "Vertical placement",
+          "options": [
+            { "value": "top",    "label": "Top" },
+            { "value": "middle", "label": "Middle" },
+            { "value": "bottom", "label": "Bottom" }
+          ],
+          "default": "top"
+        },
+
+        {
+          "type": "select",
+          "id": "text_align",
+          "label": "Horizontal placement",
+          "options": [
+            { "value": "left",   "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right",  "label": "Right" }
+          ],
+          "default": "left"
+        },
+
+        {
+          "type": "header",
+          "content": "Arrow button"
+        },
+
+        {
+          "type": "image_picker",
+          "id": "arrow_icon",
+          "label": "Arrow icon image",
+          "info": "Replaces the default arrow. Use a transparent PNG / SVG export."
+        },
+
+        {
+          "type": "select",
+          "id": "arrow_position",
+          "label": "Arrow position",
+          "options": [
+            { "value": "bottom-left",   "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right",  "label": "Bottom right" },
+            { "value": "top-left",      "label": "Top left" },
+            { "value": "top-right",     "label": "Top right" },
+            { "value": "center",        "label": "Center" }
+          ],
+          "default": "bottom-left"
+        },
+
+        {
+          "type": "range",
+          "id": "arrow_size",
+          "label": "Max circle size",
+          "min": 30,
+          "max": 80,
+          "step": 2,
+          "unit": "px",
+          "default": 46
+        },
+
+        {
+          "type": "color",
+          "id": "arrow_background",
+          "label": "Circle background",
+          "default": "#FFFFFF"
+        },
+
+        {
+          "type": "range",
+          "id": "arrow_background_opacity",
+          "label": "Circle background opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 0
+        },
+
+        {
+          "type": "color",
+          "id": "arrow_border_color",
+          "label": "Circle border color",
+          "default": "#111111"
+        },
+
+        {
+          "type": "color",
+          "id": "arrow_icon_color",
+          "label": "Default arrow color",
+          "info": "Only applies when no custom icon image is selected.",
+          "default": "#111111"
         }
 
       ]
@@ -480,18 +811,10 @@
       "name": "BuzzKo Categories",
 
       "blocks": [
-        {
-          "type": "category"
-        },
-        {
-          "type": "category"
-        },
-        {
-          "type": "category"
-        },
-        {
-          "type": "category"
-        }
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" }
       ]
 
     }
