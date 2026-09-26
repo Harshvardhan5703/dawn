@@ -39,6 +39,95 @@
     }
   {%- endstyle -%}
 
+  {%- style -%}
+    /* ===== Custom product form buttons ===== */
+
+    /* --- Heart button now lives next to the quantity selector --- */
+    #MainProduct-{{ section.id }} .price-per-item__container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    #MainProduct-{{ section.id }} .product-form__wishlist {
+      flex: 0 0 auto;
+      width: 4.4rem;
+      height: 4.4rem;
+      margin-left: auto;           /* push to the far right of the row */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background: transparent;
+      color: #000;
+      border: 1px solid #000;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background-color .15s ease, color .15s ease, transform .1s ease;
+    }
+    #MainProduct-{{ section.id }} .product-form__wishlist:hover {
+      background: #000;
+      color: #fff;
+    }
+    #MainProduct-{{ section.id }} .product-form__wishlist:active {
+      transform: scale(0.96);
+    }
+    #MainProduct-{{ section.id }} .product-form__wishlist.is-active svg {
+      fill: currentColor;
+    }
+
+    /* --- Add to cart: black pill, full width --- */
+    #MainProduct-{{ section.id }} .product-form__submit {
+      background-color: #000 !important;
+      color: #fff !important;
+      border: 1px solid #000 !important;
+      --buttons-radius: 9999px;
+      --buttons-radius-outset: 9999px;
+      border-radius: 9999px !important;
+      box-shadow: none !important;
+      min-height: 4.4rem;
+      transition: background-color .15s ease;
+    }
+    #MainProduct-{{ section.id }} .product-form__submit::after {
+      border-radius: 9999px !important;
+      box-shadow: none !important;
+    }
+    #MainProduct-{{ section.id }} .product-form__submit:hover {
+      background-color: #222 !important;
+    }
+
+    /* --- Buy button: transparent pill, full width --- */
+    #MainProduct-{{ section.id }} .shopify-payment-button__button,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button--unbranded {
+      width: 100%;
+      min-height: 4.4rem;
+      background-color: transparent !important;
+      color: #000 !important;
+      border: 1px solid #000 !important;
+      --buttons-radius: 9999px;
+      --buttons-radius-outset: 9999px;
+      border-radius: 9999px !important;
+      box-shadow: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 2rem;
+      line-height: 1;
+      transition: background-color .15s ease, color .15s ease;
+    }
+    #MainProduct-{{ section.id }} .shopify-payment-button__button::after,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button--unbranded::after {
+      border-radius: 9999px !important;
+      box-shadow: none !important;
+    }
+    #MainProduct-{{ section.id }} .shopify-payment-button__button:hover,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button--unbranded:hover {
+      background-color: #000 !important;
+      color: #fff !important;
+    }
+  {%- endstyle -%}
+
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
   {%- if product.quantity_price_breaks_configured? -%}
@@ -749,6 +838,65 @@
       <script type="application/ld+json">
         {{ product | structured_data }}
       </script>
+
+            <script>
+        (function () {
+          function initProductFormButtons() {
+            const root = document.getElementById('MainProduct-{{ section.id }}');
+            if (!root) return;
+
+            // ---- 1. Inject heart button next to the quantity selector ----
+            const qtyRow = root.querySelector('.price-per-item__container');
+            if (qtyRow && !qtyRow.querySelector('.product-form__wishlist')) {
+              const heartBtn = document.createElement('button');
+              heartBtn.type = 'button';
+              heartBtn.className = 'product-form__wishlist';
+              heartBtn.setAttribute('aria-label', 'Add to wishlist');
+              heartBtn.innerHTML =
+                '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" ' +
+                'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+                'stroke-linejoin="round" aria-hidden="true">' +
+                '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>' +
+                '</svg>';
+              qtyRow.appendChild(heartBtn);
+
+              heartBtn.addEventListener('click', function () {
+                heartBtn.classList.toggle('is-active');
+              });
+            }
+
+            // ---- 2. Rename "Buy it now" -> "Buy" ----
+            const buy = root.querySelector(
+              '.shopify-payment-button__button--unbranded, .shopify-payment-button__button'
+            );
+            if (buy && /buy it now/i.test(buy.textContent)) {
+              buy.textContent = 'Buy';
+            }
+          }
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initProductFormButtons);
+          } else {
+            initProductFormButtons();
+          }
+
+          // Retry because Shopify injects the payment button asynchronously
+          let tries = 0;
+          const iv = setInterval(function () {
+            initProductFormButtons();
+            if (++tries > 20) clearInterval(iv);
+          }, 200);
+
+          // Re-run on variant change / theme editor reloads
+          document.addEventListener('shopify:section:load', initProductFormButtons);
+          const form = document.getElementById('product-form-{{ section.id }}');
+          if (form) {
+            form.addEventListener('change', function () {
+              setTimeout(initProductFormButtons, 100);
+            });
+          }
+        })();
+      </script>
     </div>
   </product-component>
 </product-info>
@@ -930,7 +1078,7 @@
         {
           "type": "checkbox",
           "id": "show_dynamic_checkout",
-          "default": true,
+          "default": false,
           "label": "t:sections.main-product.blocks.buy_buttons.settings.show_dynamic_checkout.label",
           "info": "t:sections.main-product.blocks.buy_buttons.settings.show_dynamic_checkout.info"
         },
