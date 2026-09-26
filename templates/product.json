@@ -27,6 +27,10 @@
           "type": "price",
           "settings": {}
         },
+        "judge_me_reviews_preview_badge_6tMq3c": {
+          "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        },
         "variant_picker": {
           "type": "variant_picker",
           "settings": {
@@ -49,6 +53,12 @@
           "type": "description",
           "settings": {}
         },
+        "joy_wishlist_wishlist_button_Gh3bAe": {
+          "type": "shopify://apps/joy-wishlist/blocks/wishlist-button/5f342ce6-6247-4fa7-a60c-2f9ca38eb160",
+          "settings": {
+            "inline_atc": true
+          }
+        },
         "share": {
           "type": "share",
           "settings": {
@@ -60,10 +70,12 @@
         "vendor",
         "title",
         "price",
+        "judge_me_reviews_preview_badge_6tMq3c",
         "variant_picker",
         "quantity_selector",
         "buy_buttons",
         "description",
+        "joy_wishlist_wishlist_button_Gh3bAe",
         "share"
       ],
       "settings": {
@@ -110,11 +122,32 @@
         "padding_top": 36,
         "padding_bottom": 28
       }
+    },
+    "179041567187de1771": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_review_widget_NprEG3": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "real_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_NprEG3"
+      ],
+      "settings": {
+        "include_margins": true
+      }
     }
   },
   "order": [
     "main",
     "disclosures",
-    "related-products"
+    "related-products",
+    "179041567187de1771"
   ]
 }
