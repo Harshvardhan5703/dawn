@@ -1,14 +1,46 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-page",
+      "custom_css": [
+        "h1,p,.main-page-title,.page-title {display: none !important;}"
+      ],
       "settings": {
-        "padding_top": 28,
-        "padding_bottom": 28
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "buzzko_about_page_FTBAtq": {
+      "type": "buzzko-about-page",
+      "name": "BuzzKo about page",
+      "settings": {
+        "hero_eyebrow": "A little bit of BuzzKo",
+        "hero_title": "A Little Charm Goes a Long Way",
+        "hero_text": "<p>At BuzzKo, we believe the little things make life brighter. From charms to keychains, frames to posters, every piece is a way to carry your story, your style and your happiness wherever you go.</p>",
+        "hero_note": "",
+        "story_eyebrow": "Our story",
+        "story_title": "From a Love for Little Things",
+        "story_text": "<p>BuzzKo started with a simple idea: everyday essentials can be more personal, more fun and a little more you. What began as a love for collecting and customising small accessories slowly turned into a brand that celebrates self-expression and creativity.</p><p>Today, we curate and create charms, keychains, photo frames, posters and more, designed to add a spark of joy to your everyday life. Each piece is carefully chosen to be cute, high-quality and full of personality, because we know it's never just an accessory; it's a part of your story.</p>",
+        "story_note": "more than just charms ♡",
+        "newsletter_title": "Let's Stay in Touch",
+        "newsletter_text": "Be the first to know about new drops, exclusive offers and all things cute.",
+        "email_placeholder": "Enter your email",
+        "newsletter_button_label": "Subscribe",
+        "success_message": "Thanks for subscribing!"
       }
     }
   },
   "order": [
-    "main"
+    "main",
+    "buzzko_about_page_FTBAtq"
   ]
 }
