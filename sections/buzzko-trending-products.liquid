@@ -135,13 +135,13 @@
                     type="submit"
                     name="add"
                     class="buzzko-product-card__atc"
-                    data-label-default="Add"
+                    data-label-default="Add to Cart"
                     data-label-loading="Adding…"
                     data-label-success="Added ✓"
                     {% unless variant.available %}disabled{% endunless %}
                   >
                     {% if variant.available %}
-                      Add
+                      Add to Cart
                     {% else %}
                       Sold Out
                     {% endif %}
@@ -609,7 +609,7 @@
       // Prevent double-submits while a request is in flight
       if (button.getAttribute('data-state') === 'loading') return;
 
-      var defaultLabel = button.getAttribute('data-label-default') || 'Add';
+      var defaultLabel = button.getAttribute('data-label-default') || 'Add to Cart';
       var loadingLabel = button.getAttribute('data-label-loading') || 'Adding…';
       var successLabel = button.getAttribute('data-label-success') || 'Added ✓';
 
