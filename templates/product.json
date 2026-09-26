@@ -58,6 +58,12 @@
           "settings": {
             "share_label": "Share"
           }
+        },
+        "joy_wishlist_wishlist_button_Gh3bAe": {
+          "type": "shopify://apps/joy-wishlist/blocks/wishlist-button/5f342ce6-6247-4fa7-a60c-2f9ca38eb160",
+          "settings": {
+            "inline_atc": false
+          }
         }
       },
       "block_order": [
@@ -69,7 +75,8 @@
         "quantity_selector",
         "buy_buttons",
         "description",
-        "share"
+        "share",
+        "joy_wishlist_wishlist_button_Gh3bAe"
       ],
       "settings": {
         "enable_sticky_info": true,
