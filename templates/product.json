@@ -42,12 +42,6 @@
           "type": "quantity_selector",
           "settings": {}
         },
-        "joy_wishlist_wishlist_button_Gh3bAe": {
-          "type": "shopify://apps/joy-wishlist/blocks/wishlist-button/5f342ce6-6247-4fa7-a60c-2f9ca38eb160",
-          "settings": {
-            "inline_atc": true
-          }
-        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -58,6 +52,12 @@
         "description": {
           "type": "description",
           "settings": {}
+        },
+        "joy_wishlist_wishlist_button_Gh3bAe": {
+          "type": "shopify://apps/joy-wishlist/blocks/wishlist-button/5f342ce6-6247-4fa7-a60c-2f9ca38eb160",
+          "settings": {
+            "inline_atc": true
+          }
         },
         "share": {
           "type": "share",
@@ -73,9 +73,9 @@
         "judge_me_reviews_preview_badge_6tMq3c",
         "variant_picker",
         "quantity_selector",
-        "joy_wishlist_wishlist_button_Gh3bAe",
         "buy_buttons",
         "description",
+        "joy_wishlist_wishlist_button_Gh3bAe",
         "share"
       ],
       "settings": {
