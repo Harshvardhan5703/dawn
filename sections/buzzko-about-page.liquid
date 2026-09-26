@@ -1,0 +1,750 @@
+{% comment %}
+  BuzzKo About Page
+  Single section: hero, story, and newsletter signup.
+{% endcomment %}
+
+<section id="buzzko-about-{{ section.id }}" class="buzzko-about">
+  <div class="buzzko-about__hero page-width">
+    <div class="buzzko-about__hero-copy">
+      {% if section.settings.hero_eyebrow != blank %}
+        <p class="buzzko-about__eyebrow">
+          {{ section.settings.hero_eyebrow | escape }}
+        </p>
+      {% endif %}
+
+      <h1 class="buzzko-about__hero-title">
+        {{ section.settings.hero_title | escape | newline_to_br }}
+      </h1>
+
+      <span class="buzzko-about__squiggle" aria-hidden="true"></span>
+
+      {% if section.settings.hero_text != blank %}
+        <div class="buzzko-about__body">
+          {{ section.settings.hero_text }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="buzzko-about__hero-art">
+      {% if section.settings.hero_image != blank %}
+        {{
+          section.settings.hero_image
+          | image_url: width: 1200
+          | image_tag:
+            class: 'buzzko-about__hero-image',
+            loading: 'lazy',
+            widths: '400, 600, 800, 1000, 1200',
+            alt: section.settings.hero_image.alt
+            | default: section.settings.hero_title
+            | escape
+        }}
+      {% else %}
+        <div class="buzzko-about__image-placeholder">
+          <span>Add a hero image in the section settings</span>
+        </div>
+      {% endif %}
+
+      <span class="buzzko-about__hero-sticker buzzko-about__hero-sticker--top" aria-hidden="true">♡</span>
+      <span class="buzzko-about__hero-note" aria-hidden="true">
+        {{ section.settings.hero_note | escape | newline_to_br }}
+      </span>
+      <span class="buzzko-about__hero-sticker buzzko-about__hero-sticker--flower" aria-hidden="true">✿</span>
+    </div>
+  </div>
+
+  <div class="buzzko-about__story-wrap">
+    <div class="buzzko-about__story page-width">
+      <div class="buzzko-about__story-art">
+        {% if section.settings.story_image != blank %}
+          {{
+            section.settings.story_image
+            | image_url: width: 1000
+            | image_tag:
+              class: 'buzzko-about__story-image',
+              loading: 'lazy',
+              widths: '360, 540, 720, 900, 1000',
+              alt: section.settings.story_image.alt
+              | default: section.settings.story_title
+              | escape
+          }}
+        {% else %}
+          <div class="buzzko-about__image-placeholder buzzko-about__image-placeholder--story">
+            <span>Add a story image in the section settings</span>
+          </div>
+        {% endif %}
+
+        <span class="buzzko-about__story-tape" aria-hidden="true"></span>
+        <span class="buzzko-about__story-caption" aria-hidden="true">
+          {{ section.settings.story_note | escape | newline_to_br }}
+        </span>
+      </div>
+
+      <div class="buzzko-about__story-copy">
+        <p class="buzzko-about__eyebrow">
+          {{ section.settings.story_eyebrow | escape }}
+        </p>
+
+        <h2 class="buzzko-about__section-title">
+          {{ section.settings.story_title | escape }}
+        </h2>
+
+        <div class="buzzko-about__body">
+          {{ section.settings.story_text }}
+        </div>
+
+        <span class="buzzko-about__story-doodle" aria-hidden="true">♡</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="buzzko-about__newsletter-wrap">
+    <div class="buzzko-about__newsletter page-width">
+      <div class="buzzko-about__newsletter-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 52" role="presentation" focusable="false">
+          <path d="M5 15.5 31.5 34 59 15.5M8 12h48a4 4 0 0 1 4 4v29a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4Z"
+            fill="none" stroke="currentColor" stroke-width="2.8"
+            stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 4c-3.8-5.4-12.8-1.6-9.8 5.2 1.7 3.9 9.8 9.1 9.8 9.1s8.1-5.2 9.8-9.1C44.8 2.4 35.8-1.4 32 4Z"
+            fill="#F06C91" stroke="currentColor" stroke-width="1.8"/>
+        </svg>
+      </div>
+
+      <div class="buzzko-about__newsletter-copy">
+        <h2>{{ section.settings.newsletter_title | escape }}</h2>
+        <p>{{ section.settings.newsletter_text | escape }}</p>
+      </div>
+
+      <div class="buzzko-about__newsletter-form">
+        {% form 'customer', id: 'BuzzkoAboutNewsletter', class: 'buzzko-about__form' %}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+
+          <label class="visually-hidden" for="BuzzkoAboutEmail-{{ section.id }}">
+            Email address
+          </label>
+
+          <input
+            id="BuzzkoAboutEmail-{{ section.id }}"
+            type="email"
+            name="contact[email]"
+            value="{{ form.email }}"
+            placeholder="{{ section.settings.email_placeholder | escape }}"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            required
+          >
+
+          <button
+            type="submit"
+            aria-label="{{ section.settings.newsletter_button_label | escape }}"
+          >
+            <span aria-hidden="true">→</span>
+          </button>
+
+          {% if form.posted_successfully? %}
+            <p class="buzzko-about__form-message" role="status">
+              {{ section.settings.success_message | escape }}
+            </p>
+          {% endif %}
+
+          {% if form.errors %}
+            <div class="buzzko-about__form-message" role="alert">
+              {{ form.errors | default_errors }}
+            </div>
+          {% endif %}
+        {% endform %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #buzzko-about-{{ section.id }} {
+    --buzzko-cream: #FFFAF5;
+    --buzzko-pink: #f06c91;
+    --buzzko-ink: #1a1a1a;
+    --buzzko-muted: #514e4a;
+    --buzzko-line: #e9e2db;
+    background: var(--buzzko-cream);
+    color: var(--buzzko-ink);
+    overflow: hidden;
+  }
+
+  #buzzko-about-{{ section.id }} .page-width {
+    width: min(100% - 48px, 1320px);
+    margin-inline: auto;
+  }
+
+  /* HERO */
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero {
+    min-height: 470px;
+    display: grid;
+    grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
+    align-items: center;
+    gap: clamp(30px, 6vw, 90px);
+    padding-block: 54px 64px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-copy {
+    max-width: 440px;
+    padding-left: clamp(0px, 3vw, 42px);
+    position: relative;
+    z-index: 1;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__eyebrow {
+    margin: 0 0 12px;
+    color: var(--buzzko-pink);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-title,
+  #buzzko-about-{{ section.id }} .buzzko-about__section-title {
+    margin: 0;
+    color: var(--buzzko-ink);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.08;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-title {
+    font-size: clamp(42px, 5.2vw, 70px);
+    max-width: 470px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__squiggle {
+    display: block;
+    width: 104px;
+    height: 13px;
+    margin: 19px 0 18px;
+    border-top: 5px solid var(--buzzko-pink);
+    border-radius: 50%;
+    transform: rotate(-2deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body {
+    color: var(--buzzko-muted);
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body p {
+    margin: 0 0 17px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-art {
+    min-height: 330px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 24px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-art::before {
+    content: "";
+    position: absolute;
+    inset: 6% 9% 5% 5%;
+    background: #FFFAF5;
+    border-radius: 48% 52% 42% 58% / 51% 43% 57% 49%;
+    transform: rotate(-3deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-image {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: min(100%, 610px);
+    max-height: 390px;
+    aspect-ratio: 1.35 / 1;
+    object-fit: cover;
+    border: 12px solid #fffdfa;
+    box-shadow: 0 9px 24px rgba(26, 26, 26, .12);
+    transform: rotate(-3deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__image-placeholder {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: min(100%, 610px);
+    min-height: 290px;
+    padding: 24px;
+    border: 2px dashed #e5cbd2;
+    border-radius: 18px;
+    background: #FFFAF5;
+    color: #77716b;
+    text-align: center;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker {
+    position: absolute;
+    z-index: 2;
+    color: var(--buzzko-pink);
+    font-size: 58px;
+    line-height: 1;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--top {
+    top: 0;
+    left: 6%;
+    transform: rotate(-14deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--flower {
+    right: 1%;
+    bottom: 5%;
+    font-size: 48px;
+    transform: rotate(12deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-note {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: 10%;
+    max-width: 115px;
+    color: var(--buzzko-ink);
+    font-size: 18px;
+    line-height: 1.18;
+    text-align: center;
+    transform: rotate(5deg);
+  }
+
+  /* STORY */
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-wrap {
+    background: #FFFAF5;
+    border-block: 1px solid rgba(233, 226, 219, .65);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story {
+    min-height: 390px;
+    display: grid;
+    grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: clamp(40px, 8vw, 120px);
+    padding-block: 56px 64px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-art {
+    position: relative;
+    min-height: 270px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-art::before {
+    content: "";
+    position: absolute;
+    inset: 9% 5% 3% 8%;
+    background: #FFFAF5;
+    border-radius: 20px 34px 20px 34px;
+    transform: rotate(-4deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-image {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: min(100%, 420px);
+    aspect-ratio: 1.12 / 1;
+    object-fit: cover;
+    border: 10px solid #fffdfa;
+    box-shadow: 0 8px 22px rgba(26, 26, 26, .13);
+    transform: rotate(3deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__image-placeholder--story {
+    width: min(100%, 420px);
+    min-height: 260px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-tape {
+    position: absolute;
+    z-index: 2;
+    top: 5px;
+    left: 23%;
+    width: 100px;
+    height: 25px;
+    background: repeating-linear-gradient(
+      90deg,
+      #f6b8c8 0 13px,
+      #fff0f3 13px 26px
+    );
+    opacity: .9;
+    transform: rotate(-8deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-caption {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    bottom: 4px;
+    max-width: 130px;
+    padding: 10px 12px;
+    background: #fffdfa;
+    color: var(--buzzko-ink);
+    font-size: 16px;
+    line-height: 1.2;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(26, 26, 26, .08);
+    transform: rotate(-5deg);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-copy {
+    position: relative;
+    max-width: 650px;
+    padding-right: 20px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__section-title {
+    margin-bottom: 22px;
+    font-size: clamp(30px, 3.3vw, 43px);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-copy .buzzko-about__body p + p {
+    margin-top: 18px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__story-doodle {
+    position: absolute;
+    right: -4px;
+    top: 40%;
+    color: var(--buzzko-pink);
+    font-size: 62px;
+    transform: rotate(12deg);
+  }
+
+  /* NEWSLETTER */
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter-wrap {
+    padding: 34px 0 42px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter {
+    display: grid;
+    grid-template-columns: 70px minmax(190px, .8fr) minmax(260px, 1.2fr);
+    align-items: center;
+    gap: 22px;
+    padding: 24px clamp(20px, 4vw, 48px);
+    background: #fae9e9;
+    border-radius: 20px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter-icon {
+    width: 58px;
+    color: var(--buzzko-ink);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter-icon svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter-copy h2 {
+    margin: 0 0 5px;
+    color: var(--buzzko-ink);
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__newsletter-copy p {
+    margin: 0;
+    color: var(--buzzko-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 4px;
+    background: #fffdfa;
+    border: 1px solid #e7deda;
+    border-radius: 999px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form input[type="email"] {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 15px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--buzzko-ink);
+    font: inherit;
+    font-size: 13px;
+    box-shadow: none;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form input[type="email"]:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form button {
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--buzzko-pink);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form button:hover {
+    background: #df587f;
+    transform: translateX(2px);
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__form-message {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 16px;
+    margin: 0;
+    color: var(--buzzko-ink);
+    font-size: 12px;
+  }
+
+  /* MOBILE */
+
+  @media screen and (max-width: 749px) {
+    #buzzko-about-{{ section.id }} .page-width {
+      width: min(100% - 36px, 600px);
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero {
+      min-height: 0;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding-block: 42px 34px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-copy {
+      max-width: 520px;
+      padding-left: 0;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-title {
+      max-width: 430px;
+      font-size: clamp(42px, 12vw, 60px);
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-art {
+      min-height: 260px;
+      padding: 14px 22px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-image {
+      max-height: 300px;
+      border-width: 8px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-note {
+      right: -2px;
+      top: 0;
+      font-size: 15px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--top {
+      left: 0;
+      top: -4px;
+      font-size: 42px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--flower {
+      right: 0;
+      bottom: 0;
+      font-size: 38px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__story {
+      grid-template-columns: 1fr;
+      gap: 22px;
+      padding-block: 38px 42px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__story-art {
+      min-height: 240px;
+      order: 2;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__story-copy {
+      order: 1;
+      padding-right: 0;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__section-title {
+      font-size: clamp(30px, 8vw, 39px);
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__story-doodle {
+      right: 0;
+      top: 0;
+      font-size: 42px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__newsletter-wrap {
+      padding: 24px 0 32px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__newsletter {
+      grid-template-columns: 46px minmax(0, 1fr);
+      gap: 12px;
+      padding: 20px 16px 24px;
+      border-radius: 16px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__newsletter-icon {
+      width: 44px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__newsletter-copy h2 {
+      font-size: 19px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__newsletter-form {
+      grid-column: 1 / -1;
+      margin-top: 5px;
+    }
+
+    #buzzko-about-{{ section.id }} .buzzko-about__form-message {
+      position: static;
+      padding: 6px 12px 0;
+    }
+  }
+
+  @media screen and (prefers-reduced-motion: reduce) {
+    #buzzko-about-{{ section.id }} .buzzko-about__form button {
+      transition: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "BuzzKo about page",
+  "tag": "section",
+  "class": "section-buzzko-about",
+  "settings": [
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Hero eyebrow",
+      "default": "A little bit of BuzzKo"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_title",
+      "label": "Hero heading",
+      "default": "A Little Charm Goes a Long Way"
+    },
+    {
+      "type": "richtext",
+      "id": "hero_text",
+      "label": "Hero text",
+      "default": "<p>At BuzzKo, we believe the little things make life brighter. From charms to keychains, frames to posters, every piece is a way to carry your story, your style and your happiness wherever you go.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_note",
+      "label": "Hero handwritten note",
+      "default": "carry your joy ♡"
+    },
+    {
+      "type": "text",
+      "id": "story_eyebrow",
+      "label": "Story eyebrow",
+      "default": "Our story"
+    },
+    {
+      "type": "text",
+      "id": "story_title",
+      "label": "Story heading",
+      "default": "From a Love for Little Things"
+    },
+    {
+      "type": "richtext",
+      "id": "story_text",
+      "label": "Story text",
+      "default": "<p>BuzzKo started with a simple idea: everyday essentials can be more personal, more fun and a little more you. What began as a love for collecting and customising small accessories slowly turned into a brand that celebrates self-expression and creativity.</p><p>Today, we curate and create charms, keychains, photo frames, posters and more, designed to add a spark of joy to your everyday life. Each piece is carefully chosen to be cute, high-quality and full of personality, because we know it's never just an accessory; it's a part of your story.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "story_image",
+      "label": "Story image"
+    },
+    {
+      "type": "textarea",
+      "id": "story_note",
+      "label": "Story image caption",
+      "default": "more than just charms ♡"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "Newsletter heading",
+      "default": "Let's Stay in Touch"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_text",
+      "label": "Newsletter text",
+      "default": "Be the first to know about new drops, exclusive offers and all things cute."
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_button_label",
+      "label": "Submit button accessible label",
+      "default": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thanks for subscribing!"
+    }
+  ],
+  "presets": [
+    {
+      "name": "BuzzKo about page"
+    }
+  ]
+}
+{% endschema %}
