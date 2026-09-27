@@ -221,12 +221,12 @@
                                 type="submit"
                                 name="add"
                                 class="buzzko-product-card__atc"
-                                data-label-default="Add"
+                                data-label-default="Add to Cart"
                                 data-label-loading="Adding…"
                                 data-label-success="Added ✓"
                                 {% unless variant.available %}disabled{% endunless %}
                               >
-                                {% if variant.available %}Add{% else %}Sold Out{% endif %}
+                                {% if variant.available %}Add to Cart{% else %}Sold Out{% endif %}
                               </button>
                             </form>
                           </div>
