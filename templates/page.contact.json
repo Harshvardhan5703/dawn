@@ -21,6 +21,9 @@
     },
     "form": {
       "type": "contact-form",
+      "custom_css": [
+        ".button::after{box-shadow: none}"
+      ],
       "settings": {
         "eyebrow": "WE'RE ALL EARS",
         "heading": "",
