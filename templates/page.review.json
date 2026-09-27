@@ -47,7 +47,7 @@
             "header_text_color": "#000000",
             "star_and_reviewer_name_color": "#F9F9F9",
             "drop_shadow_color": "#000000",
-            "overlay_and_background_color": "#000000",
+            "overlay_and_background_color": "#FFECB3",
             "content_color": "#F9F9F9",
             "header_text": "From our customers",
             "show_average_rating": true,
