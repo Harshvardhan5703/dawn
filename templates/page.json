@@ -19,28 +19,74 @@
         "padding_bottom": 0
       }
     },
-    "buzzko_about_page_FTBAtq": {
-      "type": "buzzko-about-page",
-      "name": "BuzzKo about page",
+    "buzzko_faq_RPLFj4": {
+      "type": "buzzko-faq",
+      "blocks": {
+        "faq_7ezcej": {
+          "type": "faq",
+          "settings": {
+            "question": "How can I place an order?",
+            "answer": "<p>Browse our collection, choose your favourite products, add them to your cart, and follow the checkout steps to place your order.</p>"
+          }
+        },
+        "faq_DhRfTU": {
+          "type": "faq",
+          "settings": {
+            "question": "What payment methods do you accept?",
+            "answer": "<p>You can pay using the payment options displayed at checkout.</p>"
+          }
+        },
+        "faq_pqnE6r": {
+          "type": "faq",
+          "settings": {
+            "question": "How much is shipping?",
+            "answer": "<p>Shipping is ₹49. Orders above ₹500 qualify for free shipping.</p>"
+          }
+        },
+        "faq_e9mAkt": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you offer Cash on Delivery?",
+            "answer": "<p>Yes. For COD orders, ₹100 is payable in advance for orders above ₹499, and the remaining amount is paid on delivery.</p>"
+          }
+        },
+        "faq_enh4Ew": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I return or exchange a product?",
+            "answer": "<p>Please refer to our return policy for the conditions and process for returns.</p>"
+          }
+        },
+        "faq_8atDQx": {
+          "type": "faq",
+          "settings": {
+            "question": "What should I do if my order arrives damaged?",
+            "answer": "<p>Please keep the 360° unboxing video as required by our return policy and contact us with the order details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_7ezcej",
+        "faq_DhRfTU",
+        "faq_pqnE6r",
+        "faq_e9mAkt",
+        "faq_enh4Ew",
+        "faq_8atDQx"
+      ],
+      "name": "BuzzKo FAQ",
       "settings": {
-        "hero_eyebrow": "A little bit of BuzzKo",
-        "hero_title": "A Little Charm Goes a Long Way",
-        "hero_text": "<p>At BuzzKo, we believe the little things make life brighter. From charms to keychains, frames to posters, every piece is a way to carry your story, your style and your happiness wherever you go.</p>",
-        "hero_note": "",
-        "story_eyebrow": "Our story",
-        "story_title": "From a Love for Little Things",
-        "story_text": "<p>BuzzKo started with a simple idea: everyday essentials can be more personal, more fun and a little more you. What began as a love for collecting and customising small accessories slowly turned into a brand that celebrates self-expression and creativity.</p><p>Today, we curate and create charms, keychains, photo frames, posters and more, designed to add a spark of joy to your everyday life. Each piece is carefully chosen to be cute, high-quality and full of personality, because we know it's never just an accessory; it's a part of your story.</p>",
-        "story_note": "more than just charms ♡",
-        "newsletter_title": "Let's Stay in Touch",
-        "newsletter_text": "Be the first to know about new drops, exclusive offers and all things cute.",
-        "email_placeholder": "Enter your email",
-        "newsletter_button_label": "Subscribe",
-        "success_message": "Thanks for subscribing!"
+        "eyebrow": "Need a little help?",
+        "heading": "Frequently Asked Questions",
+        "description": "Everything you need to know about shopping with BuzzKo.",
+        "contact_heading": "Still have questions?",
+        "contact_text": "We're happy to help. Get in touch with our team.",
+        "contact_label": "Contact us",
+        "contact_link": "shopify://pages/contact"
       }
     }
   },
   "order": [
     "main",
-    "buzzko_about_page_FTBAtq"
+    "buzzko_faq_RPLFj4"
   ]
 }
