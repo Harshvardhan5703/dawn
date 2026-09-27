@@ -25,14 +25,14 @@
           "type": "menu",
           "settings": {
             "heading": "About",
-            "menu": "about"
+            "menu": ""
           }
         },
         "menu_W3Vg34": {
           "type": "menu",
           "settings": {
             "heading": "Help",
-            "menu": "help"
+            "menu": ""
           }
         }
       },
@@ -43,7 +43,7 @@
       ],
       "name": "BuzzKo Footer",
       "settings": {
-        "logo": "shopify://shop_images/buzzkologobgr.png",
+        "logo": "shopify://shop_images/IMG_0404-removebg-preview.png",
         "logo_alt": "BuzzKo",
         "club_text": "JOIN THE CLUB",
         "club_font": "caveat_n7",
