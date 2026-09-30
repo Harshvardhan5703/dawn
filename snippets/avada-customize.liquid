@@ -1,0 +1,47 @@
+{% comment %} Ryan - wishlist - 30/9/26 {% endcomment %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const initializedIcons = new WeakSet();
+
+    function updateWishlistBadge(icon) {
+      const badge = icon.shadowRoot?.querySelector(
+        '.Joy-Wishlist-AccessButton__AddedItem'
+      );
+
+      if (!badge) return;
+
+      const count = parseInt(badge.textContent.trim(), 10) || 0;
+      badge.style.display = count === 0 ? 'none' : '';
+    }
+
+    function setupWishlistIcon(icon) {
+      if (!icon.shadowRoot || initializedIcons.has(icon)) return;
+
+      initializedIcons.add(icon);
+      updateWishlistBadge(icon);
+
+      new MutationObserver(() => updateWishlistBadge(icon)).observe(
+        icon.shadowRoot,
+        {
+          childList: true,
+          subtree: true,
+          characterData: true
+        }
+      );
+    }
+
+    function initWishlistIcons() {
+      document
+        .querySelectorAll('joy-wishlist-icon')
+        .forEach(setupWishlistIcon);
+    }
+
+    initWishlistIcons();
+
+    new MutationObserver(initWishlistIcons).observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+</script>
