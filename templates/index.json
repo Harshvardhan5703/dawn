@@ -197,7 +197,7 @@
       "settings": {
         "heading": "Trending Now",
         "show_view_all": true,
-        "view_all_text": "See All",
+        "view_all_text": "View All",
         "view_all_link": "shopify://collections/all"
       }
     },
