@@ -3678,3 +3678,89 @@ details-disclosure > details {
 }
 
 
+
+/* BuzzKo: Predictive search dropdown */
+.search-modal .predictive-search--header {
+  background: #F9F7F2 !important;
+  border: 1px solid rgba(26, 26, 26, 0.10) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(26, 26, 26, 0.08) !important;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* Remove Dawn's default borders and shadows */
+.search-modal .predictive-search--header::before,
+.search-modal .predictive-search--header::after {
+  display: none !important;
+  content: none !important;
+}
+
+.search-modal #predictive-search-results {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+/* Results layout */
+.search-modal .predictive-search__results-groups-wrapper {
+  padding: 14px;
+  gap: 18px;
+}
+
+/* Product and suggestion rows */
+.search-modal .predictive-search__item {
+  border-radius: 9px;
+  transition: background-color 0.15s ease;
+}
+
+.search-modal .predictive-search__item:hover,
+.search-modal .predictive-search__item[aria-selected="true"] {
+  background: rgba(217, 124, 157, 0.10);
+}
+
+/* Search-for footer */
+.search-modal .predictive-search__search-for-button {
+  background: rgba(255, 255, 255, 0.45);
+  border-top: 1px solid rgba(26, 26, 26, 0.08);
+  padding: 8px 14px 12px;
+}
+
+@media screen and (max-width: 749px) {
+  .search-modal .predictive-search--header {
+    border-radius: 12px !important;
+  }
+
+  .search-modal .predictive-search__results-groups-wrapper {
+    padding: 10px;
+    gap: 12px;
+  }
+}
+
+
+
+@media screen and (max-width: 749px) {
+  .search-modal__close-button {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+.search-modal .field__label {
+  display: none !important;
+}
