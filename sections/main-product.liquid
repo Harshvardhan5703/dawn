@@ -846,7 +846,7 @@
             if (!root) return;
 
             // ---- 1. Inject heart button next to the quantity selector ----
-            const qtyRow = root.querySelector('.price-per-item__container');
+            {% comment %} const qtyRow = root.querySelector('.price-per-item__container');
             if (qtyRow && !qtyRow.querySelector('.product-form__wishlist')) {
               const heartBtn = document.createElement('button');
               heartBtn.type = 'button';
@@ -863,7 +863,7 @@
               heartBtn.addEventListener('click', function () {
                 heartBtn.classList.toggle('is-active');
               });
-            }
+            } {% endcomment %}
 
             // ---- 2. Rename "Buy it now" -> "Buy" ----
             const buy = root.querySelector(
