@@ -42,6 +42,211 @@
     height: 1.8rem;
   }
 
+  /* ===== BuzzKo search page styling ===== */
+  .template-search {
+    background: #FFFAF5;
+  }
+
+  .template-search__header {
+    text-align: center;
+  }
+
+  .template-search__header .buzzko-search-title {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+    color: #1A1A1A;
+    font-size: clamp(2.8rem, 5vw, 5.2rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+  }
+
+  .template-search__header .buzzko-search-title::after {
+    content: "✦";
+    position: absolute;
+    top: -0.3em;
+    right: -0.65em;
+    color: #FF60B9;
+    font-size: 0.42em;
+    transform: rotate(12deg);
+  }
+
+  .template-search__search {
+    max-width: 68rem;
+  }
+
+  .template-search__search .search {
+    margin-top: 2.4rem;
+  }
+
+  .template-search__search .field {
+    min-height: 5.4rem;
+    overflow: hidden;
+    border: 1.5px solid #D8D1CB;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+
+  .template-search__search .field:focus-within {
+    border-color: #FF60B9;
+    box-shadow: 0 0 0 2px rgba(255, 96, 185, .12);
+  }
+
+  .template-search__search .field::before,
+  .template-search__search .field::after {
+    content: none;
+  }
+
+  .template-search__search .search__input {
+    min-height: 5.2rem;
+    padding: 0 1.6rem 0 2rem;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    color: #1A1A1A;
+    font-size: 1.45rem;
+    line-height: 1.4;
+  }
+
+  .template-search__search .search__input::placeholder {
+    color: #96908B;
+    opacity: 1;
+  }
+
+  .template-search__search .field__label {
+    left: 2rem;
+    color: #96908B;
+    font-size: 1.4rem;
+  }
+
+  .template-search__search .search__input:not(:placeholder-shown) + .field__label,
+  .template-search__search .search__input:focus + .field__label {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .template-search__search .field__button {
+    width: 3.8rem;
+    height: 3.8rem;
+    min-width: 3.8rem;
+    margin: 0.7rem;
+    padding: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #77716D;
+    transition: background .2s ease, color .2s ease;
+  }
+
+  .template-search__search .field__button:hover {
+    background: #FFF0F8;
+    color: #1A1A1A;
+  }
+
+  .template-search__search .field__button .svg-wrapper,
+  .template-search__search .field__button svg {
+    width: 1.55rem;
+    height: 1.55rem;
+  }
+
+  .template-search__search .reset__button {
+    color: #9A938D;
+  }
+
+  .template-search__search .reset__button .svg-wrapper,
+  .template-search__search .reset__button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .buzzko-search-empty {
+    max-width: 72rem;
+    margin: 2.5rem auto 4rem;
+    padding: 4rem 2.4rem;
+    border: 2px solid #1A1A1A;
+    border-radius: 2rem;
+    background: #fff;
+    text-align: center;
+    box-shadow: 6px 6px 0 #F7CFCF;
+  }
+
+  .buzzko-search-empty__emoji {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 3.6rem;
+    line-height: 1;
+  }
+
+  .buzzko-search-empty h2 {
+    margin: 0 0 0.8rem;
+    color: #1A1A1A;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 800;
+  }
+
+  .buzzko-search-empty p {
+    margin: 0;
+    color: #666;
+    font-size: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .buzzko-search-empty .underlined-link {
+    color: #1A1A1A;
+    font-weight: 700;
+  }
+
+  @media screen and (max-width: 749px) {
+    .template-search__header {
+      margin-bottom: 2.5rem;
+    }
+
+    .template-search__header .buzzko-search-title {
+      max-width: calc(100% - 2rem);
+      font-size: clamp(2.7rem, 9vw, 3.8rem);
+    }
+
+    .template-search__search .search {
+      margin-top: 2rem;
+    }
+
+    .template-search__search .field {
+      min-height: 4.9rem;
+    }
+
+    .template-search__search .search__input {
+      min-height: 4.7rem;
+      padding-left: 1.6rem;
+      font-size: 1.35rem;
+    }
+
+    .template-search__search .field__label {
+      left: 1.6rem;
+      font-size: 1.3rem;
+    }
+
+    .template-search__search .field__button {
+      width: 3.4rem;
+      height: 3.4rem;
+      min-width: 3.4rem;
+      margin: 0.6rem;
+    }
+
+    .template-search__search .field__button .svg-wrapper,
+    .template-search__search .field__button svg {
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+
+    .buzzko-search-empty {
+      margin: 2rem 1.5rem 3rem;
+      padding: 3rem 1.8rem;
+      border-radius: 1.5rem;
+    }
+  }
+
   /* ===== BuzzKo product card styles (scoped to search) ===== */
   #ProductGridContainer {
     background: #FFFAF5;
@@ -269,11 +474,11 @@
 {% paginate search.results by 24 %}
   <div class="template-search{% unless search.performed and search.results_count > 0 %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
     <div class="template-search__header page-width{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
-      <h1 class="h2 center">
+      <h1 class="buzzko-search-title">
         {%- if search.performed -%}
-          {{- 'templates.search.title' | t -}}
+          Here's all the good stuff
         {%- else -%}
-          {{- 'general.search.search' | t -}}
+          Find your little favourite
         {%- endif -%}
       </h1>
       <div class="template-search__search">
@@ -344,7 +549,11 @@
           {%- endif -%}
         {%- endunless -%}
         {%- if search.results_count == 0 and search.filters == empty -%}
-          <p role="status">{{ 'templates.search.no_results' | t: terms: search.terms }}</p>
+          <div class="buzzko-search-empty" role="status">
+            <span class="buzzko-search-empty__emoji" aria-hidden="true">🧸 ✨</span>
+            <h2>Oops! Nothing found</h2>
+            <p>We couldn't find anything for “{{ search.terms | escape }}”. Try another search and let's find your next favourite!</p>
+          </div>
         {%- endif -%}
       {%- endif -%}
     </div>
@@ -437,15 +646,13 @@
               data-id="{{ section.id }}"
             >
               <div class="loading-overlay gradient"></div>
-              <div class="title-wrapper center">
-                <h2 class="title title--primary">
-                  {{ 'sections.collection_template.empty' | t -}}
-                  <br>
-                  {{
-                    'sections.collection_template.use_fewer_filters_html'
-                    | t: link: search_url, class: 'underlined-link link'
-                  }}
-                </h2>
+              <div class="buzzko-search-empty" role="status">
+                <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎 💗</span>
+                <h2>No cute finds here!</h2>
+                <p>
+                  Try removing a filter to see more goodies.
+                  <a href="{{ search_url }}" class="underlined-link link">Clear filters</a>
+                </p>
               </div>
             </div>
           {%- else -%}
