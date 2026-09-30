@@ -413,5 +413,10 @@
         }
       }
     }
+  },
+  "platform_customizations": {
+    "custom_css": [
+      ".Joy-Wishlist__Button:disabled,.Joy-Wishlist__Button[disabled] {color: #000 !important;}"
+    ]
   }
 }
