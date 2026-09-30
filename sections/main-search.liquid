@@ -41,6 +41,209 @@
   .search__button .icon {
     height: 1.8rem;
   }
+
+  /* ===== BuzzKo product card styles (scoped to search) ===== */
+  #ProductGridContainer {
+    background: #FFFAF5;
+  }
+
+  #ProductGridContainer .product-grid {
+    row-gap: 20px;
+  }
+
+  #ProductGridContainer .buzzko-product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: #faf8f6;
+    border: 3px solid var(--card-border);
+    border-radius: 18px;
+    padding: 11px;
+    color: inherit;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  #ProductGridContainer .buzzko-product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.06);
+  }
+
+  #ProductGridContainer .buzzko-product-card__image-wrapper {
+    width: 100%;
+    aspect-ratio: 1.65 / 1;
+    overflow: hidden;
+    border-radius: 11px;
+    background: #eee;
+  }
+
+  #ProductGridContainer .buzzko-product-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #ProductGridContainer .buzzko-product-card__image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform .3s ease;
+  }
+
+  #ProductGridContainer .buzzko-product-card:hover .buzzko-product-card__image {
+    transform: scale(1.025);
+  }
+
+  #ProductGridContainer .buzzko-product-card__content {
+    padding: 15px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  #ProductGridContainer .buzzko-product-card__title {
+    margin: 0;
+    color: #111;
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -.2px;
+  }
+
+  #ProductGridContainer .buzzko-product-card__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #ProductGridContainer .buzzko-product-card__subtitle {
+    margin: 5px 0 0;
+    color: #777;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  #ProductGridContainer .buzzko-product-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 17px;
+  }
+
+  #ProductGridContainer .buzzko-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  #ProductGridContainer .buzzko-product-card__price-current {
+    color: #111;
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  #ProductGridContainer .buzzko-product-card__price-compare {
+    color: #999;
+    font-size: 12px;
+    text-decoration: line-through;
+  }
+
+  #ProductGridContainer .buzzko-product-card__form {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  #ProductGridContainer .buzzko-product-card__atc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 14px;
+    background: #FF60B9;
+    color: #201e1e;
+    border: 0;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  #ProductGridContainer .buzzko-product-card__atc:hover:not(:disabled) {
+    background: #e469af;
+  }
+
+  #ProductGridContainer .buzzko-product-card__atc:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  #ProductGridContainer .buzzko-product-card__atc[data-state="loading"] {
+    opacity: .7;
+    cursor: wait;
+  }
+
+  #ProductGridContainer .buzzko-product-card__atc[data-state="success"] {
+    background: #B9E404;
+  }
+
+  /* BuzzKo: force 2 products per row on mobile */
+  @media screen and (max-width: 749px) {
+    #ProductGridContainer .product-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      column-gap: 10px;
+      row-gap: 14px;
+    }
+
+    #ProductGridContainer .product-grid .grid__item {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    #ProductGridContainer .buzzko-product-card {
+      padding: 7px;
+      border-width: 2px;
+      border-radius: 13px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__image-wrapper {
+      border-radius: 8px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__content {
+      padding: 10px 3px 5px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__title {
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    #ProductGridContainer .buzzko-product-card__subtitle {
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__footer {
+      padding-top: 12px;
+      gap: 6px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__price-current {
+      font-size: 13px;
+    }
+
+    #ProductGridContainer .buzzko-product-card__atc {
+      padding: 6px 10px;
+      font-size: 10px;
+      min-height: 34px;
+    }
+  }
 </style>
 
 {%- liquid
@@ -257,6 +460,7 @@
                 role="list"
               >
                 {%- assign skip_card_product_styles = false -%}
+                {%- assign buzzko_index = 0 -%}
                 {%- for item in search.results -%}
                   {% assign lazy_load = false %}
                   {%- if forloop.index > 2 -%}
@@ -271,19 +475,80 @@
                   >
                     {%- case item.object_type -%}
                       {%- when 'product' -%}
-                        {%- capture product_settings -%}{%- if section.settings.product_show_vendor -%}vendor,{%- endif -%}title,price{%- endcapture -%}
-                        {% render 'card-product',
-                          card_product: item,
-                          media_aspect_ratio: section.settings.image_ratio,
-                          image_shape: section.settings.image_shape,
-                          show_secondary_image: section.settings.show_secondary_image,
-                          show_vendor: section.settings.show_vendor,
-                          show_rating: section.settings.show_rating,
-                          lazy_load: lazy_load,
-                          skip_styles: skip_card_product_styles,
-                          product_view_context: 'search'
-                        %}
-                        {%- assign skip_card_product_styles = true -%}
+                        {%- assign product = item -%}
+                        {%- assign variant = product.selected_or_first_available_variant -%}
+                        {%- assign border_index = buzzko_index | modulo: 6 -%}
+                        {%- case border_index -%}
+                          {%- when 0 -%}{%- assign card_border = '#F7CFCF' -%}
+                          {%- when 1 -%}{%- assign card_border = '#B9E404' -%}
+                          {%- when 2 -%}{%- assign card_border = '#9DDCF7' -%}
+                          {%- when 3 -%}{%- assign card_border = '#FFD96A' -%}
+                          {%- when 4 -%}{%- assign card_border = '#CDB8F5' -%}
+                          {%- else -%}{%- assign card_border = '#FF9FC8' -%}
+                        {%- endcase -%}
+
+                        <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
+                          <div class="buzzko-product-card__image-wrapper">
+                            <a href="{{ product.url }}" class="buzzko-product-card__image-link" aria-label="{{ product.title | escape }}">
+                              {% if product.featured_image != blank %}
+                                {% assign image_alt = product.featured_image.alt | default: product.title %}
+                                {{
+                                  product.featured_image
+                                  | image_url: width: 700
+                                  | image_tag:
+                                    loading: 'lazy',
+                                    widths: '300,450,600,700',
+                                    sizes: '(min-width: 990px) 22vw, (min-width: 750px) 45vw, 90vw',
+                                    alt: image_alt,
+                                    class: 'buzzko-product-card__image'
+                                }}
+                              {% else %}
+                                {{ 'product-1' | placeholder_svg_tag: 'buzzko-product-card__placeholder' }}
+                              {% endif %}
+                            </a>
+                          </div>
+
+                          <div class="buzzko-product-card__content">
+                            <h3 class="buzzko-product-card__title">
+                              <a href="{{ product.url }}" class="buzzko-product-card__title-link">
+                                {{ product.title }}
+                              </a>
+                            </h3>
+
+                            {% if section.settings.card_subtitle != blank %}
+                              <p class="buzzko-product-card__subtitle">
+                                {{ section.settings.card_subtitle }}
+                              </p>
+                            {% endif %}
+
+                            <div class="buzzko-product-card__footer">
+                              <div class="buzzko-product-card__price">
+                                {% if product.compare_at_price > product.price %}
+                                  <span class="buzzko-product-card__price-current">{{ product.price | money }}</span>
+                                  <span class="buzzko-product-card__price-compare">{{ product.compare_at_price | money }}</span>
+                                {% else %}
+                                  <span class="buzzko-product-card__price-current">{{ product.price | money }}</span>
+                                {% endif %}
+                              </div>
+
+                              <form action="/cart/add" method="post" class="buzzko-product-card__form" data-buzzko-atc>
+                                <input type="hidden" name="id" value="{{ variant.id }}">
+                                <button
+                                  type="submit"
+                                  name="add"
+                                  class="buzzko-product-card__atc"
+                                  data-label-default="Add to Cart"
+                                  data-label-loading="Adding…"
+                                  data-label-success="Added ✓"
+                                  {% unless variant.available %}disabled{% endunless %}
+                                >
+                                  {% if variant.available %}Add to Cart{% else %}Sold Out{% endif %}
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        {%- assign buzzko_index = buzzko_index | plus: 1 -%}
                       {%- when 'article' -%}
                         {% render 'article-card',
                           article: item,
@@ -334,6 +599,92 @@
   {{ 'mask-arch.svg' | inline_asset_content }}
 {%- endif -%}
 
+<script>
+(function () {
+  var root = document.getElementById('ProductGridContainer');
+  if (!root || root.dataset.buzzkoAtcInit === 'true') return;
+  root.dataset.buzzkoAtcInit = 'true';
+
+  function state(button, value, label) {
+    if (value) button.setAttribute('data-state', value);
+    else button.removeAttribute('data-state');
+    if (label) button.textContent = label;
+  }
+
+  root.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (!form.matches('[data-buzzko-atc]')) return;
+
+    event.preventDefault();
+
+    var button = form.querySelector('.buzzko-product-card__atc');
+    if (!button || button.disabled || button.dataset.state === 'loading') return;
+
+    var normal = button.dataset.labelDefault || 'Add';
+    state(button, 'loading', button.dataset.labelLoading || 'Adding…');
+    button.disabled = true;
+
+    var data = new FormData(form);
+    data.append('sections', 'cart-drawer,cart-icon-bubble');
+    data.append('sections_url', window.location.pathname);
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: data
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (err) { throw err; });
+      return res.json();
+    })
+    .then(function () {
+      return fetch('/cart.js', {
+        headers: { 'Accept': 'application/json' }
+      }).then(function (res) { return res.json(); });
+    })
+    .then(function (cart) {
+      state(button, 'success', button.dataset.labelSuccess || 'Added ✓');
+
+      var drawer = document.querySelector('cart-drawer');
+      if (drawer && typeof drawer.open === 'function') {
+        try { drawer.open(); } catch (e) {}
+      }
+
+      document.dispatchEvent(new CustomEvent('cart:update', {
+        bubbles: true,
+        detail: { cart: cart }
+      }));
+
+      document.dispatchEvent(new CustomEvent('cart:refresh', {
+        bubbles: true,
+        detail: { cart: cart }
+      }));
+
+      document.querySelectorAll('[data-cart-count], .cart-count-bubble span, .cart-count').forEach(function (el) {
+        el.textContent = cart.item_count;
+      });
+
+      setTimeout(function () {
+        state(button, '', normal);
+        button.disabled = false;
+      }, 1400);
+    })
+    .catch(function (error) {
+      console.error('[BuzzKo ATC]', error);
+      state(button, '', 'Try again');
+      button.disabled = false;
+
+      setTimeout(function () {
+        state(button, '', normal);
+      }, 1600);
+    });
+  });
+})();
+</script>
+
 {% schema %}
 {
   "name": "t:sections.main-search.name",
@@ -364,7 +715,7 @@
           "label": "t:sections.main-search.settings.columns_mobile.options__2.label"
         }
       ]
-    },    
+    },
     {
       "type": "header",
       "content": "t:sections.main-search.settings.header__1.content"
@@ -447,6 +798,11 @@
       "default": false,
       "label": "t:sections.main-search.settings.show_rating.label",
       "info": "t:sections.main-search.settings.show_rating.info"
+    },
+    {
+      "type": "text",
+      "id": "card_subtitle",
+      "label": "Product card subtitle"
     },
     {
       "type": "header",
