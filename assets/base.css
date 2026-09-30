@@ -3764,3 +3764,44 @@ details-disclosure > details {
 .search-modal .field__label {
   display: none !important;
 }
+
+
+/* Tablet search modal layout */
+@media screen and (min-width: 750px) and (max-width: 990px) {
+  .search-modal__content {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 16px 24px !important;
+    box-sizing: border-box;
+  }
+
+  .search-modal__form {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  .search-modal__content .field {
+    width: 100%;
+  }
+
+  .search-modal__close-button {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+}
