@@ -174,7 +174,7 @@
           "type": "product",
           "settings": {
             "product": "iron-man-charm",
-            "subtitle": "Professional Premium",
+            "subtitle": "",
             "border_color": "#f7cfcf"
           }
         },
@@ -182,7 +182,7 @@
           "type": "product",
           "settings": {
             "product": "iron-man-keychain",
-            "subtitle": "Professional Premium",
+            "subtitle": "",
             "border_color": "#d0f4de"
           }
         },
@@ -190,7 +190,7 @@
           "type": "product",
           "settings": {
             "product": "lighter",
-            "subtitle": "Professional Premium",
+            "subtitle": "",
             "border_color": "#ffecb3"
           }
         },
@@ -198,7 +198,7 @@
           "type": "product",
           "settings": {
             "product": "poster",
-            "subtitle": "Professional Premium",
+            "subtitle": "",
             "border_color": "#bee3f8"
           }
         },
@@ -206,7 +206,7 @@
           "type": "product",
           "settings": {
             "product": "",
-            "subtitle": "Professional Premium",
+            "subtitle": "",
             "border_color": "#f7cfcf"
           }
         }
