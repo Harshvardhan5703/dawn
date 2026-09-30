@@ -65,26 +65,33 @@
           assign title_font = block.settings.title_font
         -%}
 
-        <div
-          class="buzzko-category-card"
-          style="
-            --card-bg: {{ block.settings.background_color | default: '#F8B5D1' }};
-            --title-size: {{ block.settings.title_size | default: 26 }}px;
-            --title-rotate: {{ block.settings.title_rotation | default: 0 }}deg;
-            --title-color: {{ block.settings.title_color | default: '#111111' }};
-            {% if title_font != blank %}
-              --title-font: {{ title_font.family }}, {{ title_font.fallback_families }};
-              --title-weight: {{ title_font.weight }};
-              --title-style: {{ title_font.style }};
-            {% endif %}
-            --arrow-size: {{ block.settings.arrow_size | default: 46 }}px;
-            --arrow-bg: {{ block.settings.arrow_background | default: '#FFFFFF' }};
-            --arrow-bg-opacity: {{ block.settings.arrow_background_opacity | default: 0 }};
-            --arrow-border: {{ block.settings.arrow_border_color | default: '#111111' }};
-            --arrow-icon-color: {{ block.settings.arrow_icon_color | default: '#111111' }};
-          "
-          {{ block.shopify_attributes }}
-        >
+        {%- capture card_style -%}
+          --card-bg: {{ block.settings.background_color | default: '#F8B5D1' }};
+          --title-size: {{ block.settings.title_size | default: 26 }}px;
+          --title-rotate: {{ block.settings.title_rotation | default: 0 }}deg;
+          --title-color: {{ block.settings.title_color | default: '#111111' }};
+          {% if title_font != blank %}
+            --title-font: {{ title_font.family }}, {{ title_font.fallback_families }};
+            --title-weight: {{ title_font.weight }};
+            --title-style: {{ title_font.style }};
+          {% endif %}
+        {%- endcapture -%}
+
+        {%- if card_url != blank -%}
+          <a
+            href="{{ card_url }}"
+            class="buzzko-category-card"
+            style="{{ card_style | strip_newlines }}"
+            aria-label="{{ card_title | escape }}"
+            {{ block.shopify_attributes }}
+          >
+        {%- else -%}
+          <div
+            class="buzzko-category-card buzzko-category-card--static"
+            style="{{ card_style | strip_newlines }}"
+            {{ block.shopify_attributes }}
+          >
+        {%- endif -%}
 
           <!-- WAVY BLOB SHAPE -->
           <svg
@@ -134,52 +141,11 @@
             <span class="buzzko-category-card__title">{{ card_title }}</span>
           </div>
 
-
-          <!-- ARROW (the only link) -->
-          {%- capture buzzko_arrow_icon -%}
-            {%- if block.settings.arrow_icon != blank -%}
-              <img
-                src="{{ block.settings.arrow_icon | image_url: width: 120 }}"
-                alt=""
-                width="{{ block.settings.arrow_icon.width }}"
-                height="{{ block.settings.arrow_icon.height }}"
-                loading="lazy"
-                class="buzzko-category-card__icon buzzko-category-card__icon--img"
-              >
-            {%- else -%}
-              <svg
-                class="buzzko-category-card__icon buzzko-category-card__icon--svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path d="M5 12h13M13 6l6 6-6 6"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-              </svg>
-            {%- endif -%}
-          {%- endcapture -%}
-
-          <div class="buzzko-category-card__action buzzko-category-card__action--{{ block.settings.arrow_position }}">
-            {%- if card_url != blank -%}
-              <a
-                href="{{ card_url }}"
-                class="buzzko-category-card__link"
-                aria-label="{{ card_title | escape }}"
-              >
-                {{ buzzko_arrow_icon }}
-              </a>
-            {%- else -%}
-              <span class="buzzko-category-card__link buzzko-category-card__link--static">
-                {{ buzzko_arrow_icon }}
-              </span>
-            {%- endif -%}
+        {%- if card_url != blank -%}
+          </a>
+        {%- else -%}
           </div>
-
-        </div>
+        {%- endif -%}
 
       {% endfor %}
 
@@ -264,7 +230,7 @@
   }
 
 
-  /* CARD */
+  /* CARD (whole card is the link) */
 
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
     position: relative;
@@ -277,14 +243,31 @@
 
     background: transparent;
 
+    color: inherit;
+    text-decoration: none;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
     transition:
       transform 200ms ease,
       filter 200ms ease;
   }
 
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card--static {
+    cursor: default;
+  }
+
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card:hover {
     transform: translateY(-5px);
     filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.10));
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-category-card:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 4px;
+    border-radius: 24px;
   }
 
 
@@ -396,103 +379,6 @@
 
   #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content--h-right
   .buzzko-category-card__title { transform-origin: right center; text-align: right; }
-
-
-  /* ARROW POSITIONING */
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action {
-    position: absolute;
-
-    z-index: 3;
-
-    display: flex;
-
-    pointer-events: none;
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-left   { left: 8%;  bottom: 18%; }
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-center { left: 50%; bottom: 9%; transform: translateX(-50%); }
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--bottom-right  { right: 8%; bottom: 9%; }
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--top-left      { left: 8%;  top: 9%; }
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--top-right     { right: 8%; top: 9%; }
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__action--center        { left: 50%; top: 50%; transform: translate(-50%, -50%); }
-
-
-  /* ARROW CIRCLE (the only clickable element) */
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link {
-    position: relative;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: clamp(34px, 12%, var(--arrow-size, 46px));
-    aspect-ratio: 1 / 1;
-
-    border-radius: 50%;
-
-    border: 1.5px solid var(--arrow-border, #111);
-
-    background: transparent;
-
-    color: var(--arrow-icon-color, #111);
-
-    text-decoration: none;
-
-    pointer-events: auto;
-
-    transition: transform 200ms ease, border-color 200ms ease;
-  }
-
-  /* soft tinted fill behind the circle, opacity controlled by setting */
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    z-index: -1;
-
-    border-radius: 50%;
-
-    background: var(--arrow-bg, #FFFFFF);
-
-    opacity: calc(var(--arrow-bg-opacity, 0) / 100);
-
-    transition: opacity 200ms ease;
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link:hover {
-    transform: scale(1.09);
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link:hover::before {
-    opacity: calc((var(--arrow-bg-opacity, 0) + 25) / 100);
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__link--static {
-    cursor: default;
-  }
-
-
-  /* ARROW ICON */
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__icon {
-    display: block;
-
-    width: 44%;
-    height: 44%;
-
-    object-fit: contain;
-
-    pointer-events: none;
-  }
-
-  #BuzzkoCategories-{{ section.id }} .buzzko-category-card__icon--svg {
-    width: 46%;
-    height: 46%;
-  }
 
 
   /* TABLET */
@@ -724,77 +610,6 @@
             { "value": "right",  "label": "Right" }
           ],
           "default": "left"
-        },
-
-        {
-          "type": "header",
-          "content": "Arrow button"
-        },
-
-        {
-          "type": "image_picker",
-          "id": "arrow_icon",
-          "label": "Arrow icon image",
-          "info": "Replaces the default arrow. Use a transparent PNG / SVG export."
-        },
-
-        {
-          "type": "select",
-          "id": "arrow_position",
-          "label": "Arrow position",
-          "options": [
-            { "value": "bottom-left",   "label": "Bottom left" },
-            { "value": "bottom-center", "label": "Bottom center" },
-            { "value": "bottom-right",  "label": "Bottom right" },
-            { "value": "top-left",      "label": "Top left" },
-            { "value": "top-right",     "label": "Top right" },
-            { "value": "center",        "label": "Center" }
-          ],
-          "default": "bottom-left"
-        },
-
-        {
-          "type": "range",
-          "id": "arrow_size",
-          "label": "Max circle size",
-          "min": 30,
-          "max": 80,
-          "step": 2,
-          "unit": "px",
-          "default": 46
-        },
-
-        {
-          "type": "color",
-          "id": "arrow_background",
-          "label": "Circle background",
-          "default": "#FFFFFF"
-        },
-
-        {
-          "type": "range",
-          "id": "arrow_background_opacity",
-          "label": "Circle background opacity",
-          "min": 0,
-          "max": 100,
-          "step": 5,
-          "unit": "%",
-          "default": 0
-        },
-
-        {
-          "type": "color",
-          "id": "arrow_border_color",
-          "label": "Circle border color",
-          "default": "#111111"
-        },
-
-        {
-          "type": "color",
-          "id": "arrow_icon_color",
-          "label": "Default arrow color",
-          "info": "Only applies when no custom icon image is selected.",
-          "default": "#111111"
         }
 
       ]
