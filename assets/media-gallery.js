@@ -115,3 +115,176 @@ if (!customElements.get('media-gallery')) {
     }
   );
 }
+
+
+
+
+/* BUZZKO: floating product image magnifier */
+(() => {
+  if (window.buzzkoMagnifierReady) return;
+  window.buzzkoMagnifierReady = true;
+
+  const desktop = window.matchMedia(
+    '(hover: hover) and (min-width: 750px)'
+  );
+
+  const LENS_SIZE = 140;
+  const ZOOM = 2.5;
+  const CURSOR_GAP = 16;
+  let lens = null;
+
+  function removeLens() {
+    if (lens) {
+      lens.remove();
+      lens = null;
+    }
+  }
+
+  function createLens() {
+    if (lens) return lens;
+
+    lens = document.createElement('div');
+    lens.setAttribute('aria-hidden', 'true');
+
+    Object.assign(lens.style, {
+      position: 'fixed',
+      width: `${LENS_SIZE}px`,
+      height: `${LENS_SIZE}px`,
+      border: '2px solid white',
+      borderRadius: '50%',
+      boxShadow: '0 4px 18px rgba(0,0,0,.25)',
+      backgroundColor: '#fff',
+      backgroundRepeat: 'no-repeat',
+      pointerEvents: 'none',
+      zIndex: '2147483647',
+      display: 'none',
+      overflow: 'hidden'
+    });
+
+    document.body.appendChild(lens);
+    return lens;
+  }
+
+  function getProductImage(target) {
+    const image = target.closest(
+      '.product__media-item .product__media img'
+    );
+
+    if (!image || !image.complete || !image.naturalWidth) return null;
+    return image;
+  }
+
+  function updateLens(event, image) {
+    const currentLens = createLens();
+    const rect = image.getBoundingClientRect();
+
+    const naturalWidth = image.naturalWidth;
+    const naturalHeight = image.naturalHeight;
+    const fit = getComputedStyle(image).objectFit;
+
+    let scaleX = rect.width / naturalWidth;
+    let scaleY = rect.height / naturalHeight;
+
+    if (fit === 'contain' || fit === 'cover') {
+      const scale = fit === 'cover'
+        ? Math.max(scaleX, scaleY)
+        : Math.min(scaleX, scaleY);
+
+      scaleX = scale;
+      scaleY = scale;
+    }
+
+    const renderedWidth = naturalWidth * scaleX;
+    const renderedHeight = naturalHeight * scaleY;
+
+    /* Dawn normally centers product images within their media box. */
+    const imageLeft = rect.left + (rect.width - renderedWidth) / 2;
+    const imageTop = rect.top + (rect.height - renderedHeight) / 2;
+
+    const sourceX = (event.clientX - imageLeft) / scaleX;
+    const sourceY = (event.clientY - imageTop) / scaleY;
+
+    /* Ignore empty letterboxed areas around contained images. */
+    if (
+      sourceX < 0 || sourceX > naturalWidth ||
+      sourceY < 0 || sourceY > naturalHeight
+    ) {
+      currentLens.style.display = 'none';
+      return;
+    }
+
+    /* Position the lens above-left of the cursor, within the viewport. */
+    const left = Math.max(
+      8,
+      Math.min(
+        window.innerWidth - LENS_SIZE - 8,
+        event.clientX - LENS_SIZE - CURSOR_GAP
+      )
+    );
+
+    const top = Math.max(
+      8,
+      Math.min(
+        window.innerHeight - LENS_SIZE - 8,
+        event.clientY - LENS_SIZE - CURSOR_GAP
+      )
+    );
+
+    currentLens.style.left = `${left}px`;
+    currentLens.style.top = `${top}px`;
+
+    /* Magnify only the image itself. */
+    currentLens.style.backgroundImage =
+      `url("${image.currentSrc || image.src}")`;
+
+    currentLens.style.backgroundSize =
+      `${renderedWidth * ZOOM}px ${renderedHeight * ZOOM}px`;
+
+    currentLens.style.backgroundPosition =
+      `${LENS_SIZE / 2 - sourceX * scaleX * ZOOM}px ` +
+      `${LENS_SIZE / 2 - sourceY * scaleY * ZOOM}px`;
+
+    currentLens.style.display = 'block';
+  }
+
+  document.addEventListener('pointerover', (event) => {
+    if (!desktop.matches || event.pointerType !== 'mouse') return;
+
+    const image = getProductImage(event.target);
+    if (!image) return;
+
+    updateLens(event, image);
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!desktop.matches || event.pointerType !== 'mouse') {
+      removeLens();
+      return;
+    }
+
+    const image = getProductImage(event.target);
+    if (!image) {
+      removeLens();
+      return;
+    }
+
+    updateLens(event, image);
+  });
+
+  document.addEventListener('pointerout', (event) => {
+    const image = event.target.closest(
+      '.product__media-item .product__media img'
+    );
+
+    if (!image) return;
+
+    if (event.relatedTarget && image.contains(event.relatedTarget)) return;
+    removeLens();
+  });
+
+  document.addEventListener('click', removeLens);
+  window.addEventListener('scroll', removeLens, true);
+  window.addEventListener('resize', removeLens);
+  document.addEventListener('slideChanged', removeLens);
+  desktop.addEventListener('change', removeLens);
+})();
