@@ -47,7 +47,6 @@
         "button_label": "Shop New Arrivals",
         "button_link": "shopify://collections/all",
         "show_customer_proof": true,
-        "avatar_1": "shopify://shop_images/close-up-portrait-of-young-man.jpg",
         "avatar_2": "shopify://shop_images/man.png",
         "avatar_3": "shopify://shop_images/nicolas-horn-MTZTGvDsHFY-unsplash.jpg",
         "avatar_4": "shopify://shop_images/luis-villasmil-6qf1uljGpU4-unsplash.jpg",
@@ -85,7 +84,7 @@
             "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#BEE3F8",
+            "background_color": "#bee3f8",
             "title_font": "caveat_n7",
             "title_size": 28,
             "title_rotation": -12,
@@ -102,7 +101,7 @@
             "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#FFECB3",
+            "background_color": "#ffecb3",
             "title_font": "caveat_n7",
             "title_size": 28,
             "title_rotation": -12,
@@ -119,7 +118,7 @@
             "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#D0F4DE",
+            "background_color": "#d0f4de",
             "title_font": "caveat_n7",
             "title_size": 28,
             "title_rotation": -12,
@@ -246,28 +245,13 @@
       ],
       "name": "BuzzKo Benefits",
       "settings": {
-        "background_color": "#FFFAF5",
+        "background_color": "#fffaf5",
         "text_color": "#111111",
         "description_color": "#777777",
         "padding_top": 40,
         "padding_bottom": 40,
         "mobile_padding_top": 32,
         "mobile_padding_bottom": 32
-      }
-    },
-    "buzzko_story_KWnT8h": {
-      "type": "buzzko-story",
-      "name": "BuzzKo Our Story",
-      "settings": {
-        "left_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_12_39_16_PM.png",
-        "left_image_alt": "BuzzKo accessories",
-        "eyebrow": "More Than Accessories",
-        "heading": "A BRIGHTER YOU.",
-        "description": "<p>Thoughtfully designed pieces that bring a little more joy to your everyday.</p>",
-        "button_label": "Our Story",
-        "button_link": "shopify://pages/about",
-        "right_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_01_47_05_PM.png",
-        "right_image_alt": "Create Personalise Carry Joy"
       }
     },
     "buzzko_instagram_JFXwQe": {
@@ -334,7 +318,6 @@
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
     "buzzko_benefits_JHiNpY",
-    "buzzko_story_KWnT8h",
     "buzzko_instagram_JFXwQe"
   ]
 }
