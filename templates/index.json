@@ -74,13 +74,7 @@
             "title_rotation": -12,
             "title_color": "#111111",
             "text_vertical": "top",
-            "text_align": "left",
-            "arrow_position": "bottom-left",
-            "arrow_size": 48,
-            "arrow_background": "#ffffff",
-            "arrow_background_opacity": 15,
-            "arrow_border_color": "#111111",
-            "arrow_icon_color": "#111111"
+            "text_align": "left"
           }
         },
         "category_bnx9KM": {
@@ -97,13 +91,7 @@
             "title_rotation": -12,
             "title_color": "#111111",
             "text_vertical": "top",
-            "text_align": "left",
-            "arrow_position": "bottom-left",
-            "arrow_size": 46,
-            "arrow_background": "#ffffff",
-            "arrow_background_opacity": 0,
-            "arrow_border_color": "#111111",
-            "arrow_icon_color": "#111111"
+            "text_align": "left"
           }
         },
         "category_VeKkyn": {
@@ -120,13 +108,7 @@
             "title_rotation": -12,
             "title_color": "#111111",
             "text_vertical": "top",
-            "text_align": "left",
-            "arrow_position": "bottom-left",
-            "arrow_size": 46,
-            "arrow_background": "#ffffff",
-            "arrow_background_opacity": 0,
-            "arrow_border_color": "#111111",
-            "arrow_icon_color": "#111111"
+            "text_align": "left"
           }
         },
         "category_kWDKP4": {
@@ -143,13 +125,7 @@
             "title_rotation": -12,
             "title_color": "#111111",
             "text_vertical": "top",
-            "text_align": "left",
-            "arrow_position": "bottom-left",
-            "arrow_size": 46,
-            "arrow_background": "#ffffff",
-            "arrow_background_opacity": 0,
-            "arrow_border_color": "#111111",
-            "arrow_icon_color": "#111111"
+            "text_align": "left"
           }
         }
       },
