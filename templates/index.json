@@ -311,6 +311,29 @@
         "instagram_url": "https://instagram.com/buzz.ko",
         "card_color": "#ffeaf2"
       }
+    },
+    "1790848691c0544c6f": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_8b537d5_HeRzgK": {
+          "type": "ai_gen_block_8b537d5",
+          "settings": {
+            "headline": "Hey, you made it!",
+            "description": "<p>Take a look around and find your next favorite thing.</p>",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_26_2026_01_50_50_PM.png",
+            "button_label": "Explore the collection",
+            "button_link": "shopify://collections/all",
+            "desktop_width_percent": 90,
+            "background_color": "#FFF9EF",
+            "text_color": "#171717"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_8b537d5_HeRzgK"
+      ],
+      "settings": {}
     }
   },
   "order": [
@@ -318,6 +341,7 @@
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
     "buzzko_benefits_JHiNpY",
-    "buzzko_instagram_JFXwQe"
+    "buzzko_instagram_JFXwQe",
+    "1790848691c0544c6f"
   ]
 }
