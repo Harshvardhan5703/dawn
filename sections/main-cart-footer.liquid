@@ -3,17 +3,433 @@
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
 {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
 
+{%- liquid
+  # ===== BuzzKo cart config — change these numbers =====
+  # Values are in your store currency. 500 = ₹500.
+  assign offer_threshold = 500 | times: 100
+  assign offer_percent = 10
+  # Must match the discount code you create in Shopify admin → Discounts
+  assign discount_code = 'BUZZKO10'
+
+  # Initial server-side render values
+  assign offer_remaining = offer_threshold | minus: cart.total_price
+  assign offer_progress = cart.total_price | times: 100.0 | divided_by: offer_threshold
+  if offer_progress > 100
+    assign offer_progress = 100
+  endif
+  assign offer_unlocked = false
+  if offer_remaining <= 0
+    assign offer_unlocked = true
+  endif
+  assign initial_discount = 0
+  if offer_unlocked
+    assign initial_discount = cart.total_price | times: offer_percent | divided_by: 100
+  endif
+  assign initial_discounted_total = cart.total_price | minus: initial_discount
+-%}
+
 {%- style -%}
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  /* =====================================================
+     BuzzKo order summary card
+  ===================================================== */
+  #main-cart-footer .buzzko-summary {
+    position: sticky;
+    top: 24px;
+    padding: 26px 24px 24px;
+    background: #BEE3F8;
+    border-radius: 20px;
   }
 
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
+  @media screen and (max-width: 989px) {
+    #main-cart-footer .buzzko-summary { position: static; }
+  }
+
+  #main-cart-footer .buzzko-summary__title {
+    margin: 0 0 20px;
+    color: #1A1A1A;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  #main-cart-footer .buzzko-summary__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+  }
+
+  #main-cart-footer .buzzko-summary__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: #6B6663;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  #main-cart-footer .buzzko-summary__row-value {
+    color: #1A1A1A;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Discount row — highlighted when active */
+  #main-cart-footer [data-buzzko-discount-row] {
+    color: #1A1A1A;
+    font-weight: 600;
+  }
+
+  #main-cart-footer [data-buzzko-discount-row] .buzzko-summary__row-value {
+    color: #008A3E;
+    font-weight: 700;
+  }
+
+  #main-cart-footer [data-buzzko-discount-row][hidden] { display: none; }
+
+  /* Promo code */
+  #main-cart-footer .buzzko-promo {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 16px;
+  }
+
+  #main-cart-footer .buzzko-promo__input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 0 16px;
+    border: 1.5px solid #EBE5DF;
+    border-radius: 999px;
+    background: #fff;
+    color: #1A1A1A;
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color .15s ease;
+  }
+
+  #main-cart-footer .buzzko-promo__input::placeholder { color: #B5AEA7; }
+  #main-cart-footer .buzzko-promo__input:focus { outline: none; border-color: #FF60B9; }
+
+  #main-cart-footer .buzzko-promo__btn {
+    flex-shrink: 0;
+    height: 42px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    background: #1A1A1A;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+  }
+
+  #main-cart-footer .buzzko-promo__btn:hover { background: #333; transform: translateY(-1px); }
+
+  /* Gift checkbox */
+  #main-cart-footer .buzzko-gift {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    margin: 0 0 16px;
+    background: #fff;
+    border: 1.5px dashed #FF60B9;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+
+  #main-cart-footer .buzzko-gift:hover { background: #FFF8FC; }
+
+  #main-cart-footer .buzzko-gift input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #main-cart-footer .buzzko-gift__box {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #1A1A1A;
+    border-radius: 6px;
+    background: #fff;
+    transition: background .15s ease;
+  }
+
+  #main-cart-footer .buzzko-gift__box::after {
+    content: "";
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #1A1A1A;
+    border-bottom: 2px solid #1A1A1A;
+    transform: rotate(-45deg) translate(1px, -1px);
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+
+  #main-cart-footer .buzzko-gift input:checked + .buzzko-gift__box { background: #FF60B9; }
+  #main-cart-footer .buzzko-gift input:checked + .buzzko-gift__box::after { opacity: 1; }
+  #main-cart-footer .buzzko-gift input:focus-visible + .buzzko-gift__box {
+    outline: 2px solid #FF60B9;
+    outline-offset: 2px;
+  }
+
+  #main-cart-footer .buzzko-gift__label {
+    color: #1A1A1A;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  /* Cart note */
+  #main-cart-footer .buzzko-note { margin: 0 0 20px; }
+
+  #main-cart-footer .buzzko-note summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #1A1A1A;
+    font-size: 13px;
+    font-weight: 600;
+    list-style: none;
+    padding: 4px 0;
+  }
+
+  #main-cart-footer .buzzko-note summary::-webkit-details-marker { display: none; }
+  #main-cart-footer .buzzko-note summary svg {
+    width: 10px;
+    height: 10px;
+    transition: transform .2s ease;
+  }
+  #main-cart-footer .buzzko-note[open] summary svg { transform: rotate(180deg); }
+
+  #main-cart-footer .buzzko-note__textarea {
+    width: 100%;
+    min-height: 72px;
+    margin-top: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid #EBE5DF;
+    border-radius: 12px;
+    background: #fff;
+    color: #1A1A1A;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  #main-cart-footer .buzzko-note__textarea:focus { outline: none; border-color: #FF60B9; }
+
+  /* =====================================================
+     Offer bar (real-time)
+  ===================================================== */
+  #main-cart-footer .buzzko-offer {
+    position: relative;
+    padding: 14px 16px 16px;
+    margin: 0 0 20px;
+    background: #fff;
+    border: 1.5px solid #EBE5DF;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: background .35s ease, border-color .35s ease;
+  }
+
+  #main-cart-footer .buzzko-offer--unlocked {
+    background: #FFF0F8;
+    border-color: #FFC7E3;
+  }
+
+  #main-cart-footer .buzzko-offer__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #1A1A1A;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  #main-cart-footer .buzzko-offer__sparkle {
+    flex-shrink: 0;
+    color: #FF60B9;
+    font-size: 12px;
+    line-height: 1;
+    transition: color .3s ease, transform .3s ease;
+  }
+
+  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__sparkle {
+    color: #1A1A1A;
+    transform: rotate(20deg) scale(1.2);
+  }
+
+  #main-cart-footer .buzzko-offer__track {
+    position: relative !important;
+    display: block !important;
+    height: 8px !important;
+    background: #F1ECE7 !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    isolation: isolate;
+  }
+
+  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__track {
+    background: rgba(255, 96, 185, 0.18) !important;
+  }
+
+  #main-cart-footer .buzzko-offer__fill {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 8px !important;
+    min-height: 8px !important;
+    width: 0;
+    min-width: 0;
+    border-radius: 999px !important;
+    background-color: #FF60B9 !important;
+    background-image: linear-gradient(90deg, #FF60B9 0%, #F8B5D1 100%) !important;
+    box-sizing: border-box !important;
+    transition: width .55s cubic-bezier(.25, 1, .35, 1) !important;
+  }
+
+  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__fill {
+    background-color: #FF60B9 !important;
+    background-image: linear-gradient(90deg, #FF60B9 0%, #FF8EC9 100%) !important;
+  }
+
+  #main-cart-footer .buzzko-offer__fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .35) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: buzzkoShimmer 2.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes buzzkoShimmer {
+    0% { transform: translateX(-100%); }
+    60%, 100% { transform: translateX(200%); }
+  }
+
+  /* =====================================================
+     Total row (pulses on update)
+  ===================================================== */
+  #main-cart-footer .buzzko-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  #main-cart-footer .buzzko-total__label {
+    margin: 0;
+    color: #1A1A1A;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  #main-cart-footer .buzzko-total__value {
+    margin: 0;
+    color: #1A1A1A;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    display: inline-block;
+    transition: transform .3s ease, color .3s ease;
+  }
+
+  #main-cart-footer .buzzko-total__value.is-updated {
+    animation: buzzkoPulse .55s cubic-bezier(.3, 1.4, .5, 1);
+  }
+
+  @keyframes buzzkoPulse {
+    0% { transform: scale(1); color: #1A1A1A; }
+    35% { transform: scale(1.08); color: #FF60B9; }
+    100% { transform: scale(1); color: #1A1A1A; }
+  }
+
+  /* Checkout button */
+  #main-cart-footer .cart__ctas { margin: 0; }
+
+  #main-cart-footer .cart__checkout-button {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 999px;
+    background: #FF60B9;
+    color: #1A1A1A;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+  }
+
+  #main-cart-footer .cart__checkout-button:hover:not(:disabled) {
+    background: #e469af;
+    transform: translateY(-1px);
+  }
+
+  #main-cart-footer .cart__checkout-button:disabled {
+    background: #E5DED7;
+    color: #85807B;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  #main-cart-footer .additional-checkout-buttons { margin-top: 10px; }
+
+  /* Trust badges */
+  #main-cart-footer .buzzko-trust {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(26, 26, 26, 0.08);
+  }
+
+  #main-cart-footer .buzzko-trust__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6B6663;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  #main-cart-footer .buzzko-trust__row svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: #1A1A1A;
+  }
+
+  @media screen and (max-width: 749px) {
+    #main-cart-footer .buzzko-summary { padding: 22px 18px; border-radius: 18px; }
+    #main-cart-footer .buzzko-total__value { font-size: 20px; }
+    #main-cart-footer .cart__checkout-button { min-height: 50px; font-size: 14px; }
   }
 {%- endstyle -%}
 
@@ -22,167 +438,444 @@
   id="main-cart-footer"
   data-id="{{ section.id }}"
 >
-  <div class="page-width">
-    <div class="cart__footer isolate section-{{ section.id }}-padding">
+  {%- if cart != empty -%}
+    <div class="buzzko-summary">
+
+      <h2 class="buzzko-summary__title">Order Summary</h2>
+
+      <div class="buzzko-summary__rows">
+        <div class="buzzko-summary__row">
+          <span>Subtotal ({{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %})</span>
+          <span class="buzzko-summary__row-value" data-buzzko-subtotal>{{ cart.items_subtotal_price | money }}</span>
+        </div>
+
+        {%- comment -%} Real-time offer discount row {%- endcomment -%}
+        <div
+          class="buzzko-summary__row"
+          data-buzzko-discount-row
+          {% unless offer_unlocked %}hidden{% endunless %}
+        >
+          <span>Discount ({{ offer_percent }}%)</span>
+          <span class="buzzko-summary__row-value" data-buzzko-discount-amount>
+            -{{ initial_discount | money }}
+          </span>
+        </div>
+
+        {%- if cart.cart_level_discount_applications.size > 0 -%}
+          {%- for discount in cart.cart_level_discount_applications -%}
+            <div class="buzzko-summary__row">
+              <span>{{ discount.title | escape }}</span>
+              <span class="buzzko-summary__row-value">-{{ discount.total_allocated_amount | money }}</span>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+
+        <div class="buzzko-summary__row">
+          <span>Shipping</span>
+          <span class="buzzko-summary__row-value">Calculated at checkout</span>
+        </div>
+
+        {%- if cart.taxes_included -%}
+          <div class="buzzko-summary__row">
+            <span>Tax</span>
+            <span class="buzzko-summary__row-value">Included</span>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <form class="buzzko-promo" data-buzzko-promo>
+        <input type="text" class="buzzko-promo__input" placeholder="Promo code" aria-label="Promo code">
+        <button type="submit" class="buzzko-promo__btn">Apply</button>
+      </form>
+
+      <label class="buzzko-gift" for="Cart-gift-{{ section.id }}">
+        <input
+          type="checkbox"
+          id="Cart-gift-{{ section.id }}"
+          data-buzzko-gift
+          {% if cart.attributes.gift == 'Yes' %}checked{% endif %}
+        >
+        <span class="buzzko-gift__box" aria-hidden="true"></span>
+        <span class="buzzko-gift__label">
+          Is it a gift? Make it special at no extra cost.
+        </span>
+      </label>
+
       {%- if settings.show_cart_note -%}
-        <cart-note class="cart__note field">
-          <label for="Cart-note">{{ 'sections.cart.note' | t }}</label>
-          <textarea
-            class="text-area field__input"
-            name="note"
-            form="cart"
-            id="Cart-note"
-            placeholder="{{ 'sections.cart.note' | t }}"
-          >{{ cart.note }}</textarea>
-        </cart-note>
+        <details class="buzzko-note">
+          <summary>
+            <span>Add a note</span>
+            {{- 'icon-caret.svg' | inline_asset_content -}}
+          </summary>
+          <cart-note>
+            <textarea
+              class="buzzko-note__textarea"
+              name="note"
+              form="cart"
+              id="Cart-note"
+              placeholder="{{ 'sections.cart.note' | t }}"
+            >{{ cart.note }}</textarea>
+          </cart-note>
+        </details>
       {%- endif -%}
 
-      <div class="cart__blocks">
-        {% for block in section.blocks %}
-          {%- case block.type -%}
-            {%- when '@app' -%}
-              {% render block %}
-            {%- when 'subtotal' -%}
-              <div class="js-contents" {{ block.shopify_attributes }}>
-                <div>
-                  {%- if cart.cart_level_discount_applications.size > 0 -%}
-                    <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
-                      {%- for discount in cart.cart_level_discount_applications -%}
-                        <li class="discounts__discount discounts__discount--position">
-                          {{- 'icon-discount.svg' | inline_asset_content -}}
-                          {{ discount.title | escape }}
-                          (-{{ discount.total_allocated_amount | money }})
-                        </li>
-                      {%- endfor -%}
-                    </ul>
-                  {%- endif -%}
-                </div>
-
-                <div class="totals">
-                  <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
-                  <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
-                </div>
-
-                <small class="tax-note caption-large rte">
-                  {%- if cart.duties_included and cart.taxes_included -%}
-                    {%- if shop.shipping_policy.body == blank -%}
-                      {{ 'sections.cart.duties_and_taxes_included_shipping_at_checkout_without_policy' | t }}
-                    {%- else -%}
-                      {{
-                        'sections.cart.duties_and_taxes_included_shipping_at_checkout_with_policy_html'
-                        | t: link: shop.shipping_policy.url
-                      }}
-                    {%- endif -%}
-                  {%- elsif cart.duties_included == false and cart.taxes_included -%}
-                    {%- if shop.shipping_policy.body == blank -%}
-                      {{ 'sections.cart.taxes_included_shipping_at_checkout_without_policy' | t }}
-                    {%- else -%}
-                      {{
-                        'sections.cart.taxes_included_shipping_at_checkout_with_policy_html'
-                        | t: link: shop.shipping_policy.url
-                      }}
-                    {%- endif -%}
-                  {%- elsif cart.duties_included and cart.taxes_included == false -%}
-                    {%- if shop.shipping_policy.body == blank -%}
-                      {{ 'sections.cart.duties_included_taxes_at_checkout_shipping_at_checkout_without_policy' | t }}
-                    {%- else -%}
-                      {{
-                        'sections.cart.duties_included_taxes_at_checkout_shipping_at_checkout_with_policy_html'
-                        | t: link: shop.shipping_policy.url
-                      }}
-                    {%- endif -%}
-                  {%- elsif cart.duties_included == false and cart.taxes_included == false -%}
-                    {%- if shop.shipping_policy.body == blank -%}
-                      {{ 'sections.cart.taxes_at_checkout_shipping_at_checkout_without_policy' | t }}
-                    {%- else -%}
-                      {{
-                        'sections.cart.taxes_at_checkout_shipping_at_checkout_with_policy_html'
-                        | t: link: shop.shipping_policy.url
-                      }}
-                    {%- endif -%}
-                  {%- endif -%}
-                </small>
-              </div>
+      {%- comment -%} ===== Real-time offer bar ===== {%- endcomment -%}
+      <div
+        class="buzzko-offer{% if offer_unlocked %} buzzko-offer--unlocked{% endif %}"
+        data-buzzko-offer
+        data-threshold="{{ offer_threshold }}"
+        data-percent="{{ offer_percent }}"
+        data-discount-code="{{ discount_code }}"
+        aria-live="polite"
+      >
+        <div class="buzzko-offer__row">
+          <span class="buzzko-offer__sparkle" aria-hidden="true">✦</span>
+          <span data-buzzko-offer-label>
+            {%- if offer_unlocked -%}
+              {{ offer_percent }}% off unlocked! ✨
             {%- else -%}
-              <div class="cart__ctas" {{ block.shopify_attributes }}>
-                <button
-                  type="submit"
-                  id="checkout"
-                  class="cart__checkout-button button"
-                  name="checkout"
-                  {% if cart == empty %}
-                    disabled
-                  {% endif %}
-                  form="cart"
-                >
-                  {{ 'sections.cart.checkout' | t }}
-                </button>
-              </div>
+              Add {{ offer_remaining | money }} more to unlock {{ offer_percent }}% off!
+            {%- endif -%}
+          </span>
+        </div>
+        <div class="buzzko-offer__track">
+          <div
+            class="buzzko-offer__fill"
+            data-buzzko-offer-fill
+            style="width: {{ offer_progress }}%;"
+          ></div>
+        </div>
+      </div>
 
-              {%- if additional_checkout_buttons -%}
-                <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
-                  {{ content_for_additional_checkout_buttons }}
-                </div>
-              {%- endif -%}
-          {%- endcase -%}
-        {% endfor %}
+      <div class="buzzko-total">
+        <h3 class="buzzko-total__label">Total</h3>
+        <p
+          class="buzzko-total__value"
+          data-buzzko-total
+          data-total-cents="{{ cart.total_price }}"
+        >{{ initial_discounted_total | money }}</p>
+      </div>
 
-        <div id="cart-errors"></div>
+      <div class="cart__ctas">
+        <button
+          type="submit"
+          id="checkout"
+          class="cart__checkout-button"
+          name="checkout"
+          form="cart"
+        >
+          Proceed to Checkout
+        </button>
+      </div>
+
+      {%- if additional_checkout_buttons -%}
+        <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
+          {{ content_for_additional_checkout_buttons }}
+        </div>
+      {%- endif -%}
+
+      <div class="buzzko-trust">
+        <div class="buzzko-trust__row">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M8 1.5l5 2v4c0 3-2.5 5.5-5 7-2.5-1.5-5-4-5-7v-4l5-2z" stroke-linejoin="round"/>
+            <path d="M5.5 8l1.8 1.8L10.5 6.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Secure checkout, encrypted payment</span>
+        </div>
+        <div class="buzzko-trust__row">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M2 5.5h8v6H2zM10 7h2.5L14 9v2.5h-4z" stroke-linejoin="round"/>
+            <circle cx="4.5" cy="11.5" r="1.2"/>
+            <circle cx="11.5" cy="11.5" r="1.2"/>
+          </svg>
+          <span>Free delivery on orders above ₹499</span>
+        </div>
       </div>
     </div>
-  </div>
+  {%- endif -%}
 </div>
+
+<script>
+  (function () {
+    if (window.__buzzkoCartFooterInit) return;
+    window.__buzzkoCartFooterInit = true;
+
+    var DEBUG = false;
+    function log() {
+      if (DEBUG && window.console) {
+        console.log.apply(console, ['[BuzzKo cart]'].concat([].slice.call(arguments)));
+      }
+    }
+
+    var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+
+    /* ---------- Money ---------- */
+    var moneyFmtEl = document.querySelector('[data-buzzko-money-format]');
+    var MONEY_FORMAT = moneyFmtEl ? moneyFmtEl.getAttribute('data-buzzko-money-format') : '{{amount}}';
+
+    function formatMoney(cents) {
+      try {
+        if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+          return window.Shopify.formatMoney(cents, MONEY_FORMAT);
+        }
+      } catch (e) {}
+      return (Number(cents) / 100).toFixed(2);
+    }
+
+    /* ---------- Render ---------- */
+    var lastRenderedTotalText = null;
+    var __updating = false;
+
+    function renderCart(cart) {
+      if (!cart || typeof cart.total_price !== 'number') {
+        log('renderCart: invalid cart payload', cart);
+        return;
+      }
+      log('renderCart', cart);
+
+      __updating = true;
+      try {
+        var offerEl = document.querySelector('[data-buzzko-offer]');
+        var threshold = 50000;
+        var percent = 10;
+        var total = cart.total_price;
+        var unlocked = false;
+
+        if (offerEl) {
+          var t = parseInt(offerEl.getAttribute('data-threshold'), 10);
+          var p = parseInt(offerEl.getAttribute('data-percent'), 10);
+          if (!isNaN(t) && t > 0) threshold = t;
+          if (!isNaN(p) && p > 0) percent = p;
+
+          var progress = Math.min(100, (total / threshold) * 100);
+          unlocked = total >= threshold;
+
+          var fill = offerEl.querySelector('[data-buzzko-offer-fill]');
+          var label = offerEl.querySelector('[data-buzzko-offer-label]');
+
+          if (fill) {
+            fill.style.setProperty('width', progress + '%', 'important');
+          }
+
+          offerEl.classList.toggle('buzzko-offer--unlocked', unlocked);
+
+          if (label) {
+            if (unlocked) {
+              label.textContent = percent + '% off unlocked! ✨';
+            } else {
+              label.textContent = 'Add ' + formatMoney(threshold - total) +
+                                  ' more to unlock ' + percent + '% off!';
+            }
+          }
+        }
+
+        /* === Discount row + discounted total === */
+        var discountRow = document.querySelector('[data-buzzko-discount-row]');
+        var discountAmountEl = document.querySelector('[data-buzzko-discount-amount]');
+        var totalEl = document.querySelector('[data-buzzko-total]');
+
+        var discountCents = 0;
+        var finalTotal = total;
+
+        if (unlocked) {
+          discountCents = Math.round(total * percent / 100);
+          finalTotal = total - discountCents;
+        }
+
+        if (discountRow) {
+          discountRow.hidden = !unlocked;
+        }
+        if (discountAmountEl && unlocked) {
+          discountAmountEl.textContent = '-' + formatMoney(discountCents);
+        }
+
+        if (totalEl) {
+          /* Always keep the raw total in a data attribute for checkout */
+          totalEl.setAttribute('data-total-cents', String(total));
+
+          var nextTotal = formatMoney(finalTotal);
+          if (totalEl.textContent.trim() !== nextTotal) {
+            totalEl.textContent = nextTotal;
+            totalEl.classList.remove('is-updated');
+            void totalEl.offsetWidth;
+            totalEl.classList.add('is-updated');
+          }
+          lastRenderedTotalText = nextTotal;
+        }
+
+        /* === Subtotal === */
+        var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
+        if (subtotalEl && cart.items_subtotal_price != null) {
+          subtotalEl.textContent = formatMoney(cart.items_subtotal_price);
+        }
+
+        /* === "₹X each" labels === */
+        if (Array.isArray(cart.items)) {
+          cart.items.forEach(function (line) {
+            var eachEl = document.querySelector(
+              '[data-buzzko-each][data-line-key="' + line.key + '"]'
+            );
+            if (!eachEl) return;
+
+            if (line.quantity > 1) {
+              eachEl.hidden = false;
+              eachEl.textContent = formatMoney(line.final_price) + ' each';
+            } else {
+              eachEl.hidden = true;
+            }
+          });
+        }
+      } finally {
+        setTimeout(function () { __updating = false; }, 200);
+      }
+    }
+
+    /* ---------- Debounced refetch ---------- */
+    var refreshTimer = null;
+    function scheduleRefresh() {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(function () {
+        _fetch.call(window, ROOT + 'cart.js', { headers: { Accept: 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(renderCart)
+          .catch(function (err) { log('refresh failed', err); });
+      }, 80);
+    }
+
+    /* ---------- Intercept fetch ---------- */
+    var CART_RE = /\/cart\/(change|update|add|clear)/;
+    var _fetch = window.fetch;
+
+    if (typeof _fetch === 'function') {
+      window.fetch = function (input, init) {
+        var url = typeof input === 'string' ? input : (input && input.url) || '';
+        var promise = _fetch.apply(this, arguments);
+
+        if (CART_RE.test(url)) {
+          log('fetch intercepted:', url);
+          promise.then(function (response) {
+            try {
+              response.clone().json().then(function (data) {
+                if (data && typeof data.total_price === 'number') {
+                  renderCart(data);
+                } else {
+                  scheduleRefresh();
+                }
+              }).catch(function () { scheduleRefresh(); });
+            } catch (e) { scheduleRefresh(); }
+          }).catch(function () {});
+        }
+        return promise;
+      };
+    }
+
+    /* ---------- Intercept XHR ---------- */
+    var _open = XMLHttpRequest.prototype.open;
+    var _send = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function (method, url) {
+      this.__buzzkoCartUrl = url;
+      return _open.apply(this, arguments);
+    };
+
+    XMLHttpRequest.prototype.send = function () {
+      var xhr = this;
+      if (xhr.__buzzkoCartUrl && CART_RE.test(String(xhr.__buzzkoCartUrl))) {
+        log('XHR intercepted:', xhr.__buzzkoCartUrl);
+        xhr.addEventListener('load', function () {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (data && typeof data.total_price === 'number') renderCart(data);
+            else scheduleRefresh();
+          } catch (e) { scheduleRefresh(); }
+        });
+      }
+      return _send.apply(this, arguments);
+    };
+
+    /* ---------- Fallback: watch total for external changes ---------- */
+    (function watchTotal() {
+      var totalEl = document.querySelector('[data-buzzko-total]');
+      if (!totalEl) { setTimeout(watchTotal, 300); return; }
+
+      var observer = new MutationObserver(function () {
+        if (__updating) return;
+        var currentText = totalEl.textContent.trim();
+        if (lastRenderedTotalText !== null && currentText !== lastRenderedTotalText) {
+          log('total changed externally:', currentText, '(was', lastRenderedTotalText + ')');
+          scheduleRefresh();
+        }
+      });
+      observer.observe(totalEl, { childList: true, characterData: true, subtree: true });
+    })();
+
+    /* ---------- Promo code ---------- */
+    document.addEventListener('submit', function (event) {
+      var form = event.target;
+      if (!form.matches || !form.matches('[data-buzzko-promo]')) return;
+      event.preventDefault();
+
+      var input = form.querySelector('input');
+      var code = input && input.value ? input.value.trim() : '';
+      if (!code) return;
+
+      window.location.href = ROOT + 'discount/' + encodeURIComponent(code) +
+                             '?redirect=' + encodeURIComponent(ROOT + 'cart');
+    });
+
+    /* ---------- Gift checkbox ---------- */
+    document.addEventListener('change', function (event) {
+      var cb = event.target;
+      if (!cb.matches || !cb.matches('[data-buzzko-gift]')) return;
+
+      var value = cb.checked ? 'Yes' : '';
+      document.querySelectorAll('[data-buzzko-gift]').forEach(function (other) {
+        if (other !== cb) other.checked = cb.checked;
+      });
+
+      _fetch.call(window, ROOT + 'cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ attributes: { gift: value } })
+      }).catch(function () {});
+    });
+
+    /* ---------- Checkout: pass discount code when offer is unlocked ---------- */
+    document.addEventListener('click', function (event) {
+      var btn = event.target.closest && event.target.closest('#checkout');
+      if (!btn) return;
+
+      var totalEl = document.querySelector('[data-buzzko-total]');
+      var offerEl = document.querySelector('[data-buzzko-offer]');
+      if (!totalEl || !offerEl) return;
+
+      var cents = parseInt(totalEl.getAttribute('data-total-cents'), 10) || 0;
+      var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
+      var code = offerEl.getAttribute('data-discount-code') || '';
+
+      if (cents >= threshold && code) {
+        event.preventDefault();
+        log('checkout with discount', code, 'total', cents);
+        window.location.href = ROOT + 'checkout?discount=' + encodeURIComponent(code);
+      }
+    }, true); /* capture phase so we run before the form submits */
+  })();
+</script>
 
 {% schema %}
 {
   "name": "t:sections.main-cart-footer.name",
   "class": "cart__footer-wrapper",
   "settings": [
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.all.padding.section_padding_heading"
-    },    
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_top",
-      "default": 40
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_bottom",
-      "default": 40
-    }
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:sections.all.colors.label", "default": "scheme-1" },
+    { "type": "header", "content": "t:sections.all.padding.section_padding_heading" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "t:sections.all.padding.padding_top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "t:sections.all.padding.padding_bottom", "default": 0 }
   ],
   "blocks": [
-    {
-      "type": "subtotal",
-      "name": "t:sections.main-cart-footer.blocks.subtotal.name",
-      "limit": 1
-    },
-    {
-      "type": "buttons",
-      "name": "t:sections.main-cart-footer.blocks.buttons.name",
-      "limit": 1
-    },
-    {
-      "type": "@app"
-    }
+    { "type": "subtotal", "name": "t:sections.main-cart-footer.blocks.subtotal.name", "limit": 1 },
+    { "type": "buttons", "name": "t:sections.main-cart-footer.blocks.buttons.name", "limit": 1 },
+    { "type": "@app" }
   ]
 }
 {% endschema %}
