@@ -187,6 +187,24 @@
   width: 1.8rem;
   height: 1.8rem;
 }
+
+
+#MainProduct-{{ section.id }} #price-{{ section.id }} {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+#MainProduct-{{ section.id }} .price-per-piece {
+  display: inline-block;
+  font-size: 1.3rem;
+  color: #777;
+  font-weight: 400;
+  margin: 0;
+  position: relative;
+  top: 0.35em;
+}
   {%- endstyle -%}
 
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
@@ -264,6 +282,7 @@
                       show_badges: true,
                       price_class: 'price--large'
                     -%}
+                    <span class="price-per-piece">per piece</span>
                   </div>
                   {%- if product.quantity_price_breaks_configured? -%}
                     <div class="volume-pricing-note" id="Volume-Note-{{ section.id }}">
