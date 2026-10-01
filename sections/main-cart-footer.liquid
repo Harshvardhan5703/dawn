@@ -710,18 +710,26 @@
         }
 
         /* === "₹X each" labels === */
-        if (Array.isArray(cart.items)) {
+                if (Array.isArray(cart.items)) {
           cart.items.forEach(function (line) {
             var eachEl = document.querySelector(
               '[data-buzzko-each][data-line-key="' + line.key + '"]'
             );
-            if (!eachEl) return;
+            if (eachEl) {
+              if (line.quantity > 1) {
+                eachEl.hidden = false;
+                eachEl.textContent = formatMoney(line.final_price) + ' each';
+              } else {
+                eachEl.hidden = true;
+              }
+            }
 
-            if (line.quantity > 1) {
-              eachEl.hidden = false;
-              eachEl.textContent = formatMoney(line.final_price) + ' each';
-            } else {
-              eachEl.hidden = true;
+            var compareEl = document.querySelector(
+              '[data-buzzko-compare][data-line-key="' + line.key + '"]'
+            );
+            if (compareEl) {
+              var unitCompare = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
+              compareEl.textContent = formatMoney(unitCompare * line.quantity);
             }
           });
         }

@@ -154,7 +154,7 @@
   }
 
   .buzzko-item__stock {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
     margin-top: 8px;
@@ -711,14 +711,20 @@
                 </div>
 
                 <div class="buzzko-item__right">
-                  <div class="buzzko-item__price">
+                 <div class="buzzko-item__price">
   {%- if item.original_line_price != item.final_line_price -%}
     <span>{{ item.final_line_price | money }}</span>
     <s class="buzzko-item__price-compare">{{ item.original_line_price | money }}</s>
   {%- else -%}
     <span>{{ item.original_line_price | money }}</span>
     {%- if show_compare -%}
-      <s class="buzzko-item__price-compare">{{ item.variant.compare_at_price | money }}</s>
+      {%- assign compare_line = item.variant.compare_at_price | times: item.quantity -%}
+      <s
+        class="buzzko-item__price-compare"
+        data-buzzko-compare
+        data-line-key="{{ item.key }}"
+        data-compare-unit="{{ item.variant.compare_at_price }}"
+      >{{ compare_line | money }}</s>
     {%- endif -%}
   {%- endif -%}
 </div>
