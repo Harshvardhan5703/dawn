@@ -337,12 +337,78 @@
   if (!root || root.dataset.buzzkoAtcInit === 'true') return;
   root.dataset.buzzkoAtcInit = 'true';
 
+  // Respect locale/market subfolders (e.g. /en/cart/add.js)
+  var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+
+  /* ---------- helpers ---------- */
+
   function state(button, value, label) {
     if (value) button.setAttribute('data-state', value);
     else button.removeAttribute('data-state');
-
-    if (label) button.textContent = label;
+    if (typeof label === 'string') button.textContent = label;
   }
+
+  // Parse an HTML string and pull a specific element out of it.
+  function pick(html, selector) {
+    if (!html) return null;
+    return new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
+  }
+
+  /**
+   * Render the section HTML that /cart/add.js returns when you pass
+   * `sections=cart-drawer,cart-icon-bubble`. This is what actually creates
+   * the cart-count bubble on the very first add of a session — the bubble
+   * simply isn't in the DOM while the cart is empty.
+   */
+  function renderSections(sections) {
+    if (!sections) return;
+
+    // 1. Cart drawer (Dawn-style)
+    var drawer = document.querySelector('cart-drawer');
+    if (drawer && sections['cart-drawer']) {
+      var currentInner = drawer.querySelector('.drawer__inner');
+      var freshInner = pick(sections['cart-drawer'], '.drawer__inner');
+      if (currentInner && freshInner) {
+        currentInner.innerHTML = freshInner.innerHTML;
+      }
+    }
+
+    // 2. Cart count bubble — creates it on the first add of the session
+    if (sections['cart-icon-bubble']) {
+      var oldBubble = document.querySelector('.cart-count-bubble');
+      var host =
+        document.getElementById('cart-icon-bubble') ||
+        (oldBubble && oldBubble.parentElement);
+
+      if (host) {
+        var newBubble = pick(sections['cart-icon-bubble'], '.cart-count-bubble');
+        if (newBubble) {
+          if (oldBubble) oldBubble.replaceWith(newBubble);
+          else host.appendChild(newBubble);   // <-- first-add case
+        } else if (oldBubble) {
+          oldBubble.remove();                 // cart emptied
+        }
+      }
+    }
+  }
+
+  // Fallback: patch any count nodes already in the DOM.
+  function updateCounts(cart) {
+    if (!cart || typeof cart.item_count !== 'number') return;
+    document.querySelectorAll('[data-cart-count], .cart-count').forEach(function (el) {
+      var next = String(cart.item_count);
+      if (el.textContent !== next) el.textContent = next;
+    });
+  }
+
+  function openDrawer() {
+    var drawer = document.querySelector('cart-drawer');
+    if (drawer && typeof drawer.open === 'function') {
+      try { drawer.open(); } catch (e) { /* noop */ }
+    }
+  }
+
+  /* ---------- main handler (delegated on product-recommendations root) ---------- */
 
   root.addEventListener('submit', function (event) {
     var form = event.target;
@@ -357,7 +423,7 @@
       return;
     }
 
-    var normal = button.dataset.labelDefault || 'Add';
+    var normal = button.dataset.labelDefault || 'Add to Cart';
 
     state(button, 'loading', button.dataset.labelLoading || 'Adding…');
     button.disabled = true;
@@ -366,7 +432,7 @@
     data.append('sections', 'cart-drawer,cart-icon-bubble');
     data.append('sections_url', window.location.pathname);
 
-    fetch('/cart/add.js', {
+    fetch(ROOT + 'cart/add.js', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -374,65 +440,44 @@
       },
       body: data
     })
-    .then(function (res) {
-      if (!res.ok) {
-        return res.json().then(function (err) {
-          throw err;
+      .then(function (res) {
+        return res.json().then(function (json) {
+          if (!res.ok) throw json;
+          return json;
         });
-      }
+      })
+      .then(function (added) {
+        // 1) Inject server-rendered sections — creates the count bubble
+        //    on the first add of the session.
+        renderSections(added.sections);
 
-      return res.json();
-    })
-    .then(function () {
-      return fetch('/cart.js', {
-        headers: {
-          'Accept': 'application/json'
-        }
-      }).then(function (res) {
-        return res.json();
-      });
-    })
-    .then(function (cart) {
-      state(button, 'success', button.dataset.labelSuccess || 'Added ✓');
+        // 2) Fetch fresh cart state and patch any remaining count nodes.
+        return fetch(ROOT + 'cart.js', {
+          headers: { 'Accept': 'application/json' }
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (cart) {
+            updateCounts(cart);
+            openDrawer();
+          });
+      })
+      .then(function () {
+        state(button, 'success', button.dataset.labelSuccess || 'Added ✓');
 
-      var drawer = document.querySelector('cart-drawer');
-
-      if (drawer && typeof drawer.open === 'function') {
-        try {
-          drawer.open();
-        } catch (e) {}
-      }
-
-      document.dispatchEvent(new CustomEvent('cart:update', {
-        bubbles: true,
-        detail: { cart: cart }
-      }));
-
-      document.dispatchEvent(new CustomEvent('cart:refresh', {
-        bubbles: true,
-        detail: { cart: cart }
-      }));
-
-      document.querySelectorAll(
-        '[data-cart-count], .cart-count-bubble span, .cart-count'
-      ).forEach(function (el) {
-        el.textContent = cart.item_count;
-      });
-
-      setTimeout(function () {
-        state(button, '', normal);
+        setTimeout(function () {
+          state(button, '', normal);
+          button.disabled = false;
+        }, 1400);
+      })
+      .catch(function (error) {
+        console.error('[BuzzKo ATC]', error);
+        state(button, '', 'Try again');
         button.disabled = false;
-      }, 1400);
-    })
-    .catch(function (error) {
-      console.error('[BuzzKo ATC]', error);
-      state(button, '', 'Try again');
-      button.disabled = false;
 
-      setTimeout(function () {
-        state(button, '', normal);
-      }, 1600);
-    });
+        setTimeout(function () {
+          state(button, '', normal);
+        }, 1600);
+      });
   });
 })();
 </script>
