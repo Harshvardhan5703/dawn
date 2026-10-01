@@ -1,3 +1,4 @@
+
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
@@ -10,7 +11,7 @@
 
 {% if section.settings.image_shape == 'blob' %}
   {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
-{%- endif -%}
+{%- endif %}
 
 <script src="{{ 'main-search.js' | asset_url }}" defer="defer"></script>
 
@@ -161,41 +162,111 @@
     height: 1.25rem;
   }
 
+  /* ===== BuzzKo empty search state ===== */
   .buzzko-search-empty {
-    max-width: 72rem;
-    margin: 2.5rem auto 4rem;
-    padding: 4rem 2.4rem;
-    border: 2px solid #1A1A1A;
-    border-radius: 2rem;
-    background: #fff;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    max-width: 78rem;
+    min-height: 30rem;
+    margin: 3rem auto 5rem;
+    padding: 6rem 2.5rem;
+    border: 1.5px solid #F8B5D1;
+    border-radius: 2.4rem;
+    background: #FFFAF5;
     text-align: center;
-    box-shadow: 6px 6px 0 #F7CFCF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .buzzko-search-empty::before,
+  .buzzko-search-empty::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .buzzko-search-empty::before {
+    width: 19rem;
+    height: 19rem;
+    top: -9rem;
+    left: -5rem;
+    background: #F8B5D1;
+    opacity: 0.35;
+  }
+
+  .buzzko-search-empty::after {
+    width: 17rem;
+    height: 17rem;
+    right: -5rem;
+    bottom: -8rem;
+    background: #BEE3F8;
+    opacity: 0.5;
   }
 
   .buzzko-search-empty__emoji {
-    display: block;
-    margin-bottom: 1rem;
-    font-size: 3.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 6.5rem;
+    height: 6.5rem;
+    margin-bottom: 2rem;
+    border-radius: 50%;
+    background: #FFECB3;
+    font-size: 3rem;
     line-height: 1;
+    box-shadow: 4px 4px 0 #1A1A1A;
   }
 
   .buzzko-search-empty h2 {
-    margin: 0 0 0.8rem;
+    max-width: 55rem;
+    margin: 0 0 1.2rem;
     color: #1A1A1A;
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-size: clamp(2.5rem, 4vw, 4rem);
     font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
   }
 
   .buzzko-search-empty p {
+    max-width: 48rem;
     margin: 0;
-    color: #666;
+    color: #6B6663;
     font-size: 1.5rem;
-    line-height: 1.5;
+    line-height: 1.7;
   }
 
-  .buzzko-search-empty .underlined-link {
+  .buzzko-search-empty .buzzko-search-contact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2.2rem;
+    padding: 1.2rem 2.4rem;
+    border: 1.5px solid #1A1A1A;
+    border-radius: 999px;
+    background: #F8B5D1;
     color: #1A1A1A;
+    font-size: 1.5rem;
     font-weight: 700;
+    text-decoration: none;
+    box-shadow: 3px 3px 0 #1A1A1A;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  .buzzko-search-empty .buzzko-search-contact:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #1A1A1A;
+  }
+
+  .buzzko-search-empty__note {
+    margin-top: 1.5rem;
+    color: #96908B;
+    font-size: 1.2rem;
   }
 
   @media screen and (max-width: 749px) {
@@ -241,9 +312,38 @@
     }
 
     .buzzko-search-empty {
+      min-height: 27rem;
       margin: 2rem 1.5rem 3rem;
-      padding: 3rem 1.8rem;
-      border-radius: 1.5rem;
+      padding: 4rem 2rem;
+      border-radius: 1.8rem;
+    }
+
+    .buzzko-search-empty::before {
+      width: 13rem;
+      height: 13rem;
+      top: -6rem;
+      left: -5rem;
+    }
+
+    .buzzko-search-empty::after {
+      width: 12rem;
+      height: 12rem;
+      right: -4rem;
+      bottom: -5rem;
+    }
+
+    .buzzko-search-empty__emoji {
+      width: 5.5rem;
+      height: 5.5rem;
+      font-size: 2.5rem;
+    }
+
+    .buzzko-search-empty h2 {
+      font-size: 2.6rem;
+    }
+
+    .buzzko-search-empty p {
+      font-size: 1.35rem;
     }
   }
 
@@ -508,7 +608,7 @@
                   spellcheck="false"
                 {%- endif -%}
               >
-            
+
               <input name="options[prefix]" type="hidden" value="last">
 
               {%- if settings.predictive_search_enabled -%}
@@ -540,6 +640,7 @@
           </predictive-search>
         {%- endif -%}
       </div>
+
       {%- if search.performed -%}
         {%- unless section.settings.enable_filtering or section.settings.enable_sorting -%}
           {%- if search.results_count > 0 -%}
@@ -548,15 +649,27 @@
             </p>
           {%- endif -%}
         {%- endunless -%}
+
         {%- if search.results_count == 0 and search.filters == empty -%}
           <div class="buzzko-search-empty" role="status">
-            <span class="buzzko-search-empty__emoji" aria-hidden="true">🧸 ✨</span>
-            <h2>Oops! Nothing found</h2>
-            <p>We couldn't find anything for “{{ search.terms | escape }}”. Try another search and let's find your next favourite!</p>
+            <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
+            <h2>Didn't find your little favourite?</h2>
+            <p>
+              We couldn't find anything for “{{ search.terms | escape }}”.
+              But don't worry, we're here to help you find it!
+            </p>
+            <a href="{{ routes.contact_url }}" class="buzzko-search-contact">
+              Contact us
+              <span aria-hidden="true">↗</span>
+            </a>
+            <span class="buzzko-search-empty__note">
+              Let's find something you'll love.
+            </span>
           </div>
         {%- endif -%}
       {%- endif -%}
     </div>
+
     {%- if search.performed -%}
       {%- if section.settings.enable_sorting
         and section.settings.filter_type == 'vertical'
@@ -598,23 +711,20 @@
             <div class="product-count-vertical light" role="status">
               <h2 class="product-count__text text-body">
                 <span id="ProductCountDesktop">
-                  {%- if search.results_count -%}
-                    {{ 'templates.search.results_with_count' | t: terms: search.terms, count: search.results_count }}
-                  {%- elsif search.products_count == search.all_products_count -%}
-                    {{ 'products.facets.product_count_simple' | t: count: search.products_count }}
-                  {%- else -%}
-                    {{
-                      'products.facets.product_count'
-                      | t: product_count: search.products_count, count: search.all_products_count
-                    }}
-                  {%- endif -%}
-                </span>
+  {{ search.products_count }} 
+  {% if search.products_count == 1 %}
+    product
+  {% else %}
+    products
+  {% endif %}
+</span>
               </h2>
               {%- render 'loading-spinner' -%}
             </div>
           </form>
         </facet-filters-form>
       {%- endif -%}
+
       <div
         {% if section.settings.filter_type == 'vertical' %}
           class="facets-vertical page-width"
@@ -638,6 +748,7 @@
             </aside>
           {%- endif -%}
         {%- endif -%}
+
         <div class="product-grid-container" id="ProductGridContainer">
           {%- if search.results.size == 0 and search.filters != empty -%}
             <div
@@ -647,12 +758,19 @@
             >
               <div class="loading-overlay gradient"></div>
               <div class="buzzko-search-empty" role="status">
-                <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎 💗</span>
-                <h2>No cute finds here!</h2>
+                <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
+                <h2>Didn't find your little favourite?</h2>
                 <p>
-                  Try removing a filter to see more goodies.
-                  <a href="{{ search_url }}" class="underlined-link link">Clear filters</a>
+                  We couldn't find anything for “{{ search.terms | escape }}”.
+                  But don't worry, we're here to help you find it!
                 </p>
+                <a href="{{ routes.contact_url }}" class="buzzko-search-contact">
+                  Contact us
+                  <span aria-hidden="true">↗</span>
+                </a>
+                <span class="buzzko-search-empty__note">
+                  Let's find something you'll love.
+                </span>
               </div>
             </div>
           {%- else -%}
@@ -663,7 +781,7 @@
             >
               <div class="loading-overlay gradient"></div>
               <ul
-                class="grid product-grid  grid--{{ section.settings.columns_mobile }}-col-tablet-down grid--{{ section.settings.columns_desktop }}-col-desktop"
+                class="grid product-grid grid--{{ section.settings.columns_mobile }}-col-tablet-down grid--{{ section.settings.columns_desktop }}-col-desktop"
                 role="list"
               >
                 {%- assign skip_card_product_styles = false -%}
@@ -756,6 +874,7 @@
                           </div>
                         </div>
                         {%- assign buzzko_index = buzzko_index | plus: 1 -%}
+
                       {%- when 'article' -%}
                         {% render 'article-card',
                           article: item,
@@ -766,6 +885,7 @@
                           media_aspect_ratio: 1,
                           lazy_load: lazy_load
                         %}
+
                       {%- when 'page' -%}
                         <div class="article-card-wrapper card-wrapper underline-links-hover">
                           <div
@@ -792,6 +912,7 @@
                   </li>
                 {%- endfor -%}
               </ul>
+
               {%- if paginate.pages > 1 -%}
                 {% render 'pagination', paginate: paginate %}
               {%- endif -%}
@@ -802,6 +923,7 @@
     {%- endif -%}
   </div>
 {% endpaginate %}
+
 {% if section.settings.image_shape == 'arch' %}
   {{ 'mask-arch.svg' | inline_asset_content }}
 {%- endif -%}
