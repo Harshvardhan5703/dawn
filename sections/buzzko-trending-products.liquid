@@ -559,6 +559,9 @@
     if (sectionEl.dataset.buzzkoAtcInit === 'true') return;
     sectionEl.dataset.buzzkoAtcInit = 'true';
 
+    // Respect locale/market subfolders (e.g. /en/cart/add.js)
+    var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+
     // ---------- helpers ----------
 
     function setButtonState(button, state, label) {
@@ -573,25 +576,68 @@
       }
     }
 
-    // Broadcast to the theme so the cart drawer / count updates.
-    function notifyTheme(cart) {
-      // Standard events most themes (Dawn, Refresh, Craft, etc.) listen for
-      document.dispatchEvent(new CustomEvent('cart:update', { bubbles: true, detail: { cart: cart } }));
-      document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true, detail: { cart: cart } }));
+    // Parse an HTML string and pull a specific element out of it.
+    function pick(html, selector) {
+      if (!html) return null;
+      return new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
+    }
 
-      // Dawn-specific: if a cart-drawer element exists, tell it to re-render
+    /**
+     * Render the section HTML that /cart/add.js returns when you pass
+     * `sections=cart-drawer,cart-icon-bubble`. This is what actually creates
+     * the cart-count bubble on the very first add of a session — the bubble
+     * simply isn't in the DOM while the cart is empty.
+     */
+    function renderSections(sections) {
+      if (!sections) return;
+
+      // 1. Cart drawer (Dawn-style)
       var drawer = document.querySelector('cart-drawer');
-      if (drawer && typeof drawer.renderContents === 'function') {
-        try { drawer.renderContents({}); } catch (e) { /* noop */ }
+      if (drawer && sections['cart-drawer']) {
+        var currentInner = drawer.querySelector('.drawer__inner');
+        var freshInner = pick(sections['cart-drawer'], '.drawer__inner');
+        if (currentInner && freshInner) {
+          currentInner.innerHTML = freshInner.innerHTML;
+        }
       }
 
-      // Belt-and-braces: update any visible cart count bubbles
-      if (cart && typeof cart.item_count === 'number') {
-        document.querySelectorAll('[data-cart-count], .cart-count-bubble span, .cart-count').forEach(function (el) {
-          if (el && el.textContent !== String(cart.item_count)) {
-            el.textContent = cart.item_count;
+      // 2. Cart count bubble — the piece that was silently skipped before
+      if (sections['cart-icon-bubble']) {
+        var oldBubble = document.querySelector('.cart-count-bubble');
+        var host =
+          document.getElementById('cart-icon-bubble') ||
+          (oldBubble && oldBubble.parentElement);
+
+        if (host) {
+          var newBubble = pick(sections['cart-icon-bubble'], '.cart-count-bubble');
+          if (newBubble) {
+            if (oldBubble) {
+              oldBubble.replaceWith(newBubble);
+            } else {
+              // First add of the session: bubble didn't exist → create it.
+              host.appendChild(newBubble);
+            }
+          } else if (oldBubble) {
+            // Cart emptied server-side → remove stale bubble.
+            oldBubble.remove();
           }
-        });
+        }
+      }
+    }
+
+    // Fallback / belt-and-braces: patch any count nodes already in the DOM.
+    function updateCounts(cart) {
+      if (!cart || typeof cart.item_count !== 'number') return;
+      document.querySelectorAll('[data-cart-count], .cart-count').forEach(function (el) {
+        var next = String(cart.item_count);
+        if (el.textContent !== next) el.textContent = next;
+      });
+    }
+
+    function openDrawer() {
+      var drawer = document.querySelector('cart-drawer');
+      if (drawer && typeof drawer.open === 'function') {
+        try { drawer.open(); } catch (e) { /* noop */ }
       }
     }
 
@@ -620,7 +666,7 @@
       formData.append('sections', 'cart-drawer,cart-icon-bubble');
       formData.append('sections_url', window.location.pathname);
 
-      fetch('/cart/add.js', {
+      fetch(ROOT + 'cart/add.js', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -629,27 +675,28 @@
         body: formData
       })
         .then(function (res) {
-          if (!res.ok) {
-            return res.json().then(function (err) { throw err; });
-          }
-          return res.json();
+          return res.json().then(function (data) {
+            if (!res.ok) throw data;
+            return data;
+          });
+        })
+        .then(function (added) {
+          // 1) Inject the server-rendered sections (creates the bubble
+          //    on the first add of the session).
+          renderSections(added.sections);
+
+          // 2) Fetch fresh cart state and patch any remaining count nodes.
+          return fetch(ROOT + 'cart.js', {
+            headers: { 'Accept': 'application/json' }
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (cart) {
+              updateCounts(cart);
+              openDrawer();
+            });
         })
         .then(function () {
-          // Fetch fresh cart state so the theme can update counts/drawer
-          return fetch('/cart.js', {
-            headers: { 'Accept': 'application/json' }
-          }).then(function (r) { return r.json(); });
-        })
-        .then(function (cart) {
           setButtonState(button, 'success', successLabel);
-
-          // Try to open the theme cart drawer if one exists
-          var drawer = document.querySelector('cart-drawer');
-          if (drawer && typeof drawer.open === 'function') {
-            try { drawer.open(); } catch (e) { /* noop */ }
-          }
-
-          notifyTheme(cart);
 
           // Revert button back to "Add" after a beat
           setTimeout(function () {
@@ -726,8 +773,7 @@
         {
           "type": "text",
           "id": "subtitle",
-          "label": "Subtitle",
-         
+          "label": "Subtitle"
         },
 
         {
