@@ -34,6 +34,172 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+
+  /* BuzzKo Coming Soon collection state */
+#ProductGridContainer .buzzko-coming-soon {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 460px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 15% 20%, #F8B5D1 0, transparent 24%),
+    radial-gradient(ellipse at 85% 25%, #BEE3F8 0, transparent 25%),
+    radial-gradient(ellipse at 80% 85%, #D0F4DE 0, transparent 23%),
+    radial-gradient(ellipse at 15% 85%, #FFECB3 0, transparent 22%),
+    #FFF9F6;
+}
+
+#ProductGridContainer .buzzko-coming-soon__content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+#ProductGridContainer .buzzko-coming-soon__label {
+  display: inline-block;
+  margin: 0 0 1.8rem;
+  padding: 0.7rem 1.6rem;
+  border: 1px solid #1A1A1A;
+  border-radius: 999px;
+  background: #F8B5D1;
+  color: #1A1A1A;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+#ProductGridContainer .buzzko-coming-soon__title {
+  margin: 0;
+  color: #1A1A1A;
+  font-size: clamp(3rem, 5vw, 5.2rem);
+  line-height: 1.1;
+}
+
+#ProductGridContainer .buzzko-coming-soon__text {
+  max-width: 390px;
+  margin: 1.8rem auto 0;
+  color: #555;
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+#ProductGridContainer .buzzko-coming-soon__sparkle {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #1A1A1A;
+  font-size: 3rem;
+}
+
+#ProductGridContainer .buzzko-coming-soon__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 2.5rem;
+}
+
+#ProductGridContainer .buzzko-coming-soon__dots span {
+  width: 3.2rem;
+  height: 0.6rem;
+  border-radius: 999px;
+}
+
+#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(1) {
+  background: #F8B5D1;
+}
+
+#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(2) {
+  background: #BEE3F8;
+}
+
+#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(3) {
+  background: #D0F4DE;
+}
+
+#ProductGridContainer .buzzko-coming-soon__shape {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  border: 2px solid rgba(26, 26, 26, 0.12);
+  border-radius: 30%;
+  transform: rotate(25deg);
+}
+
+#ProductGridContainer .buzzko-coming-soon__shape--pink {
+  top: 12%;
+  left: 12%;
+  width: 70px;
+  height: 70px;
+  background: #F8B5D1;
+}
+
+#ProductGridContainer .buzzko-coming-soon__shape--blue {
+  top: 17%;
+  right: 13%;
+  width: 48px;
+  height: 48px;
+  background: #BEE3F8;
+  transform: rotate(45deg);
+}
+
+#ProductGridContainer .buzzko-coming-soon__shape--yellow {
+  bottom: 13%;
+  left: 17%;
+  width: 42px;
+  height: 42px;
+  background: #FFECB3;
+  border-radius: 50%;
+}
+
+#ProductGridContainer .buzzko-coming-soon__shape--green {
+  right: 15%;
+  bottom: 12%;
+  width: 64px;
+  height: 64px;
+  background: #D0F4DE;
+  transform: rotate(15deg);
+}
+
+@media screen and (max-width: 749px) {
+  #ProductGridContainer .buzzko-coming-soon {
+    min-height: 380px;
+    border-radius: 16px;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__content {
+    padding: 4rem 2rem;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__title {
+    font-size: 3.4rem;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__text {
+    font-size: 1.4rem;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__shape--pink {
+    width: 45px;
+    height: 45px;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__shape--blue {
+    width: 35px;
+    height: 35px;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__shape--green {
+    width: 42px;
+    height: 42px;
+  }
+}
 {%- endstyle -%}
 
 <collection-component
@@ -119,20 +285,54 @@
             data-cascade
           {% endif %}
         >
-          {%- if collection.products.size == 0 -%}
-            <div class="collection collection--empty page-width" id="product-grid" data-id="{{ section.id }}">
-              <div class="loading-overlay gradient"></div>
-              <div class="title-wrapper center">
-                <h2 class="title title--primary">
-                  {{ 'sections.collection_template.empty' | t -}}
-                  <br>
-                  {{
-                    'sections.collection_template.use_fewer_filters_html'
-                    | t: link: collection.url, class: 'underlined-link link'
-                  }}
-                </h2>
-              </div>
-            </div>
+{%- if collection.products.size == 0 -%}
+  <div
+    class="collection collection--empty page-width"
+    id="product-grid"
+    data-id="{{ section.id }}"
+  >
+    <div class="loading-overlay gradient"></div>
+
+    {% if collection.all_products_count == 0 %}
+      <div class="buzzko-coming-soon">
+        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--pink"></span>
+        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--blue"></span>
+        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--yellow"></span>
+        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--green"></span>
+
+        <div class="buzzko-coming-soon__content">
+          <span class="buzzko-coming-soon__sparkle">✦</span>
+          <span class="buzzko-coming-soon__label">COMING SOON</span>
+
+          <h2 class="buzzko-coming-soon__title">
+            Something cute<br>is on its way!
+          </h2>
+
+          <p class="buzzko-coming-soon__text">
+            {{ collection.title | escape }} are getting ready.
+            Stay tuned for our next drop!
+          </p>
+
+          <div class="buzzko-coming-soon__dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="title-wrapper center">
+        <h2 class="title title--primary">
+          {{ 'sections.collection_template.empty' | t -}}
+          <br>
+          {{
+            'sections.collection_template.use_fewer_filters_html'
+            | t: link: collection.url, class: 'underlined-link link'
+          }}
+        </h2>
+      </div>
+    {% endif %}
+  </div>
           {%- else -%}
             <div
               class="collection{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
