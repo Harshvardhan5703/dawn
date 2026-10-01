@@ -609,9 +609,12 @@
 
     var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
 
-    /* ---------- Money ---------- */
+   
+        /* ---------- Money ---------- */
     var moneyFmtEl = document.querySelector('[data-buzzko-money-format]');
-    var MONEY_FORMAT = moneyFmtEl ? moneyFmtEl.getAttribute('data-buzzko-money-format') : '{{amount}}';
+    var MONEY_FORMAT = moneyFmtEl
+      ? moneyFmtEl.getAttribute('data-buzzko-money-format')
+      : {{ shop.money_format | json }};
 
     function formatMoney(cents) {
       try {
