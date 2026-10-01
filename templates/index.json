@@ -156,7 +156,7 @@
         "product_K3Rr8p": {
           "type": "product",
           "settings": {
-            "product": "iron-man-keychain",
+            "product": "11-11-charm",
             "subtitle": "",
             "border_color": "#d0f4de"
           }
@@ -324,7 +324,7 @@
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
             "desktop_width_percent": 90,
-            "background_color": "#FFF9EF",
+            "background_color": "#fff9ef",
             "text_color": "#171717"
           },
           "blocks": {}
