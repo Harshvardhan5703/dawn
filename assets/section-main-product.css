@@ -1581,3 +1581,165 @@ a.product__text {
     width: 72px;
   }
 }
+
+
+/* BuzzKo product title */
+.product__info-wrapper .product__title {
+  margin-bottom: 1rem;
+}
+
+.product__info-wrapper .product__title h1 {
+  font-size: clamp(2.4rem, 2.8vw, 3.2rem);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* BuzzKo product price */
+.product__info-wrapper .price {
+  margin-top: 0.8rem;
+}
+
+.product__info-wrapper .price .price-item--regular,
+.product__info-wrapper .price .price-item--sale {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Small playful accent under the title */
+.product__info-wrapper .product__title h1::after {
+  content: "";
+  display: block;
+  width: 4.2rem;
+  height: 0.4rem;
+  margin-top: 1.2rem;
+  border-radius: 999px;
+  background: #F8B5D1;
+}
+
+/* BuzzKo variant picker */
+.product__info-wrapper .product-form__input--pill {
+  border: 0;
+  padding: 0;
+  margin: 2rem 0;
+}
+
+.product__info-wrapper .product-form__input--pill .form__label {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Variant option buttons */
+.product__info-wrapper .product-form__input--pill input[type="radio"] + label {
+  background: #BEE3F8;
+  color: #1A1A1A;
+  border: 1.5px solid #1A1A1A;
+  border-radius: 1.2rem;
+  padding: 1rem 1.6rem;
+  min-width: 5rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 2px 2px 0 #1A1A1A;
+}
+
+/* Hover */
+.product__info-wrapper .product-form__input--pill input[type="radio"] + label:hover {
+  background: #FFECB3;
+  transform: translateY(-2px);
+}
+
+/* Selected option */
+.product__info-wrapper .product-form__input--pill input[type="radio"]:checked + label {
+  background: #F8B5D1;
+  color: #1A1A1A;
+  border-color: #1A1A1A;
+  box-shadow: 2px 2px 0 #1A1A1A;
+}
+
+/* Disabled options */
+.product__info-wrapper .product-form__input--pill input[type="radio"]:disabled + label {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* Quantity selector */
+
+/* BuzzKo quantity selector */
+.product__info-wrapper .quantity {
+  border: 1.5px solid #1A1A1A;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  background: #FFECB3;
+  min-height: 4.8rem;
+}
+
+.product__info-wrapper .quantity::after {
+  box-shadow: none;
+}
+
+.product__info-wrapper .quantity__button {
+  background: transparent;
+  color: #1A1A1A;
+}
+
+/* Quantity buttons: subtle hover animation */
+.product__info-wrapper .quantity__button svg {
+  transition: transform 0.3s ease;
+  transform-origin: center;
+}
+
+.product__info-wrapper .quantity__button:hover svg {
+  transform: scale(1.5);
+}
+
+.product__info-wrapper .quantity__input {
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+/* BuzzKo Add to Cart */
+.product__info-wrapper .product-form__submit {
+  min-height: 5.2rem;
+  border: 1.5px solid #1A1A1A;
+  border-radius: 1.2rem;
+  background: #F8B5D1;
+  color: #1A1A1A;
+  font-weight: 800;
+  box-shadow: 3px 3px 0 #1A1A1A;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product__info-wrapper .product-form__submit::after {
+  box-shadow: none;
+}
+
+.product__info-wrapper .product-form__submit:hover {
+ 
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+
+/* Buy Now */
+.product__info-wrapper .shopify-payment-button__button {
+  min-height: 5.2rem;
+  border: 1.5px solid #1A1A1A !important;
+  border-radius: 1.2rem !important;
+  background: #BEE3F8 !important;
+  color: #1A1A1A !important;
+  font-weight: 800;
+  box-shadow: 3px 3px 0 #1A1A1A;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product__info-wrapper .shopify-payment-button__button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+
+
+
+
+
