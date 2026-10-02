@@ -1,23 +1,211 @@
-<style type="text/css">
-  .template-404 .title + * {
-    margin-top: 1rem;
+{% comment %}
+  BuzzKo 404 page — playful empty state
+{% endcomment %}
+
+<style>
+  /* =====================================================
+     BuzzKo 404
+  ===================================================== */
+  .template-404 {
+    padding: 60px 20px 90px;
   }
 
-  @media screen and (min-width: 750px) {
-    .template-404 .title + * {
-      margin-top: 2rem;
+  .template-404 .buzzko-404 {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 40px 80px;
+    border-radius: 24px;
+    text-align: center;
+    background:
+      radial-gradient(ellipse at 15% 20%, #F8B5D1 0, transparent 24%),
+      radial-gradient(ellipse at 85% 25%, #BEE3F8 0, transparent 25%),
+      radial-gradient(ellipse at 80% 85%, #D0F4DE 0, transparent 23%),
+      radial-gradient(ellipse at 15% 85%, #FFECB3 0, transparent 22%),
+      #FFF9F6;
+  }
+
+  .template-404 .buzzko-404__emoji {
+    display: grid;
+    place-items: center;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 26px;
+    border-radius: 50%;
+    background: #FFECB3;
+    font-size: 38px;
+    line-height: 1;
+  }
+
+  .template-404 .buzzko-404__label {
+    display: inline-block;
+    margin: 0 0 20px;
+    padding: 8px 18px;
+    border: 1.5px solid #1A1A1A;
+    border-radius: 999px;
+    background: #F8B5D1;
+    color: #1A1A1A;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .template-404 .buzzko-404__title {
+    max-width: 520px;
+    margin: 0 auto 16px;
+    color: #1A1A1A;
+    font-size: clamp(30px, 4.4vw, 48px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+  }
+
+  .template-404 .buzzko-404__title::after {
+    content: " ✦";
+    color: #FF60B9;
+    font-size: 0.7em;
+    vertical-align: top;
+  }
+
+  .template-404 .buzzko-404__text {
+    max-width: 440px;
+    margin: 0 auto 34px;
+    color: #6B6663;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .template-404 .buzzko-404__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .template-404 .buzzko-404__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 13px 28px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+  }
+
+  .template-404 .buzzko-404__btn--primary {
+    background: #FF60B9;
+    color: #1A1A1A;
+    border: 1.5px solid #1A1A1A;
+  }
+
+  .template-404 .buzzko-404__btn--primary:hover {
+    background: #e469af;
+    transform: translateY(-1px);
+  }
+
+  .template-404 .buzzko-404__btn--secondary {
+    background: transparent;
+    color: #1A1A1A;
+    border: 1.5px solid #1A1A1A;
+  }
+
+  .template-404 .buzzko-404__btn--secondary:hover {
+    background: #1A1A1A;
+    color: #FFFAF5;
+    transform: translateY(-1px);
+  }
+
+  .template-404 .buzzko-404__help {
+    display: block;
+    margin-top: 32px;
+    color: #96908B;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .template-404 .buzzko-404__help a {
+    color: #1A1A1A;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .15s ease;
+  }
+
+  .template-404 .buzzko-404__help a:hover {
+    color: #FF60B9;
+  }
+
+  @media screen and (max-width: 749px) {
+    .template-404 {
+      padding: 32px 16px 60px;
+    }
+
+    .template-404 .buzzko-404 {
+      padding: 52px 22px 60px;
+      border-radius: 20px;
+    }
+
+    .template-404 .buzzko-404__emoji {
+      width: 68px;
+      height: 68px;
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .template-404 .buzzko-404__text {
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .template-404 .buzzko-404__actions {
+      flex-direction: column;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .template-404 .buzzko-404__btn {
+      width: 100%;
     }
   }
 </style>
 
 <div class="template-404 page-width page-margin center">
-  <p>
-    {{ 'templates.404.subtext' | t }}
-  </p>
-  <h1 class="title">
-    {{ 'templates.404.title' | t }}
-  </h1>
-  <a href="{{ routes.all_products_collection_url }}" class="button">
-    {{ 'general.continue_shopping' | t }}
-  </a>
+  <div class="buzzko-404">
+
+    <span class="buzzko-404__emoji" aria-hidden="true">🧭</span>
+    <span class="buzzko-404__label">Error 404</span>
+
+    <h1 class="buzzko-404__title">
+      Oops, wrong turn!
+    </h1>
+
+    <p class="buzzko-404__text">
+      This page wandered off somewhere. It might have moved, or it might never have existed, either way, let's get you back to the good stuff.
+    </p>
+
+    <div class="buzzko-404__actions">
+      <a href="{{ routes.root_url }}" class="buzzko-404__btn buzzko-404__btn--primary">
+        Back to home
+        <span aria-hidden="true">→</span>
+      </a>
+      <a href="{{ routes.all_products_collection_url }}" class="buzzko-404__btn buzzko-404__btn--secondary">
+        Continue shopping
+      </a>
+    </div>
+
+    <span class="buzzko-404__help">
+      Still stuck? <a href="{{ routes.contact_url }}">Get in touch</a> and we'll sort it out.
+    </span>
+
+  </div>
 </div>
