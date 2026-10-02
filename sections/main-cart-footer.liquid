@@ -532,7 +532,7 @@
           <span class="buzzko-offer__sparkle" aria-hidden="true">✦</span>
           <span data-buzzko-offer-label>
             {%- if offer_unlocked -%}
-              {{ offer_percent }}% off unlocked! ✨
+              {{ offer_percent }}% off unlocked! 
             {%- else -%}
               Add {{ offer_remaining | money }} more to unlock {{ offer_percent }}% off!
             {%- endif -%}
@@ -664,7 +664,7 @@
 
           if (label) {
             if (unlocked) {
-              label.textContent = percent + '% off unlocked! ✨';
+              label.textContent = percent + '% off unlocked!';
             } else {
               label.textContent = 'Add ' + formatMoney(threshold - total) +
                                   ' more to unlock ' + percent + '% off!';
