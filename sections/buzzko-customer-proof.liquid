@@ -1,0 +1,353 @@
+{% style %}
+  #BuzzkoProof-{{ section.id }} {
+    --buzzko-pink: #ff5ca8;
+    --buzzko-bg: {{ section.settings.background_color }};
+    --avatar-size: {{ section.settings.avatar_size }}px;
+    --avatar-overlap: -14px;
+  }
+
+  #BuzzkoProof-{{ section.id }} {
+    width: 100%;
+    background: var(--buzzko-bg);
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__container {
+    width: min(1400px, calc(100% - 64px));
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: {{ section.settings.alignment }};
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Avatars */
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__avatars {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+
+    margin-left: var(--avatar-overlap);
+
+    overflow: hidden;
+
+    border-radius: 50%;
+    border: 3px solid var(--buzzko-bg);
+
+    background: #eee;
+
+    flex-shrink: 0;
+
+    transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), z-index 0s;
+    position: relative;
+    z-index: 1;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__avatar:first-child {
+    margin-left: 0;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__avatar:hover {
+    transform: translateY(-3px) scale(1.08);
+    z-index: 5;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__avatar img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+  }
+
+  /* "+N" badge */
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--buzzko-pink);
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Text block */
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 0;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__stars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    color: var(--buzzko-pink);
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__rating-text {
+    margin-left: 6px;
+
+    color: #6B6663;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__text {
+    margin: 0;
+
+    color: #1A1A1A;
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  #BuzzkoProof-{{ section.id }} .buzzko-proof__text strong {
+    font-weight: 800;
+  }
+
+  /* TABLET */
+
+  @media screen and (max-width: 989px) {
+    #BuzzkoProof-{{ section.id }} .buzzko-proof__container {
+      width: min(100% - 40px, 700px);
+    }
+  }
+
+  /* MOBILE */
+
+  @media screen and (max-width: 749px) {
+    #BuzzkoProof-{{ section.id }} {
+      padding: {{ section.settings.padding_top | times: 0.75 | round }}px 0 {{ section.settings.padding_bottom | times: 0.75 | round }}px;
+    }
+
+    #BuzzkoProof-{{ section.id }} .buzzko-proof__container {
+      width: calc(100% - 32px);
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+    }
+
+    #BuzzkoProof-{{ section.id }} .buzzko-proof__body {
+      align-items: center;
+    }
+
+    #BuzzkoProof-{{ section.id }} .buzzko-proof__text {
+      font-size: 14px;
+    }
+
+    #BuzzkoProof-{{ section.id }} .buzzko-proof__avatar {
+      --avatar-size: 44px;
+    }
+  }
+{% endstyle %}
+
+<section
+  id="BuzzkoProof-{{ section.id }}"
+  class="buzzko-proof"
+>
+  <div class="buzzko-proof__container">
+
+    {%- liquid
+      assign has_avatars = false
+      if section.settings.avatar_1 != blank or section.settings.avatar_2 != blank or section.settings.avatar_3 != blank or section.settings.avatar_4 != blank or section.settings.avatar_5 != blank
+        assign has_avatars = true
+      endif
+    -%}
+
+    {%- if has_avatars -%}
+      <div class="buzzko-proof__avatars">
+
+        {%- for i in (1..5) -%}
+          {%- assign key = 'avatar_' | append: i -%}
+          {%- assign img = section.settings[key] -%}
+          {%- if img != blank -%}
+            <div class="buzzko-proof__avatar">
+              {{
+                img
+                | image_url: width: 120
+                | image_tag: loading: 'lazy', alt: ''
+              }}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if section.settings.more_text != blank -%}
+          <div class="buzzko-proof__avatar buzzko-proof__more">
+            {{ section.settings.more_text }}
+          </div>
+        {%- endif -%}
+
+      </div>
+    {%- endif -%}
+
+    <div class="buzzko-proof__body">
+
+      {%- if section.settings.show_rating -%}
+        <div class="buzzko-proof__stars" aria-label="{{ section.settings.rating_text }}">
+          <span>★★★★★</span>
+          {%- if section.settings.rating_text != blank -%}
+            <span class="buzzko-proof__rating-text">
+              {{ section.settings.rating_text }}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <p class="buzzko-proof__text">
+          {{ section.settings.text }}
+        </p>
+      {%- endif -%}
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BuzzKo Customer Proof",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Avatars"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_1",
+      "label": "Avatar 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_2",
+      "label": "Avatar 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_3",
+      "label": "Avatar 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_4",
+      "label": "Avatar 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_5",
+      "label": "Avatar 5"
+    },
+    {
+      "type": "text",
+      "id": "more_text",
+      "label": "\"More\" badge text",
+      "info": "Optional. Shows as a pink circle after the avatars. E.g. \"+2k\" or \"2k+\""
+    },
+    {
+      "type": "range",
+      "id": "avatar_size",
+      "label": "Avatar size",
+      "min": 40,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show star rating",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating text",
+      "default": "4.9 from 2,000+ reviews"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Customer text",
+      "default": "Loved by <strong>5,000+</strong> happy customers"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#FFFAF5"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "BuzzKo Customer Proof"
+    }
+  ]
+}
+{% endschema %}
