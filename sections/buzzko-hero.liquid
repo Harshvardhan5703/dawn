@@ -14,122 +14,7 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
     width: min(1400px, calc(100% - 64px));
     margin: 0 auto;
-    padding: 48px 0 64px;
-
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 70px;
-
-    align-items: center;
-  }
-
-  /* LEFT */
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image {
-    width: min(100%, 570px);
-    line-height: 0;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
-    margin-top: 24px;
-    max-width: 560px;
-
-    font-size: 18px;
-    line-height: 1.5;
-    color: #252525;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__button {
-    margin-top: 34px;
-
-    min-height: 64px;
-    padding: 0 30px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-
-    background: var(--buzzko-pink);
-    color: #111;
-
-    border-radius: 999px;
-
-    text-decoration: none;
-
-    font-size: 18px;
-    font-weight: 600;
-
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 92, 168, 0.2);
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__button-arrow {
-    font-size: 30px;
-    line-height: 1;
-  }
-
-  /* CUSTOMER PROOF */
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
-    margin-top: 28px;
-
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatars {
-    display: flex;
-    align-items: center;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar {
-    width: 48px;
-    height: 48px;
-
-    margin-left: -10px;
-
-    overflow: hidden;
-
-    border-radius: 50%;
-    border: 3px solid var(--buzzko-bg);
-
-    background: #eee;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar:first-child {
-    margin-left: 0;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__customer-text {
-    font-size: 14px;
-    line-height: 1.3;
-    color: #333;
+    padding: 32px 0 40px;
   }
 
   /* SLIDESHOW */
@@ -142,7 +27,8 @@
     position: relative;
 
     width: 100%;
-    aspect-ratio: 1.18 / 1;
+    aspect-ratio: 2.4 / 1;
+    max-height: 580px;
 
     overflow: hidden;
 
@@ -175,10 +61,80 @@
     object-fit: cover;
   }
 
+  /* FLOATING CTA */
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
+    position: absolute;
+    z-index: 2;
+
+    bottom: 28px;
+    left: 0;
+    right: 0;
+
+    display: flex;
+
+    pointer-events: none;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta--bottom-center {
+    justify-content: center;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta--bottom-left {
+    justify-content: flex-start;
+    padding-left: 32px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta--bottom-right {
+    justify-content: flex-end;
+    padding-right: 32px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn {
+    pointer-events: auto;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    min-height: 54px;
+    padding: 0 26px;
+
+    background: var(--btn-bg, var(--buzzko-pink));
+    color: var(--btn-text, #111);
+
+    border-radius: 999px;
+
+    text-decoration: none;
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      background 180ms ease;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+    background: var(--btn-hover, #e94a96);
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-arrow {
+    font-size: 20px;
+    line-height: 1;
+  }
+
   /* CONTROLS */
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
-    margin-top: 16px;
+    margin-top: 14px;
 
     display: flex;
     align-items: center;
@@ -187,8 +143,8 @@
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
 
     border: 1px solid #222;
     border-radius: 50%;
@@ -197,6 +153,13 @@
     color: #111;
 
     cursor: pointer;
+
+    transition: background 180ms ease, color 180ms ease;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__control:hover {
+    background: #111;
+    color: #fff;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
@@ -216,16 +179,20 @@
     background: #ccc;
 
     cursor: pointer;
+
+    transition: background 180ms ease, width 180ms ease;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot.is-active {
     background: #111;
+    width: 22px;
+    border-radius: 999px;
   }
 
   /* EMPTY STATE */
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__empty {
-    min-height: 500px;
+    min-height: 400px;
 
     display: flex;
     align-items: center;
@@ -237,71 +204,72 @@
     color: #666;
   }
 
-  /* MOBILE */
+  /* TABLET */
 
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
       width: min(100% - 40px, 700px);
-      grid-template-columns: 1fr;
-      gap: 36px;
-      padding: 36px 0 48px;
+      padding: 24px 0 36px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__content {
-      align-items: center;
-      text-align: center;
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
+      aspect-ratio: 3 / 2;
+      max-height: none;
+      border-radius: 24px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__heading-image {
-      width: min(100%, 520px);
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
+      bottom: 20px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
-      max-width: 600px;
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta--bottom-left {
+      padding-left: 20px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
-      justify-content: center;
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta--bottom-right {
+      padding-right: 20px;
     }
   }
+
+  /* MOBILE */
 
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
       width: calc(100% - 28px);
-      padding: 24px 0 40px;
-      gap: 28px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__description {
-      font-size: 15px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__button {
-      width: 100%;
-      min-height: 58px;
-      font-size: 16px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__proof {
-      margin-top: 22px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__avatar {
-      width: 42px;
-      height: 42px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__customer-text {
-      font-size: 12px;
+      padding: 16px 0 32px;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
-      aspect-ratio: 1 / 1;
-      border-radius: 22px;
+      aspect-ratio: 4 / 5;
+      border-radius: 20px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
+      bottom: 18px;
+      justify-content: center !important;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn {
+      min-height: 48px;
+      padding: 0 22px;
+      font-size: 14px;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-arrow {
+      font-size: 17px;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
       display: none;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
+      margin-top: 12px;
     }
   }
 {% endstyle %}
@@ -311,114 +279,12 @@
   class="buzzko-hero"
 >
   <div class="buzzko-hero__container">
-
-    <!-- LEFT CONTENT -->
-    <div class="buzzko-hero__content">
-
-      {% if section.settings.heading_image != blank %}
-        <div class="buzzko-hero__heading-image">
-          {{
-            section.settings.heading_image
-            | image_url: width: 1200
-            | image_tag:
-              loading: 'eager',
-              widths: '400,600,800,1000,1200',
-              sizes: '(min-width: 990px) 45vw, 90vw',
-              alt: section.settings.heading_alt
-          }}
-        </div>
-      {% endif %}
-
-      {% if section.settings.description != blank %}
-        <div class="buzzko-hero__description">
-          {{ section.settings.description }}
-        </div>
-      {% endif %}
-
-      {% if section.settings.button_label != blank %}
-  {%- assign hero_button_url = section.settings.button_link -%}
-  {%- if hero_button_url contains '?' -%}
-    {%- assign hero_button_url = hero_button_url | append: '&sort_by=created-descending' -%}
-  {%- else -%}
-    {%- assign hero_button_url = hero_button_url | append: '?sort_by=created-descending' -%}
-  {%- endif -%}
-
-  <a
-    href="{{ hero_button_url }}"
-    class="buzzko-hero__button"
-  >
-    <span>{{ section.settings.button_label }}</span>
-    <span class="buzzko-hero__button-arrow">→</span>
-  </a>
-{% endif %}
-
-      <!-- CUSTOMER AVATARS -->
-      {% if section.settings.show_customer_proof %}
-        <div class="buzzko-hero__proof">
-
-          <div class="buzzko-hero__avatars">
-
-            {% if section.settings.avatar_1 != blank %}
-              <div class="buzzko-hero__avatar">
-                {{
-                  section.settings.avatar_1
-                  | image_url: width: 100
-                  | image_tag: loading: 'lazy', alt: ''
-                }}
-              </div>
-            {% endif %}
-
-            {% if section.settings.avatar_2 != blank %}
-              <div class="buzzko-hero__avatar">
-                {{
-                  section.settings.avatar_2
-                  | image_url: width: 100
-                  | image_tag: loading: 'lazy', alt: ''
-                }}
-              </div>
-            {% endif %}
-
-            {% if section.settings.avatar_3 != blank %}
-              <div class="buzzko-hero__avatar">
-                {{
-                  section.settings.avatar_3
-                  | image_url: width: 100
-                  | image_tag: loading: 'lazy', alt: ''
-                }}
-              </div>
-            {% endif %}
-
-            {% if section.settings.avatar_4 != blank %}
-              <div class="buzzko-hero__avatar">
-                {{
-                  section.settings.avatar_4
-                  | image_url: width: 100
-                  | image_tag: loading: 'lazy', alt: ''
-                }}
-              </div>
-            {% endif %}
-
-          </div>
-
-          {% if section.settings.customer_text != blank %}
-            <span class="buzzko-hero__customer-text">
-              {{ section.settings.customer_text }}
-            </span>
-          {% endif %}
-
-        </div>
-      {% endif %}
-
-    </div>
-
-    <!-- RIGHT SLIDESHOW -->
     <div
       class="buzzko-hero__slideshow"
       data-buzzko-slideshow
       data-autoplay="{{ section.settings.autoplay }}"
       data-interval="{{ section.settings.interval | times: 1000 }}"
     >
-
       {% if section.blocks.size > 0 %}
 
         <div class="buzzko-hero__slides">
@@ -441,13 +307,32 @@
               >
                 {{
                   block.settings.image
-                  | image_url: width: 1800
+                  | image_url: width: 2400
                   | image_tag:
                     loading: slide_loading,
-                    widths: '600,800,1000,1200,1400,1600,1800',
-                    sizes: '(min-width: 990px) 50vw, 100vw',
+                    widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
+                    sizes: '(min-width: 990px) 90vw, 100vw',
                     alt: block.settings.alt_text
                 }}
+
+                {% if block.settings.button_label != blank %}
+                  <div
+                    class="buzzko-hero__cta buzzko-hero__cta--{{ section.settings.button_position }}"
+                  >
+                    <a
+                      href="{{ block.settings.button_link | default: routes.all_products_collection_url }}"
+                      class="buzzko-hero__cta-btn"
+                      style="
+                        --btn-bg: {{ block.settings.button_color }};
+                        --btn-text: {{ block.settings.button_text_color }};
+                        --btn-hover: {{ block.settings.button_hover_color }};
+                      "
+                    >
+                      <span>{{ block.settings.button_label }}</span>
+                      <span class="buzzko-hero__cta-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                {% endif %}
               </div>
 
             {% endif %}
@@ -469,9 +354,7 @@
             </button>
 
             <div class="buzzko-hero__dots">
-
               {% for block in section.blocks %}
-
                 {% if block.settings.image != blank %}
                   <button
                     type="button"
@@ -480,9 +363,7 @@
                     aria-label="Go to slide {{ forloop.index }}"
                   ></button>
                 {% endif %}
-
               {% endfor %}
-
             </div>
 
             <button
@@ -504,33 +385,22 @@
         </div>
 
       {% endif %}
-
     </div>
-
   </div>
 </section>
 
 <script>
   (() => {
-    const section = document.querySelector(
-      '#BuzzkoHero-{{ section.id }}'
-    );
-
+    const section = document.querySelector('#BuzzkoHero-{{ section.id }}');
     if (!section) return;
 
     const slideshow = section.querySelector('[data-buzzko-slideshow]');
     if (!slideshow) return;
 
-    const slides = Array.from(
-      slideshow.querySelectorAll('[data-slide]')
-    );
-
+    const slides = Array.from(slideshow.querySelectorAll('[data-slide]'));
     if (slides.length <= 1) return;
 
-    const dots = Array.from(
-      slideshow.querySelectorAll('[data-slide-dot]')
-    );
-
+    const dots = Array.from(slideshow.querySelectorAll('[data-slide-dot]'));
     const nextButton = slideshow.querySelector('[data-slide-next]');
     const prevButton = slideshow.querySelector('[data-slide-prev]');
 
@@ -554,23 +424,13 @@
 
     const startAutoplay = () => {
       if (slideshow.dataset.autoplay !== 'true') return;
-
-      const interval =
-        Number(slideshow.dataset.interval) || 5000;
-
+      const interval = Number(slideshow.dataset.interval) || 5000;
       clearInterval(timer);
       timer = setInterval(nextSlide, interval);
     };
 
-    nextButton?.addEventListener('click', () => {
-      nextSlide();
-      startAutoplay();
-    });
-
-    prevButton?.addEventListener('click', () => {
-      prevSlide();
-      startAutoplay();
-    });
+    nextButton?.addEventListener('click', () => { nextSlide(); startAutoplay(); });
+    prevButton?.addEventListener('click', () => { prevSlide(); startAutoplay(); });
 
     dots.forEach((dot) => {
       dot.addEventListener('click', () => {
@@ -598,74 +458,6 @@
   "settings": [
     {
       "type": "header",
-      "content": "Hero content"
-    },
-    {
-      "type": "image_picker",
-      "id": "heading_image",
-      "label": "Heading image"
-    },
-    {
-      "type": "text",
-      "id": "heading_alt",
-      "label": "Heading image alt text",
-      "default": "Cute, Custom & Made to Stand Out"
-    },
-    {
-      "type": "richtext",
-      "id": "description",
-      "label": "Description",
-      "default": "<p>Handcrafted accessories designed to add personality and intention to your daily essentials.</p>"
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button label",
-      "default": "Shop New Arrivals"
-    },
-    {
-      "type": "url",
-      "id": "button_link",
-      "label": "Button link"
-    },
-    {
-      "type": "header",
-      "content": "Customer proof"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_customer_proof",
-      "label": "Show customer proof",
-      "default": true
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_1",
-      "label": "Avatar 1"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_2",
-      "label": "Avatar 2"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_3",
-      "label": "Avatar 3"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_4",
-      "label": "Avatar 4"
-    },
-    {
-      "type": "text",
-      "id": "customer_text",
-      "label": "Customer text",
-      "default": "Loved by 5,000+ happy customers"
-    },
-    {
-      "type": "header",
       "content": "Slideshow"
     },
     {
@@ -687,8 +479,23 @@
     {
       "type": "checkbox",
       "id": "show_slide_controls",
-      "label": "Show slide controls",
+      "label": "Show arrows and dots",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "Slide button"
+    },
+    {
+      "type": "select",
+      "id": "button_position",
+      "label": "Button position on image",
+      "options": [
+        { "value": "bottom-left", "label": "Bottom left" },
+        { "value": "bottom-center", "label": "Bottom center" },
+        { "value": "bottom-right", "label": "Bottom right" }
+      ],
+      "default": "bottom-center"
     }
   ],
   "blocks": [
@@ -705,6 +512,40 @@
           "type": "text",
           "id": "alt_text",
           "label": "Image alt text"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop New Collection",
+          "info": "Leave empty to hide the button on this slide"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "color",
+          "id": "button_color",
+          "label": "Button background",
+          "default": "#ff5ca8"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Button text",
+          "default": "#111111"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_color",
+          "label": "Button background on hover",
+          "default": "#e94a96"
         }
       ]
     }
