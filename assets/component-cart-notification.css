@@ -7,41 +7,34 @@
 }
 
 .cart-notification {
-  border-bottom-right-radius: var(--popup-corner-radius);
-  border-bottom-left-radius: var(--popup-corner-radius);
-  border-color: rgba(var(--color-foreground), var(--popup-border-opacity));
+  border-radius: 16px;
+  border-color: rgba(26, 26, 26, 0.08);
   border-style: solid;
-  border-width: 0 0 var(--popup-border-width);
+  border-width: 1px;
   padding: 2.5rem 3.5rem;
   position: absolute;
   right: 0;
   transform: translateY(-100%);
   visibility: hidden;
   width: 100%;
-  box-shadow: var(--popup-shadow-horizontal-offset) var(--popup-shadow-vertical-offset) var(--popup-shadow-blur-radius)
-    rgba(var(--color-shadow), var(--popup-shadow-opacity));
+  background: #FFFAF5;
+  color: #1A1A1A;
+  box-shadow: 0 12px 36px rgba(26, 26, 26, 0.10), 0 2px 6px rgba(26, 26, 26, 0.04);
   z-index: -1;
 }
 
 .cart-notification.focused {
-  box-shadow: 0 0 0.2rem 0 rgba(var(--color-foreground), 0.3),
-    var(--popup-shadow-horizontal-offset) var(--popup-shadow-vertical-offset) var(--popup-shadow-blur-radius)
-      rgba(var(--color-shadow), var(--popup-shadow-opacity));
+  box-shadow: 0 0 0.2rem 0 rgba(26, 26, 26, 0.3),
+    0 12px 36px rgba(26, 26, 26, 0.10);
 }
 
 .cart-notification:focus-visible {
-  box-shadow: 0 0 0.2rem 0 rgba(var(--color-foreground), 0.3),
-    var(--popup-shadow-horizontal-offset) var(--popup-shadow-vertical-offset) var(--popup-shadow-blur-radius)
-      rgba(var(--color-shadow), var(--popup-shadow-opacity));
+  box-shadow: 0 0 0.2rem 0 rgba(26, 26, 26, 0.3),
+    0 12px 36px rgba(26, 26, 26, 0.10);
 }
 
 @media screen and (min-width: 750px) {
-  .header-wrapper:not(.header-wrapper--border-bottom) + cart-notification .cart-notification {
-    border-top-width: var(--popup-border-width);
-  }
-
   .cart-notification {
-    border-width: 0 var(--popup-border-width) var(--popup-border-width);
     max-width: 36.8rem;
     right: 2.2rem;
   }
@@ -74,17 +67,39 @@
   flex-grow: 1;
   margin-bottom: 0;
   margin-top: 0;
+  color: #1A1A1A;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.005em;
 }
 
 .cart-notification__heading .icon-checkmark {
-  color: rgb(var(--color-foreground));
+  color: #1A1A1A;
   margin-right: 1rem;
   width: 1.3rem;
 }
 
 .cart-notification__close {
-  margin-top: -2rem;
-  margin-right: -3rem;
+  margin-top: -1.5rem;
+  margin-right: -2rem;
+  color: #85807B;
+  transition: color 0.15s ease;
+  background: transparent;
+  border: 0;
+  padding: 0.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cart-notification__close:hover {
+  color: #1A1A1A;
+}
+
+.cart-notification__close .svg-wrapper,
+.cart-notification__close svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: block;
 }
 
 .cart-notification__links {
@@ -110,11 +125,18 @@
 .cart-notification-product__image {
   display: inline-flex;
   margin-right: 1.5rem;
-  margin-top: 0.5rem;
+  margin-top: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .cart-notification-product__image:after {
   content: none;
+}
+
+.cart-notification-product__image img {
+  border-radius: 12px;
+  display: block;
 }
 
 .cart-notification-product__title {
@@ -135,9 +157,91 @@
 .cart-notification-product__name {
   margin-bottom: 0.5rem;
   margin-top: 0;
+  color: #1A1A1A;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.005em;
+}
+
+.cart-notification-product .product-option,
+.cart-notification-product dl dt,
+.cart-notification-product dl dd {
+  color: #85807B;
+  text-transform: none;
 }
 
 .cart-notification .cart-item__disclosure-tooltip {
   bottom: auto;
   top: calc(100% + 0.9rem);
+}
+
+/* =====================================================
+   BuzzKo buttons — kill Dawn's ::after ring
+   ===================================================== */
+
+.cart-notification__links .button::before,
+.cart-notification__links .button::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+.cart-notification__links .button--secondary {
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #1A1A1A !important;
+  border: 1.5px solid #1A1A1A !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.cart-notification__links .button--secondary:hover,
+.cart-notification__links .button--secondary:focus,
+.cart-notification__links .button--secondary:focus-visible {
+  background: #1A1A1A !important;
+  color: #FFFAF5 !important;
+  border-color: #1A1A1A !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.cart-notification__links .button--primary {
+  border-radius: 999px !important;
+  background: #FF60B9 !important;
+  color: #1A1A1A !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+  transition: background 0.15s ease;
+}
+
+.cart-notification__links .button--primary:hover,
+.cart-notification__links .button--primary:focus,
+.cart-notification__links .button--primary:focus-visible,
+.cart-notification__links .button--primary:active {
+  background: #e469af !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.cart-notification__links .button-label {
+  color: #1A1A1A;
+  text-transform: none;
+  text-underline-offset: 3px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.cart-notification__links .button-label:hover {
+  color: #FF60B9;
 }
