@@ -21,8 +21,9 @@
     <div class="buzzko-categories__header">
 
       {% if section.settings.heading != blank %}
+        {%- assign heading_clean = section.settings.heading | remove: '✦' | strip -%}
         <h2 class="buzzko-categories__heading">
-          {{ section.settings.heading }}
+          {{ heading_clean }}<span class="buzzko-categories__sparkle">✦</span>
         </h2>
       {% endif %}
 
@@ -32,7 +33,19 @@
           class="buzzko-categories__view-all"
         >
           {{ section.settings.view_all_text }}
-          <span>&rarr;</span>
+          <svg
+            class="buzzko-categories__arrow"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
         </a>
       {% endif %}
 
@@ -179,7 +192,7 @@
 
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__header {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
 
     margin-bottom: 26px;
@@ -196,28 +209,50 @@
     letter-spacing: -0.03em;
   }
 
+  /* Sparkle gets its own size, matching the Trending section's ratio */
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__sparkle {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.8em;
+    font-weight: 400;
+    transform: none;
+    vertical-align: middle;
+  }
+
+
+  /* VIEW ALL — SVG arrow + hover (matches Trending) */
+
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 
     color: #111;
+    text-decoration: none;
 
     font-size: 15px;
     font-weight: 500;
+    line-height: 1;
 
-    text-decoration: none;
-
-    transition: gap 180ms ease;
+    transition: color 0.2s ease;
   }
 
-  #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all span {
-    font-size: 22px;
-    line-height: 1;
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__arrow {
+    width: 18px;
+    height: 18px;
+
+    flex-shrink: 0;
+    display: block;
+
+    transition: transform 0.25s cubic-bezier(0.3, 1.2, 0.5, 1);
   }
 
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all:hover {
-    gap: 15px;
+    color: #FF60B9;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all:hover .buzzko-categories__arrow {
+    transform: translateX(5px);
   }
 
 
@@ -414,8 +449,19 @@
       font-size: 28px;
     }
 
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__sparkle {
+      font-size: 0.7em;
+      margin-left: 6px;
+    }
+
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all {
+      gap: 8px;
       font-size: 13px;
+    }
+
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__arrow {
+      width: 15px;
+      height: 15px;
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
@@ -469,7 +515,7 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "Shop by Category ✦"
+      "default": "Shop by Category"
     },
 
     {
@@ -624,14 +670,12 @@
 
     {
       "name": "BuzzKo Categories",
-
       "blocks": [
         { "type": "category" },
         { "type": "category" },
         { "type": "category" },
         { "type": "category" }
       ]
-
     }
 
   ]
