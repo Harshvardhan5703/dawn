@@ -16,21 +16,36 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/IMG20260309143011.jpg",
-            "alt_text": ""
+            "alt_text": "",
+            "button_label": "Shop New Collection",
+            "button_link": "",
+            "button_color": "#ff5ca8",
+            "button_text_color": "#111111",
+            "button_hover_color": "#e94a96"
           }
         },
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/IMG20260309142908.jpg",
-            "alt_text": ""
+            "alt_text": "",
+            "button_label": "Shop New Collection",
+            "button_link": "",
+            "button_color": "#ff5ca8",
+            "button_text_color": "#111111",
+            "button_hover_color": "#e94a96"
           }
         },
         "slide_E3RHdz": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/IMG20260309142801.jpg",
-            "alt_text": ""
+            "alt_text": "",
+            "button_label": "Shop New Collection",
+            "button_link": "",
+            "button_color": "#ff5ca8",
+            "button_text_color": "#111111",
+            "button_hover_color": "#e94a96"
           }
         }
       },
@@ -41,19 +56,10 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
-        "heading_image": "shopify://shop_images/ChatGPT_Image_Sep_23_2026_04_49_23_PM.png",
-        "heading_alt": "Cute, Custom & Made to Stand Out",
-        "description": "<p>Handcrafted accessories designed to add personality and intention to your daily essentials.</p>",
-        "button_label": "Shop New Arrivals",
-        "button_link": "shopify://collections/all",
-        "show_customer_proof": true,
-        "avatar_2": "shopify://shop_images/man.png",
-        "avatar_3": "shopify://shop_images/nicolas-horn-MTZTGvDsHFY-unsplash.jpg",
-        "avatar_4": "shopify://shop_images/luis-villasmil-6qf1uljGpU4-unsplash.jpg",
-        "customer_text": "Loved by 5,000+ happy customers",
         "autoplay": true,
         "interval": 5,
-        "show_slide_controls": true
+        "show_slide_controls": true,
+        "button_position": "bottom-center"
       }
     },
     "buzzko_category_grid_RK8AjK": {
@@ -334,10 +340,30 @@
         "ai_gen_block_8b537d5_HeRzgK"
       ],
       "settings": {}
+    },
+    "buzzko_customer_proof_PQbTaK": {
+      "type": "buzzko-customer-proof",
+      "name": "BuzzKo Customer Proof",
+      "settings": {
+        "avatar_1": "shopify://shop_images/luthfi-alfarizi-gEf9bOMTZtk-unsplash.jpg",
+        "avatar_2": "shopify://shop_images/ip-creative-8kS_Ft1BJjA-unsplash.jpg",
+        "avatar_3": "shopify://shop_images/Coral_Circle_Bearded_Avatar.png",
+        "avatar_4": "shopify://shop_images/Warm-Toned_Wavy-Haired_Avatar_Portrait.png",
+        "more_text": "+5k",
+        "avatar_size": 52,
+        "show_rating": false,
+        "rating_text": "4.9 from 2,000+ reviews",
+        "text": "Loved by <strong>5,000+</strong> happy customers",
+        "alignment": "center",
+        "background_color": "#FFFAF5",
+        "padding_top": 32,
+        "padding_bottom": 32
+      }
     }
   },
   "order": [
     "buzzko_hero_zCzTHk",
+    "buzzko_customer_proof_PQbTaK",
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
     "buzzko_benefits_JHiNpY",
