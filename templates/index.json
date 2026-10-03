@@ -58,8 +58,26 @@
       "settings": {
         "autoplay": true,
         "interval": 5,
-        "show_slide_controls": true,
-        "button_position": "bottom-center"
+        "show_slide_controls": true
+      }
+    },
+    "buzzko_customer_proof_PQbTaK": {
+      "type": "buzzko-customer-proof",
+      "name": "BuzzKo Customer Proof",
+      "settings": {
+        "avatar_1": "shopify://shop_images/luthfi-alfarizi-gEf9bOMTZtk-unsplash.jpg",
+        "avatar_2": "shopify://shop_images/ip-creative-8kS_Ft1BJjA-unsplash.jpg",
+        "avatar_3": "shopify://shop_images/Coral_Circle_Bearded_Avatar.png",
+        "avatar_4": "shopify://shop_images/Warm-Toned_Wavy-Haired_Avatar_Portrait.png",
+        "more_text": "+5k",
+        "avatar_size": 52,
+        "show_rating": false,
+        "rating_text": "4.9 from 2,000+ reviews",
+        "text": "Loved by <strong>5,000+</strong> happy customers",
+        "alignment": "center",
+        "background_color": "#fffaf5",
+        "padding_top": 32,
+        "padding_bottom": 32
       }
     },
     "buzzko_category_grid_RK8AjK": {
@@ -207,115 +225,138 @@
         "view_all_link": "shopify://collections/all"
       }
     },
-    "buzzko_benefits_JHiNpY": {
-      "type": "buzzko-benefits",
+    "buzzko_benefit_new_4QbDez": {
+      "type": "buzzko-benefit-new",
       "blocks": {
-        "benefit_iHUFzF": {
+        "benefit_3HTVPP": {
           "type": "benefit",
           "settings": {
-            "icon": "shopify://shop_images/tracking.png",
+            "size": "wide",
+            "icon": "truck",
             "title": "Free Shipping",
-            "description": "Over Rs. 499"
+            "subtitle": "On orders over ₹499",
+            "background_color": "#f8b5d1"
           }
         },
-        "benefit_WETMmr": {
+        "benefit_ypty7g": {
           "type": "benefit",
           "settings": {
-            "icon": "shopify://shop_images/star.png",
-            "title": "Unique",
-            "description": "and Limited Designs."
+            "size": "small",
+            "icon": "sparkle",
+            "title": "Unique & Limited",
+            "subtitle": "Small-batch designs",
+            "background_color": "#ffecb3"
           }
         },
-        "benefit_wHni9C": {
+        "benefit_eXrdTE": {
           "type": "benefit",
           "settings": {
-            "icon": "shopify://shop_images/gift.png",
-            "title": "Thoughtful",
-            "description": "Gifting"
+            "size": "small",
+            "icon": "gift",
+            "title": "Thoughtful Gifting",
+            "subtitle": "Gift-ready packaging",
+            "background_color": "#bee3f8"
           }
         },
-        "benefit_eGtN4w": {
+        "benefit_kLkqDJ": {
           "type": "benefit",
           "settings": {
-            "icon": "shopify://shop_images/heart.png",
-            "title": "Handcrafted",
-            "description": "With Love"
+            "size": "large",
+            "icon": "heart",
+            "title": "Handcrafted with Love",
+            "subtitle": "Every piece made in India, by hand",
+            "background_color": "#d0f4de"
+          }
+        },
+        "benefit_UVYfBe": {
+          "type": "benefit",
+          "settings": {
+            "size": "wide",
+            "icon": "return",
+            "title": "Easy Returns",
+            "subtitle": "7-day window",
+            "background_color": "#ffdcef"
+          }
+        },
+        "benefit_9FtUdY": {
+          "type": "benefit",
+          "settings": {
+            "size": "wide",
+            "icon": "shield",
+            "title": "Secure Checkout",
+            "subtitle": "Encrypted payments, always",
+            "background_color": "#d6eefa"
           }
         }
       },
       "block_order": [
-        "benefit_iHUFzF",
-        "benefit_WETMmr",
-        "benefit_wHni9C",
-        "benefit_eGtN4w"
+        "benefit_3HTVPP",
+        "benefit_ypty7g",
+        "benefit_eXrdTE",
+        "benefit_kLkqDJ",
+        "benefit_UVYfBe",
+        "benefit_9FtUdY"
       ],
-      "name": "BuzzKo Benefits",
+      "name": "BuzzKo Benefits Bento",
       "settings": {
-        "background_color": "#fffaf5",
-        "text_color": "#111111",
-        "description_color": "#777777",
+        "heading": "Why BuzzKo",
         "padding_top": 40,
-        "padding_bottom": 40,
-        "mobile_padding_top": 32,
-        "mobile_padding_bottom": 32
+        "padding_bottom": 40
       }
     },
-    "buzzko_instagram_JFXwQe": {
-      "type": "buzzko-instagram",
+    "buzzko_insta_new_ANz6qA": {
+      "type": "buzzko-insta-new",
       "blocks": {
-        "media_pPq4Ur": {
+        "media_R9Nrzw": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png"
           }
         },
-        "media_AFB39D": {
+        "media_jHHj6q": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png"
           }
         },
-        "media_rgcXfG": {
+        "media_PwAiHH": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png"
           }
         },
-        "media_GH7eze": {
+        "media_gdmNC9": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png"
           }
         },
-        "media_zkCPej": {
+        "media_QCca9N": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141604.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_123057.png"
           }
         }
       },
       "block_order": [
-        "media_pPq4Ur",
-        "media_AFB39D",
-        "media_rgcXfG",
-        "media_GH7eze",
-        "media_zkCPej"
+        "media_R9Nrzw",
+        "media_jHHj6q",
+        "media_PwAiHH",
+        "media_gdmNC9",
+        "media_QCca9N"
       ],
       "name": "BuzzKo Instagram",
       "settings": {
+        "eyebrow": "Follow Along",
         "first_line": "Real People",
-        "first_line_color": "#333333",
+        "first_line_color": "#1A1A1A",
         "second_line": "Cuter Lives.",
-        "second_line_color": "#59c8f5",
-        "tag_title": "Tag Us",
-        "instagram_handle": "@buzzko.in",
-        "instagram_url": "https://instagram.com/buzz.ko",
-        "card_color": "#ffeaf2"
+        "second_line_color": "#59C8F5",
+        "subtext": "Tag @buzz.ko in your photos, we'll reshare our favourites.",
+        "cta_text": "Follow @buzz.ko",
+        "instagram_url": "https://www.instagram.com/buzz.ko/",
+        "social_proof": "Joined by 1,600+ happy customers",
+        "card_color": "#FFF0F8"
       }
     },
     "1790848691c0544c6f": {
@@ -340,25 +381,6 @@
         "ai_gen_block_8b537d5_HeRzgK"
       ],
       "settings": {}
-    },
-    "buzzko_customer_proof_PQbTaK": {
-      "type": "buzzko-customer-proof",
-      "name": "BuzzKo Customer Proof",
-      "settings": {
-        "avatar_1": "shopify://shop_images/luthfi-alfarizi-gEf9bOMTZtk-unsplash.jpg",
-        "avatar_2": "shopify://shop_images/ip-creative-8kS_Ft1BJjA-unsplash.jpg",
-        "avatar_3": "shopify://shop_images/Coral_Circle_Bearded_Avatar.png",
-        "avatar_4": "shopify://shop_images/Warm-Toned_Wavy-Haired_Avatar_Portrait.png",
-        "more_text": "+5k",
-        "avatar_size": 52,
-        "show_rating": false,
-        "rating_text": "4.9 from 2,000+ reviews",
-        "text": "Loved by <strong>5,000+</strong> happy customers",
-        "alignment": "center",
-        "background_color": "#FFFAF5",
-        "padding_top": 32,
-        "padding_bottom": 32
-      }
     }
   },
   "order": [
@@ -366,8 +388,8 @@
     "buzzko_customer_proof_PQbTaK",
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
-    "buzzko_benefits_JHiNpY",
-    "buzzko_instagram_JFXwQe",
+    "buzzko_benefit_new_4QbDez",
+    "buzzko_insta_new_ANz6qA",
     "1790848691c0544c6f"
   ]
 }
