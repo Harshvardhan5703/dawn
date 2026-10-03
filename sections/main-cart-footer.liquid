@@ -647,25 +647,57 @@
     var lastOptimisticTime = 0;
 
     /* ---------- Money ---------- */
-    var moneyFmtEl = document.querySelector('[data-buzzko-money-format]');
-    var MONEY_FORMAT = moneyFmtEl
-      ? moneyFmtEl.getAttribute('data-buzzko-money-format')
-      : {{ shop.money_format | json }};
+    /* Inline the shop's money format via Liquid JSON — no DOM lookup,
+       no race conditions, no chance of the format being empty. */
+    var MONEY_FORMAT = {{ shop.money_format | json }};
+
+    /* Sanity fallback if Liquid somehow rendered empty.
+       The brace sequences are built from character codes so a literal
+       double-brace never appears in this file. Liquid would otherwise
+       try to parse it as an output tag and throw a syntax error. */
+    if (!MONEY_FORMAT || String(MONEY_FORMAT).indexOf('{') === -1) {
+      var LB = String.fromCharCode(123, 123);
+      var RB = String.fromCharCode(125, 125);
+      MONEY_FORMAT = '\u20B9' + LB + 'amount' + RB;
+    }
 
     function formatMoney(cents) {
+      cents = Math.round(Number(cents) || 0);
+
+      /* Primary: Shopify's own formatter — knows about all placeholder types */
       try {
         if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
-          return window.Shopify.formatMoney(cents, MONEY_FORMAT);
+          var out = window.Shopify.formatMoney(cents, MONEY_FORMAT);
+          if (out && out.indexOf('{') === -1) return out;
         }
-      } catch (e) {}
-      return (Number(cents) / 100).toFixed(2);
+      } catch (e) {
+        if (DEBUG) console.warn('[BuzzKo money] Shopify.formatMoney failed:', e);
+      }
+
+      /* Fallback: manual placeholder replacement so the currency symbol
+         never vanishes even if Shopify's helper is missing or throws. */
+      var num = (cents / 100).toFixed(2);
+      var withCommas = num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+      return String(MONEY_FORMAT)
+        .replace(/\{\{\s*amount\s*\}\}/g, withCommas)
+        .replace(/\{\{\s*amount_no_decimals\s*\}\}/g, Math.round(cents / 100).toString())
+        .replace(/\{\{\s*amount_with_comma_separator\s*\}\}/g, num.replace('.', ','));
     }
 
     function parseMoneyToCents(text) {
       if (text == null) return null;
-      var cleaned = String(text).replace(/[^\d.,-]/g, '').replace(/,/g, '');
-      var num = parseFloat(cleaned);
+
+      /* Match the first numeric run that starts with a digit.
+         Prevents grabbing the "." after "Rs." or "₹" like the previous
+         regex did — which turned "Rs. 80.00" into ".80.00" and
+         parseFloat read it as 0.80 instead of 80.00. */
+      var match = String(text).match(/\d[\d,]*(?:\.\d+)?/);
+      if (!match) return null;
+
+      var num = parseFloat(match[0].replace(/,/g, ''));
       if (isNaN(num)) return null;
+
       return Math.round(num * 100);
     }
 

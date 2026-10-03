@@ -295,6 +295,7 @@ shopify-account.header__icon .svg-wrapper {
         <shopify-account
           menu="{{ settings.customer_account_menu | default: 'customer-account-main-menu' }}"
           class="header__icon header__icon--account link focus-inset"
+          data-logout-url="{% if customer %}{{ routes.account_logout_url }}?return_url={{ routes.root_url | url_encode }}{% endif %}"
         >
           <span slot="signed-out-avatar" class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
           <span slot="signed-out-avatar" class="visually-hidden">{{ 'customer.log_in' | t }}</span>
@@ -450,16 +451,108 @@ shopify-account.header__icon .svg-wrapper {
   }
 
   // The account `open` event is composed but does not bubble, so listen during capture.
-  // Anchor the dialog to the bottom of the account button itself. The header group can be
-  // much taller than the button's row (for example, a top-left logo pushes the menu to a
-  // second row), so anchoring to the section bottom drops the dialog too low.
+  // Keep Shopify's native account dialog completely intact. When it opens, add the
+  // logout action directly inside the native shadow-DOM header so it animates and
+  // renders as part of the same component instead of appearing as an external element.
   document.addEventListener(
     'open',
     (event) => {
       if (!(event.target instanceof HTMLElement) || !event.target.matches('shopify-account')) return;
 
-      const bottom = Math.max(0, Math.round(event.target.getBoundingClientRect().bottom));
-      event.target.style.setProperty('--account-dialog-top', `${bottom}px`);
+      const account = event.target;
+      const bottom = Math.max(0, Math.round(account.getBoundingClientRect().bottom));
+
+      account.style.setProperty('--account-dialog-top', `${bottom}px`);
+
+      const shadow = account.shadowRoot;
+
+      if (!shadow) return;
+
+      /*
+       * Signed-out state:
+       * Shopify still renders the account shortcuts (Profile, Orders,
+       * All Products, Home) underneath the login form. BuzzKo doesn't
+       * need those links before the customer is signed in, so hide only
+       * that native shortcut region. The login form and native dialog
+       * remain completely untouched.
+       */
+      if (!account.dataset.logoutUrl) {
+        if (!shadow.querySelector('#buzzko-account-signed-out-style')) {
+          const style = document.createElement('style');
+          style.id = 'buzzko-account-signed-out-style';
+
+          style.textContent = `
+            .account__menu-region {
+              display: none !important;
+            }
+          `;
+
+          shadow.appendChild(style);
+        }
+
+        return;
+      }
+
+      const logoutUrl = account.dataset.logoutUrl;
+      const header = shadow.querySelector('.account__header');
+
+      if (!header || header.querySelector('.buzzko-native-logout')) return;
+
+      if (!shadow.querySelector('#buzzko-account-logout-style')) {
+        const style = document.createElement('style');
+        style.id = 'buzzko-account-logout-style';
+
+        style.textContent = `
+          .account__header {
+            position: relative;
+          }
+
+          .buzzko-native-logout {
+            position: absolute;
+            top: 16px;
+            right: 58px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 32px;
+            padding: 5px 11px;
+
+            color: var(--shopify-account-color-text);
+            background: transparent;
+            border: 1px solid rgba(26, 26, 26, 0.12);
+            border-radius: 999px;
+
+            font-family: var(--shopify-account-font-body);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1;
+
+            text-decoration: none;
+            white-space: nowrap;
+
+            transition:
+              background-color 0.15s ease,
+              border-color 0.15s ease;
+          }
+
+          .buzzko-native-logout:hover {
+            background-color: rgba(26, 26, 26, 0.045);
+            border-color: rgba(26, 26, 26, 0.18);
+          }
+        `;
+
+        shadow.appendChild(style);
+      }
+
+      const logout = document.createElement('a');
+      logout.className = 'buzzko-native-logout';
+      logout.href = logoutUrl;
+      logout.textContent = 'Log out';
+      logout.setAttribute('aria-label', 'Log out');
+
+      header.appendChild(logout);
     },
     true
   );
