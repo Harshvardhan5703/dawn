@@ -304,62 +304,59 @@
         "padding_bottom": 40
       }
     },
-    "buzzko_instagram_JFXwQe": {
-      "type": "buzzko-instagram",
+    "buzzko_insta_new_ANz6qA": {
+      "type": "buzzko-insta-new",
       "blocks": {
-        "media_pPq4Ur": {
+        "media_R9Nrzw": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png"
           }
         },
-        "media_AFB39D": {
+        "media_jHHj6q": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png"
           }
         },
-        "media_rgcXfG": {
+        "media_PwAiHH": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png"
           }
         },
-        "media_GH7eze": {
+        "media_gdmNC9": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png"
           }
         },
-        "media_zkCPej": {
+        "media_QCca9N": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141604.png",
-            "video_url": ""
+            "image": "shopify://shop_images/Screenshot_2026-09-23_123057.png"
           }
         }
       },
       "block_order": [
-        "media_pPq4Ur",
-        "media_AFB39D",
-        "media_rgcXfG",
-        "media_GH7eze",
-        "media_zkCPej"
+        "media_R9Nrzw",
+        "media_jHHj6q",
+        "media_PwAiHH",
+        "media_gdmNC9",
+        "media_QCca9N"
       ],
       "name": "BuzzKo Instagram",
       "settings": {
+        "eyebrow": "Follow Along",
         "first_line": "Real People",
-        "first_line_color": "#333333",
+        "first_line_color": "#1A1A1A",
         "second_line": "Cuter Lives.",
-        "second_line_color": "#59c8f5",
-        "tag_title": "Tag Us",
-        "instagram_handle": "@buzzko.in",
-        "instagram_url": "https://instagram.com/buzz.ko",
-        "card_color": "#ffeaf2"
+        "second_line_color": "#59C8F5",
+        "subtext": "Tag @buzz.ko in your photos, we'll reshare our favourites.",
+        "cta_text": "Follow @buzz.ko",
+        "instagram_url": "https://www.instagram.com/buzz.ko/",
+        "social_proof": "Joined by 1,600+ happy customers",
+        "card_color": "#FFF0F8"
       }
     },
     "1790848691c0544c6f": {
@@ -384,104 +381,6 @@
         "ai_gen_block_8b537d5_HeRzgK"
       ],
       "settings": {}
-    },
-    "buzzko_instagram_WDbdqV": {
-      "type": "buzzko-instagram",
-      "blocks": {
-        "media_4HfqVw": {
-          "type": "media",
-          "settings": {
-            "video_url": ""
-          }
-        },
-        "media_YF4h36": {
-          "type": "media",
-          "settings": {
-            "video_url": ""
-          }
-        },
-        "media_QVz6Xm": {
-          "type": "media",
-          "settings": {
-            "video_url": ""
-          }
-        },
-        "media_PGXyfh": {
-          "type": "media",
-          "settings": {
-            "video_url": ""
-          }
-        },
-        "media_66UATC": {
-          "type": "media",
-          "settings": {
-            "video_url": ""
-          }
-        }
-      },
-      "block_order": [
-        "media_4HfqVw",
-        "media_YF4h36",
-        "media_QVz6Xm",
-        "media_PGXyfh",
-        "media_66UATC"
-      ],
-      "name": "BuzzKo Instagram",
-      "settings": {
-        "first_line": "Real People",
-        "first_line_color": "#333333",
-        "second_line": "Cuter Lives.",
-        "second_line_color": "#59C8F5",
-        "tag_title": "Tag Us",
-        "instagram_handle": "@buzzko.in",
-        "instagram_url": "",
-        "card_color": "#FFEAF2"
-      }
-    },
-    "buzzko_insta_new_ANz6qA": {
-      "type": "buzzko-insta-new",
-      "blocks": {
-        "media_R9Nrzw": {
-          "type": "media",
-          "settings": {}
-        },
-        "media_jHHj6q": {
-          "type": "media",
-          "settings": {}
-        },
-        "media_PwAiHH": {
-          "type": "media",
-          "settings": {}
-        },
-        "media_gdmNC9": {
-          "type": "media",
-          "settings": {}
-        },
-        "media_QCca9N": {
-          "type": "media",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "media_R9Nrzw",
-        "media_jHHj6q",
-        "media_PwAiHH",
-        "media_gdmNC9",
-        "media_QCca9N"
-      ],
-      "name": "BuzzKo Instagram",
-      "settings": {
-        "eyebrow": "Follow Along",
-        "first_line": "Real People",
-        "first_line_color": "#1A1A1A",
-        "second_line": "Cuter Lives.",
-        "second_line_color": "#59C8F5",
-        "subtext": "Tag @buzzko.in in your photos — we'll reshare our favourites.",
-        "cta_text": "Follow @buzzko.in",
-        "instagram_url": "",
-        "social_proof": "Joined by 5,000+ happy customers",
-        "card_color": "#FFF0F8"
-      }
     }
   },
   "order": [
@@ -490,9 +389,7 @@
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
     "buzzko_benefit_new_4QbDez",
-    "buzzko_instagram_JFXwQe",
-    "1790848691c0544c6f",
-    "buzzko_instagram_WDbdqV",
-    "buzzko_insta_new_ANz6qA"
+    "buzzko_insta_new_ANz6qA",
+    "1790848691c0544c6f"
   ]
 }
