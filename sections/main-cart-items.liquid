@@ -653,6 +653,7 @@
                 class="buzzko-item cart-item"
                 id="CartItem-{{ item.index | plus: 1 }}"
                 data-index="{{ item.index | plus: 1 }}"
+                data-line-key="{{ item.key }}"
               >
                 <a href="{{ item.url }}" class="buzzko-item__media" aria-hidden="true" tabindex="-1">
                   {%- if item.image -%}

@@ -609,8 +609,44 @@
 
     var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
 
-   
-        /* ---------- Money ---------- */
+    /* =========================================================
+       Speed up quantity changes
+       Dawn re-renders main-cart-items + main-cart-footer on every
+       quantity click, which is the source of the delay.
+       We stub getSectionsToRender to request only the tiny cart-count
+       bubble, then update the rest of the UI ourselves from the JSON.
+       ========================================================= */
+    (function stubSections() {
+      function apply() {
+        var el = document.querySelector('cart-items');
+        if (!el || el.__buzzkoSpeedUp) return;
+        el.__buzzkoSpeedUp = true;
+
+        el.getSectionsToRender = function () {
+          return [
+            { id: 'cart-icon-bubble', section: 'cart-icon-bubble', selector: '.shopify-section' }
+          ];
+        };
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+      } else {
+        apply();
+      }
+    })();
+
+    /* =========================================================
+       Optimistic UI
+       Paint the new price / totals / offer bar the instant the
+       user clicks + or -. Server response confirms ~1s later.
+       If the click happened less than OPTIMISTIC_WINDOW ago,
+       we skip the server's authoritative paint so it doesn't
+       flicker back to the old value mid-transition.
+       ========================================================= */
+    var OPTIMISTIC_WINDOW = 900;
+    var lastOptimisticTime = 0;
+
+    /* ---------- Money ---------- */
     var moneyFmtEl = document.querySelector('[data-buzzko-money-format]');
     var MONEY_FORMAT = moneyFmtEl
       ? moneyFmtEl.getAttribute('data-buzzko-money-format')
@@ -623,6 +659,65 @@
         }
       } catch (e) {}
       return (Number(cents) / 100).toFixed(2);
+    }
+
+    function parseMoneyToCents(text) {
+      if (text == null) return null;
+      var cleaned = String(text).replace(/[^\d.,-]/g, '').replace(/,/g, '');
+      var num = parseFloat(cleaned);
+      if (isNaN(num)) return null;
+      return Math.round(num * 100);
+    }
+
+    /* ---------- Paint summary (used by renderCart & optimistic) ---------- */
+    function paintSummary(rawTotal, subtotal) {
+      var offerEl = document.querySelector('[data-buzzko-offer]');
+      if (offerEl) {
+        var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 50000;
+        var percent = parseInt(offerEl.getAttribute('data-percent'), 10) || 10;
+        var progress = Math.min(100, (rawTotal / threshold) * 100);
+        var unlocked = rawTotal >= threshold;
+
+        var fill = offerEl.querySelector('[data-buzzko-offer-fill]');
+        var label = offerEl.querySelector('[data-buzzko-offer-label]');
+
+        if (fill) fill.style.setProperty('width', progress + '%', 'important');
+        offerEl.classList.toggle('buzzko-offer--unlocked', unlocked);
+
+        if (label) {
+          label.textContent = unlocked
+            ? percent + '% off unlocked!'
+            : 'Add ' + formatMoney(threshold - rawTotal) + ' more to unlock ' + percent + '% off!';
+        }
+
+        var discountRow = document.querySelector('[data-buzzko-discount-row]');
+        var discountAmountEl = document.querySelector('[data-buzzko-discount-amount]');
+        var totalEl = document.querySelector('[data-buzzko-total]');
+
+        var discountCents = unlocked ? Math.round(rawTotal * percent / 100) : 0;
+        var finalTotal = rawTotal - discountCents;
+
+        if (discountRow) discountRow.hidden = !unlocked;
+        if (discountAmountEl && unlocked) {
+          discountAmountEl.textContent = '-' + formatMoney(discountCents);
+        }
+
+        if (totalEl) {
+          totalEl.setAttribute('data-total-cents', String(rawTotal));
+          var next = formatMoney(finalTotal);
+          if (totalEl.textContent.trim() !== next) {
+            totalEl.textContent = next;
+            totalEl.classList.remove('is-updated');
+            void totalEl.offsetWidth;
+            totalEl.classList.add('is-updated');
+          }
+        }
+      }
+
+      if (subtotal != null) {
+        var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
+        if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
+      }
     }
 
     /* ---------- Render ---------- */
@@ -638,86 +733,42 @@
 
       __updating = true;
       try {
-        var offerEl = document.querySelector('[data-buzzko-offer]');
-        var threshold = 50000;
-        var percent = 10;
-        var total = cart.total_price;
-        var unlocked = false;
+        /* === Skip summary paint if a click just happened === */
+        var recentlyClicked = Date.now() - lastOptimisticTime < OPTIMISTIC_WINDOW;
 
-        if (offerEl) {
-          var t = parseInt(offerEl.getAttribute('data-threshold'), 10);
-          var p = parseInt(offerEl.getAttribute('data-percent'), 10);
-          if (!isNaN(t) && t > 0) threshold = t;
-          if (!isNaN(p) && p > 0) percent = p;
-
-          var progress = Math.min(100, (total / threshold) * 100);
-          unlocked = total >= threshold;
-
-          var fill = offerEl.querySelector('[data-buzzko-offer-fill]');
-          var label = offerEl.querySelector('[data-buzzko-offer-label]');
-
-          if (fill) {
-            fill.style.setProperty('width', progress + '%', 'important');
-          }
-
-          offerEl.classList.toggle('buzzko-offer--unlocked', unlocked);
-
-          if (label) {
-            if (unlocked) {
-              label.textContent = percent + '% off unlocked!';
-            } else {
-              label.textContent = 'Add ' + formatMoney(threshold - total) +
-                                  ' more to unlock ' + percent + '% off!';
-            }
-          }
+        if (!recentlyClicked) {
+          paintSummary(cart.total_price, cart.items_subtotal_price);
         }
 
-        /* === Discount row + discounted total === */
-        var discountRow = document.querySelector('[data-buzzko-discount-row]');
-        var discountAmountEl = document.querySelector('[data-buzzko-discount-amount]');
-        var totalEl = document.querySelector('[data-buzzko-total]');
-
-        var discountCents = 0;
-        var finalTotal = total;
-
-        if (unlocked) {
-          discountCents = Math.round(total * percent / 100);
-          finalTotal = total - discountCents;
-        }
-
-        if (discountRow) {
-          discountRow.hidden = !unlocked;
-        }
-        if (discountAmountEl && unlocked) {
-          discountAmountEl.textContent = '-' + formatMoney(discountCents);
-        }
-
-        if (totalEl) {
-          /* Always keep the raw total in a data attribute for checkout */
-          totalEl.setAttribute('data-total-cents', String(total));
-
-          var nextTotal = formatMoney(finalTotal);
-          if (totalEl.textContent.trim() !== nextTotal) {
-            totalEl.textContent = nextTotal;
-            totalEl.classList.remove('is-updated');
-            void totalEl.offsetWidth;
-            totalEl.classList.add('is-updated');
-          }
-          lastRenderedTotalText = nextTotal;
-        }
-
-        /* === Subtotal === */
-        var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
-        if (subtotalEl && cart.items_subtotal_price != null) {
-          subtotalEl.textContent = formatMoney(cart.items_subtotal_price);
-        }
-
-        /* === "₹X each" labels === */
-                if (Array.isArray(cart.items)) {
+        /* === Line-item UI updates === */
+        if (Array.isArray(cart.items)) {
           cart.items.forEach(function (line) {
-            var eachEl = document.querySelector(
-              '[data-buzzko-each][data-line-key="' + line.key + '"]'
-            );
+            var itemEl = document.querySelector('.buzzko-item[data-line-key="' + line.key + '"]');
+            if (!itemEl) return;
+
+            /* Skip painting the item the user is actively hovering (just clicked) */
+            if (recentlyClicked && itemEl.matches(':hover')) {
+              return;
+            }
+
+            var priceEl = itemEl.querySelector('.buzzko-item__price');
+            if (priceEl) {
+              var html = '';
+              if (line.original_line_price !== line.final_line_price) {
+                html =
+                  '<span>' + formatMoney(line.final_line_price) + '</span>' +
+                  '<s class="buzzko-item__price-compare">' + formatMoney(line.original_line_price) + '</s>';
+              } else {
+                html = '<span>' + formatMoney(line.original_line_price) + '</span>';
+                var compareUnit = line.variant && line.variant.compare_at_price;
+                if (compareUnit && compareUnit > line.final_price) {
+                  html += '<s class="buzzko-item__price-compare">' + formatMoney(compareUnit * line.quantity) + '</s>';
+                }
+              }
+              priceEl.innerHTML = html;
+            }
+
+            var eachEl = itemEl.querySelector('[data-buzzko-each]');
             if (eachEl) {
               if (line.quantity > 1) {
                 eachEl.hidden = false;
@@ -727,19 +778,163 @@
               }
             }
 
-            var compareEl = document.querySelector(
-              '[data-buzzko-compare][data-line-key="' + line.key + '"]'
-            );
+            var compareEl = itemEl.querySelector('[data-buzzko-compare]');
             if (compareEl) {
-              var unitCompare = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
-              compareEl.textContent = formatMoney(unitCompare * line.quantity);
+              var unitCompare2 = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
+              compareEl.textContent = formatMoney(unitCompare2 * line.quantity);
             }
           });
+        }
+
+        if (cart.item_count === 0) {
+          window.location.reload();
+          return;
         }
       } finally {
         setTimeout(function () { __updating = false; }, 200);
       }
     }
+
+    /* =========================================================
+       Remove button handler
+       Dawn uses the line index (line: 3) which goes stale because
+       we've stubbed section re-rendering. Send the stable line key
+       (id: "1234:abc...") instead, and remove the row from the DOM
+       ourselves once the server confirms.
+       ========================================================= */
+    document.addEventListener('click', function (event) {
+      var trashLink = event.target.closest && event.target.closest('.buzzko-item__trash');
+      if (!trashLink) return;
+
+      /* Block Dawn's own handler entirely */
+      event.preventDefault();
+      event.stopPropagation();
+
+      var itemEl = trashLink.closest('.buzzko-item');
+      if (!itemEl) return;
+
+      var lineKey = itemEl.getAttribute('data-line-key');
+      if (!lineKey) return;
+
+      /* Don't allow double-clicks */
+      if (itemEl.dataset.buzzkoRemoving === 'true') return;
+      itemEl.dataset.buzzkoRemoving = 'true';
+
+      /* Fade out the row immediately for feedback */
+      itemEl.style.transition = 'opacity .25s ease, transform .25s ease';
+      itemEl.style.opacity = '0.35';
+      itemEl.style.pointerEvents = 'none';
+
+      _fetch.call(window, ROOT + 'cart/change.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          id: lineKey,
+          quantity: 0
+        })
+      })
+        .then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok) throw data;
+            return data;
+          });
+        })
+        .then(function (cart) {
+          /* Collapse the row's height, then remove it */
+          var height = itemEl.offsetHeight;
+          itemEl.style.height = height + 'px';
+          itemEl.style.overflow = 'hidden';
+          itemEl.style.marginBottom = '0';
+
+          /* Force reflow so the transition applies */
+          void itemEl.offsetHeight;
+
+          itemEl.style.height = '0px';
+          itemEl.style.paddingTop = '0';
+          itemEl.style.paddingBottom = '0';
+          itemEl.style.opacity = '0';
+          itemEl.style.borderWidth = '0';
+
+          setTimeout(function () {
+            itemEl.remove();
+
+            if (cart.item_count === 0) {
+              window.location.reload();
+              return;
+            }
+
+            /* Update summary + remaining items from the fresh cart */
+            lastOptimisticTime = 0; /* bypass the recentlyClicked guard */
+            renderCart(cart);
+          }, 260);
+        })
+        .catch(function (error) {
+          console.error('[BuzzKo remove]', error);
+          /* Restore the row on failure */
+          itemEl.dataset.buzzkoRemoving = '';
+          itemEl.style.opacity = '';
+          itemEl.style.pointerEvents = '';
+        });
+    }, true); /* capture phase — runs before Dawn's own click handler */
+
+    /* =========================================================
+       Optimistic quantity click handler
+       ========================================================= */
+    document.addEventListener('click', function (event) {
+      var btn = event.target.closest && event.target.closest('.buzzko-item .quantity__button');
+      if (!btn || btn.disabled) return;
+
+      var itemEl = btn.closest('.buzzko-item');
+      if (!itemEl) return;
+
+      var priceEl = itemEl.querySelector('.buzzko-item__price > span');
+      if (!priceEl) return;
+
+      var lineCents = parseMoneyToCents(priceEl.textContent);
+      if (lineCents == null) return;
+
+      var input = itemEl.querySelector('.quantity__input');
+      var oldQty = parseInt(input && input.value, 10) || 1;
+      var delta = btn.name === 'plus' ? 1 : -1;
+      var newQty = Math.max(0, oldQty + delta);
+      if (newQty === oldQty) return;
+
+      var unitCents = Math.round(lineCents / oldQty);
+      var newLineCents = unitCents * newQty;
+      var deltaCents = newLineCents - lineCents;
+
+      /* Paint the line item */
+      priceEl.textContent = formatMoney(newLineCents);
+
+      var compareEl = itemEl.querySelector('[data-buzzko-compare]');
+      if (compareEl) {
+        var unitCompare = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
+        compareEl.textContent = formatMoney(unitCompare * newQty);
+      }
+
+      var eachEl = itemEl.querySelector('[data-buzzko-each]');
+      if (eachEl) {
+        if (newQty > 1) {
+          eachEl.hidden = false;
+          eachEl.textContent = formatMoney(unitCents) + ' each';
+        } else {
+          eachEl.hidden = true;
+        }
+      }
+
+      /* Paint the summary */
+      var totalEl = document.querySelector('[data-buzzko-total]');
+      var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
+
+      var rawTotal = (parseInt(totalEl && totalEl.getAttribute('data-total-cents'), 10) || 0) + deltaCents;
+      var subtotalCents = (parseMoneyToCents(subtotalEl && subtotalEl.textContent) || 0) + deltaCents;
+
+      lastOptimisticTime = Date.now();
+      paintSummary(Math.max(0, rawTotal), Math.max(0, subtotalCents));
+    }, true);
 
     /* ---------- Debounced refetch ---------- */
     var refreshTimer = null;
@@ -869,7 +1064,7 @@
         log('checkout with discount', code, 'total', cents);
         window.location.href = ROOT + 'checkout?discount=' + encodeURIComponent(code);
       }
-    }, true); /* capture phase so we run before the form submits */
+    }, true);
   })();
 </script>
 
