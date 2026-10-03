@@ -575,12 +575,37 @@
       height: 15px;
     }
 
-    #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+          #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
       gap: 12px;
+
+      /* Pull grid out of the container's 20px horizontal padding,
+         then re-add it as inner padding so scroll reaches the edges
+         but the first/last card still has a gutter. */
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 10px;
+
+      scroll-snap-type: x mandatory;
+      /* Tell the snap engine where "start" is — 20px in,
+         so every snapped card lands with the same left gutter. */
+      scroll-padding-inline: 20px;
+      scrollbar-width: none;
+    }
+
+    #buzzko-trending-{{ section.id }} .buzzko-trending__grid::-webkit-scrollbar {
+      display: none;
     }
 
     #buzzko-trending-{{ section.id }} .buzzko-product-card {
+      flex: 0 0 76%;
+      scroll-snap-align: start;
+      margin-top: 20px;
+      margin-left: 105px
       padding: 7px;
       border-width: 2px;
       border-radius: 13px;
