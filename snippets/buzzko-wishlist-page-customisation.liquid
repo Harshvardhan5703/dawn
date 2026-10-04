@@ -1124,6 +1124,26 @@
 
     initializedCards.add(card);
 
+    /* Nuclear option: set inline !important styles on the host so
+       no external stylesheet — Joy's merchant CSS, theme CSS, or
+       anything else — can put a border/background/padding on the
+       <joy-wishlist-product> element. Inline !important beats every
+       stylesheet rule regardless of specificity or source order. */
+    card.style.setProperty('background', 'transparent', 'important');
+    card.style.setProperty('background-color', 'transparent', 'important');
+    card.style.setProperty('background-image', 'none', 'important');
+    card.style.setProperty('border', '0', 'important');
+    card.style.setProperty('border-width', '0', 'important');
+    card.style.setProperty('border-style', 'none', 'important');
+    card.style.setProperty('border-color', 'transparent', 'important');
+    card.style.setProperty('border-radius', '0', 'important');
+    card.style.setProperty('padding', '0', 'important');
+    card.style.setProperty('margin', '0', 'important');
+    card.style.setProperty('box-shadow', 'none', 'important');
+    card.style.setProperty('outline', '0', 'important');
+    card.style.setProperty('display', 'block', 'important');
+    card.style.setProperty('min-height', '0', 'important');
+
     injectCardStyles(card, index);
     setupAddToCart(card);
 
