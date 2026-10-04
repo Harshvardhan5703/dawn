@@ -1,0 +1,1380 @@
+{% comment %}
+  BuzzKo Wishlist Authentication Gate
+
+  GLOBAL BEHAVIOUR
+  ----------------
+  Any Joy Wishlist button clicked by a signed-out visitor
+  goes through the BuzzKo authentication flow.
+
+  Supported Joy buttons:
+    - joy-wishlist-button[type="collection"]
+    - joy-wishlist-button[type="product"]
+
+  Flow:
+
+    Joy wishlist heart
+          ↓
+    BuzzKo sign-in modal
+          ↓
+    Continue to sign in
+          ↓
+    Shopify native account sheet
+          ↓
+    Successful authentication
+          ↓
+    Original Joy wishlist action is replayed
+
+  This snippet should be rendered ONCE in layout/theme.liquid.
+{% endcomment %}
+
+
+{% if shop.customer_accounts_enabled and customer == blank %}
+
+  <!-- =========================================================
+       BUZZKO WISHLIST LOGIN MODAL
+       ========================================================= -->
+
+  <div
+    id="buzzko-wishlist-login-modal"
+    aria-hidden="true"
+  >
+
+    <div
+      class="buzzko-wishlist-login__backdrop"
+      data-buzzko-wishlist-close
+    ></div>
+
+
+    <div
+      class="buzzko-wishlist-login__card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="buzzko-wishlist-login-title"
+      tabindex="-1"
+    >
+
+      <span class="buzzko-wishlist-login__sparkle buzzko-wishlist-login__sparkle--tl" aria-hidden="true">✦</span>
+      <span class="buzzko-wishlist-login__sparkle buzzko-wishlist-login__sparkle--br" aria-hidden="true">✦</span>
+
+      <button
+        type="button"
+        class="buzzko-wishlist-login__close"
+        aria-label="Close"
+        data-buzzko-wishlist-close
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+
+
+      <div class="buzzko-wishlist-login__heart" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+
+
+      <h2 id="buzzko-wishlist-login-title" class="buzzko-wishlist-login__title">
+        Save it for later
+        <span class="buzzko-wishlist-login__title-sparkle" aria-hidden="true">✦</span>
+      </h2>
+
+
+      <p class="buzzko-wishlist-login__text">
+        Sign in to keep your favourite BuzzKo finds in your wishlist.
+      </p>
+
+
+      <button
+        type="button"
+        class="buzzko-wishlist-login__continue"
+        id="buzzko-wishlist-login-continue"
+      >
+        <span>Continue to sign in</span>
+        <svg class="buzzko-wishlist-login__continue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+
+
+      <button
+        type="button"
+        class="buzzko-wishlist-login__later"
+        data-buzzko-wishlist-close
+      >
+        Not now
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       HIDDEN SHOPIFY ACCOUNT COMPONENT
+
+       We use Shopify's native customer account sheet.
+       We do NOT touch the visible header account button.
+       ========================================================= -->
+
+  <shopify-account
+    id="buzzko-wishlist-auth-account"
+    menu="{{ settings.customer_account_menu | default: 'customer-account-main-menu' }}"
+    sign-in-url="{{ routes.account_login_url }}"
+  ></shopify-account>
+
+
+  <style>
+
+    /* =========================================================
+       MODAL SHELL
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #buzzko-wishlist-login-modal.is-open {
+      display: flex;
+    }
+
+    html.buzzko-wishlist-modal-open {
+      overflow: hidden;
+    }
+
+
+    /* =========================================================
+       BACKDROP
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 26, 26, 0.42);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+
+    /* =========================================================
+       MODAL CARD
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__card {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+
+      width: min(420px, 100%);
+
+      padding: 40px 32px 30px;
+
+      border: 2px solid #1A1A1A;
+      border-radius: 24px;
+
+      text-align: center;
+
+      /* Soft radial pastel washes in the corners — matches the
+         cart empty state and the 404 page. */
+      background:
+        radial-gradient(ellipse at 10% 0%, #FFDCEF 0, transparent 42%),
+        radial-gradient(ellipse at 100% 100%, #E8F5C9 0, transparent 40%),
+        #FFFAF5;
+
+      box-shadow:
+        6px 6px 0 rgba(26, 26, 26, 0.06),
+        0 22px 60px rgba(26, 26, 26, 0.18);
+
+      transform: translateY(10px) scale(0.97);
+      opacity: 0;
+
+      transition:
+        opacity 0.22s ease,
+        transform 0.28s cubic-bezier(0.34, 1.4, 0.5, 1);
+    }
+
+    #buzzko-wishlist-login-modal.is-open
+    .buzzko-wishlist-login__card {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+
+    /* =========================================================
+       DECORATIVE SPARKLES
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__sparkle {
+      position: absolute;
+      z-index: 1;
+      color: #FF60B9;
+      font-size: 14px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__sparkle--tl {
+      top: 22px;
+      left: 26px;
+      transform: rotate(-14deg);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__sparkle--br {
+      bottom: 26px;
+      right: 30px;
+      font-size: 11px;
+      color: #B9E404;
+      transform: rotate(20deg);
+    }
+
+
+    /* =========================================================
+       CLOSE BUTTON
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+
+      width: 32px;
+      height: 32px;
+
+      display: grid;
+      place-items: center;
+
+      padding: 0;
+
+      border: 1.5px solid rgba(26, 26, 26, 0.14);
+      border-radius: 50%;
+
+      background: #FFFFFF;
+      color: #1A1A1A;
+
+      cursor: pointer;
+
+      transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.2s cubic-bezier(0.34, 1.4, 0.5, 1);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__close svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__close:hover {
+      background: #FFDCEF;
+      border-color: #FF60B9;
+      transform: rotate(90deg);
+    }
+
+
+    /* =========================================================
+       HEART BADGE
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__heart {
+      position: relative;
+      z-index: 1;
+
+      width: 72px;
+      height: 72px;
+
+      margin: 0 auto 20px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 50%;
+
+      background: linear-gradient(135deg, #FF60B9 0%, #FF8EC9 100%);
+      color: #FFFFFF;
+
+      box-shadow:
+        0 8px 0 rgba(255, 96, 185, 0.18),
+        0 12px 26px rgba(255, 96, 185, 0.32);
+
+      animation: buzzkoWishlistHeartbeat 2.4s ease-in-out infinite;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__heart svg {
+      width: 32px;
+      height: 32px;
+      display: block;
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    @keyframes buzzkoWishlistHeartbeat {
+      0%, 100% { transform: scale(1); }
+      12%      { transform: scale(1.08); }
+      24%      { transform: scale(1); }
+      36%      { transform: scale(1.05); }
+      48%      { transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__heart {
+        animation: none;
+      }
+    }
+
+
+    /* =========================================================
+       TITLE
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__title {
+      position: relative;
+      z-index: 1;
+
+      margin: 0 0 10px;
+
+      color: #1A1A1A;
+
+      font-family: var(--font-heading-family);
+      font-size: 26px;
+      line-height: 1.15;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__title-sparkle {
+      display: inline-block;
+      margin-left: 6px;
+      color: #FF60B9;
+      font-size: 0.75em;
+      font-weight: 400;
+      vertical-align: middle;
+      transform: rotate(-8deg);
+    }
+
+
+    /* =========================================================
+       DESCRIPTION
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__text {
+      position: relative;
+      z-index: 1;
+
+      margin: 0 auto 24px;
+      max-width: 300px;
+
+      color: #6B6663;
+      font-size: 14px;
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+
+    /* =========================================================
+       CONTINUE BUTTON
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue {
+      position: relative;
+      z-index: 1;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      width: 100%;
+      min-height: 50px;
+
+      padding: 0 24px;
+
+      border: 0;
+      border-radius: 999px;
+
+      background: #FF60B9;
+      color: #1A1A1A;
+
+      font: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.005em;
+
+      cursor: pointer;
+
+      box-shadow: 0 4px 0 rgba(26, 26, 26, 0.14);
+
+      transition:
+        background 0.18s ease,
+        transform 0.22s cubic-bezier(0.34, 1.4, 0.5, 1),
+        box-shadow 0.18s ease;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue:hover:not(:disabled) {
+      background: #e469af;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 rgba(26, 26, 26, 0.14);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 0 rgba(26, 26, 26, 0.14);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+      box-shadow: 0 4px 0 rgba(26, 26, 26, 0.14);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue-arrow {
+      width: 16px;
+      height: 16px;
+      display: block;
+      transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.5, 1);
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__continue:hover
+    .buzzko-wishlist-login__continue-arrow {
+      transform: translateX(3px);
+    }
+
+
+    /* =========================================================
+       "NOT NOW"
+       ========================================================= */
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__later {
+      position: relative;
+      z-index: 1;
+
+      display: inline-block;
+      margin-top: 16px;
+      padding: 6px 10px;
+
+      border: 0;
+      background: transparent;
+
+      color: #96908B;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: rgba(150, 144, 139, 0.4);
+
+      cursor: pointer;
+      transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    }
+
+    #buzzko-wishlist-login-modal
+    .buzzko-wishlist-login__later:hover {
+      color: #1A1A1A;
+      text-decoration-color: #1A1A1A;
+    }
+
+
+    /* =========================================================
+       HIDDEN SHOPIFY ACCOUNT
+       ========================================================= */
+
+    #buzzko-wishlist-auth-account {
+      position: fixed !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: visible !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: -1 !important;
+    }
+
+    #buzzko-wishlist-auth-account::part(signed-out-avatar) {
+      display: none !important;
+    }
+
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media screen and (max-width: 480px) {
+      #buzzko-wishlist-login-modal {
+        padding: 16px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__card {
+        padding: 34px 24px 26px;
+        border-radius: 20px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__heart {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__heart svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__title {
+        font-size: 22px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__text {
+        font-size: 13px;
+      }
+
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__sparkle--tl,
+      #buzzko-wishlist-login-modal
+      .buzzko-wishlist-login__sparkle--br {
+        display: none;
+      }
+    }
+
+  </style>
+
+
+  <script>
+
+    (function () {
+
+      /* =======================================================
+         PREVENT DUPLICATE INITIALIZATION
+         ======================================================= */
+
+      if (window.__buzzkoWishlistLogin) {
+        return;
+      }
+
+      window.__buzzkoWishlistLogin = true;
+
+
+      /* =======================================================
+         ELEMENTS
+         ======================================================= */
+
+      const modal =
+        document.getElementById(
+          'buzzko-wishlist-login-modal'
+        );
+
+
+      const modalCard =
+        modal
+          ? modal.querySelector(
+              '.buzzko-wishlist-login__card'
+            )
+          : null;
+
+
+      const continueButton =
+        document.getElementById(
+          'buzzko-wishlist-login-continue'
+        );
+
+
+      const authAccount =
+        document.getElementById(
+          'buzzko-wishlist-auth-account'
+        );
+
+
+      if (
+        !modal ||
+        !modalCard ||
+        !continueButton ||
+        !authAccount
+      ) {
+        return;
+      }
+
+
+      /* =======================================================
+         STATE
+         ======================================================= */
+
+      let pendingButtons = [];
+
+      let authWasOpened = false;
+
+      let previousFocusedElement = null;
+
+      let authenticationCheckInProgress = false;
+
+
+      /*
+       * Buttons that are currently being replayed after
+       * successful authentication.
+       *
+       * WeakSet means this does not keep old DOM elements
+       * alive in memory.
+       */
+      const replayingButtons = new WeakSet();
+
+
+      /* =======================================================
+         UTILITY
+         ======================================================= */
+
+      function isConnected(element) {
+
+        return (
+          element &&
+          document.documentElement.contains(element)
+        );
+      }
+
+
+      function addPendingButton(button) {
+
+        if (!button) {
+          return;
+        }
+
+
+        if (!isConnected(button)) {
+          return;
+        }
+
+
+        /*
+         * Don't add the same wishlist button twice.
+         */
+        if (!pendingButtons.includes(button)) {
+
+          pendingButtons.push(button);
+        }
+      }
+
+
+      function clearPendingButtons() {
+
+        pendingButtons = [];
+      }
+
+
+      /* =======================================================
+         OPEN BUZZKO MODAL
+         ======================================================= */
+
+      function openModal(button) {
+
+        addPendingButton(button);
+
+
+        previousFocusedElement =
+          document.activeElement;
+
+
+        modal.classList.add('is-open');
+
+
+        modal.setAttribute(
+          'aria-hidden',
+          'false'
+        );
+
+
+        document.documentElement.classList.add(
+          'buzzko-wishlist-modal-open'
+        );
+
+
+        /*
+         * Focus the modal for keyboard users.
+         */
+        setTimeout(function () {
+
+          modalCard.focus();
+
+        }, 20);
+      }
+
+
+      /* =======================================================
+         CLOSE BUZZKO MODAL
+         ======================================================= */
+
+      function closeModal(options) {
+
+        options =
+          options || {};
+
+
+        modal.classList.remove('is-open');
+
+
+        modal.setAttribute(
+          'aria-hidden',
+          'true'
+        );
+
+
+        document.documentElement.classList.remove(
+          'buzzko-wishlist-modal-open'
+        );
+
+
+        if (options.clearPending !== false) {
+
+          clearPendingButtons();
+        }
+
+
+        /*
+         * Return focus to the element that opened
+         * the modal.
+         */
+        if (
+          previousFocusedElement &&
+          isConnected(previousFocusedElement)
+        ) {
+
+          try {
+
+            previousFocusedElement.focus();
+
+          } catch (error) {
+
+            /*
+             * Focus restoration is optional.
+             */
+          }
+        }
+
+
+        previousFocusedElement = null;
+      }
+
+
+      /* =======================================================
+         FIND SHOPIFY ACCOUNT TRIGGER
+         ======================================================= */
+
+      function getAccountTrigger() {
+
+        const shadow =
+          authAccount.shadowRoot;
+
+
+        if (!shadow) {
+          return null;
+        }
+
+
+        return (
+          shadow.querySelector(
+            '[part="signed-out-avatar"]'
+          ) ||
+          shadow.querySelector('button')
+        );
+      }
+
+
+      /* =======================================================
+         OPEN SHOPIFY NATIVE ACCOUNT SHEET
+         ======================================================= */
+
+      function openNativeAccount() {
+
+        const trigger =
+          getAccountTrigger();
+
+
+        if (!trigger) {
+
+          console.warn(
+            '[BuzzKo Wishlist] Shopify account trigger is not ready yet.'
+          );
+
+          return false;
+        }
+
+
+        authWasOpened = false;
+
+
+        /*
+         * Align Shopify's native account sheet with
+         * the existing BuzzKo header.
+         */
+        const header =
+          document.querySelector(
+            '.section-header .header'
+          );
+
+
+        if (header) {
+
+          authAccount.style.setProperty(
+            '--account-dialog-top',
+
+            Math.round(
+              header.getBoundingClientRect().bottom
+            ) + 'px'
+          );
+        }
+
+
+        trigger.click();
+
+
+        return true;
+      }
+
+
+      /* =======================================================
+         REPLAY ORIGINAL JOY WISHLIST ACTION
+         ======================================================= */
+
+      function finishPendingWishlist() {
+
+        const buttons =
+          pendingButtons.filter(
+            function (button) {
+
+              return (
+                button &&
+                isConnected(button)
+              );
+
+            }
+          );
+
+
+        /*
+         * Clear the queue before replaying.
+         */
+        clearPendingButtons();
+
+
+        buttons.forEach(
+          function (button, index) {
+
+            /*
+             * Mark this exact button as a replay.
+             *
+             * Our global click interceptor will see the click,
+             * but will deliberately allow this one through.
+             */
+            replayingButtons.add(button);
+
+
+            setTimeout(
+              function () {
+
+                if (!isConnected(button)) {
+
+                  replayingButtons.delete(button);
+
+                  return;
+                }
+
+
+                /*
+                 * This is the ORIGINAL Joy click.
+                 *
+                 * We are not recreating Joy's wishlist logic.
+                 */
+                button.click();
+
+
+                /*
+                 * Remove the replay flag shortly after
+                 * Joy has received the click.
+                 */
+                setTimeout(
+                  function () {
+
+                    replayingButtons.delete(button);
+
+                  },
+                  100
+                );
+
+              },
+              250 + (index * 150)
+            );
+
+          }
+        );
+      }
+
+
+      /* =======================================================
+         VERIFY CUSTOMER LOGIN
+         ======================================================= */
+
+      function checkAuthentication() {
+
+        if (authenticationCheckInProgress) {
+          return;
+        }
+
+
+        authenticationCheckInProgress = true;
+
+
+        /*
+         * Shopify may need a moment to finish updating
+         * the customer session after authentication.
+         */
+        setTimeout(
+          function () {
+
+            fetch(
+              '/account.json',
+              {
+                credentials: 'same-origin',
+                cache: 'no-store'
+              }
+            )
+
+              .then(
+                function (response) {
+
+                  if (!response.ok) {
+                    return null;
+                  }
+
+                  return response.json();
+
+                }
+              )
+
+              .then(
+                function (data) {
+
+                  authenticationCheckInProgress =
+                    false;
+
+
+                  /*
+                   * Successful customer authentication.
+                   */
+                  if (
+                    data &&
+                    data.id
+                  ) {
+
+                    finishPendingWishlist();
+
+                  } else {
+
+                    /*
+                     * User closed the Shopify sheet
+                     * without signing in.
+                     */
+                    clearPendingButtons();
+                  }
+
+                }
+              )
+
+              .catch(
+                function () {
+
+                  authenticationCheckInProgress =
+                    false;
+
+                  clearPendingButtons();
+
+                }
+              );
+
+          },
+          450
+        );
+      }
+
+
+      /* =======================================================
+         MODAL CLOSE BUTTONS / BACKDROP
+         ======================================================= */
+
+      modal.addEventListener(
+        'click',
+        function (event) {
+
+          const closeTarget =
+            event.target.closest(
+              '[data-buzzko-wishlist-close]'
+            );
+
+
+          if (!closeTarget) {
+            return;
+          }
+
+
+          clearPendingButtons();
+
+
+          closeModal({
+            clearPending: false
+          });
+
+        }
+      );
+
+
+      /* =======================================================
+         CONTINUE TO SIGN IN
+         ======================================================= */
+
+      continueButton.addEventListener(
+        'click',
+        function () {
+
+          /*
+           * Prevent double-clicking.
+           */
+          continueButton.disabled = true;
+
+
+          /*
+           * IMPORTANT:
+           *
+           * Keep the pending Joy button.
+           *
+           * We need it after authentication.
+           */
+          closeModal({
+            clearPending: false
+          });
+
+
+          const opened =
+            openNativeAccount();
+
+
+          if (!opened) {
+
+            /*
+             * Shopify account component wasn't ready.
+             *
+             * Don't lose the wishlist action.
+             */
+            setTimeout(
+              function () {
+
+                continueButton.disabled =
+                  false;
+
+
+                openModal(
+                  pendingButtons[0] || null
+                );
+
+              },
+              150
+            );
+
+          } else {
+
+            setTimeout(
+              function () {
+
+                continueButton.disabled =
+                  false;
+
+              },
+              300
+            );
+          }
+
+        }
+      );
+
+
+      /* =======================================================
+         SHOPIFY ACCOUNT OPEN
+         ======================================================= */
+
+      authAccount.addEventListener(
+        'open',
+        function () {
+
+          authWasOpened = true;
+
+        }
+      );
+
+
+      /* =======================================================
+         SHOPIFY ACCOUNT CLOSE
+         ======================================================= */
+
+      authAccount.addEventListener(
+        'close',
+        function () {
+
+          /*
+           * Ignore close events that weren't preceded
+           * by our authentication sheet opening.
+           */
+          if (!authWasOpened) {
+            return;
+          }
+
+
+          /*
+           * Nothing to replay.
+           */
+          if (!pendingButtons.length) {
+            return;
+          }
+
+
+          checkAuthentication();
+
+        }
+      );
+
+
+      /* =======================================================
+         GLOBAL JOY WISHLIST INTERCEPTOR
+         ======================================================= */
+
+      document.addEventListener(
+        'click',
+        function (event) {
+
+          /*
+           * Prevent duplicate handling of the same event.
+           */
+          if (
+            event.__buzzkoWishlistHandled
+          ) {
+            return;
+          }
+
+
+          /*
+           * composedPath() is important because Joy's
+           * actual button lives inside Shadow DOM.
+           *
+           * It lets us find:
+           *
+           *   joy-wishlist-button
+           *
+           * regardless of where it is rendered.
+           */
+          const path =
+            event.composedPath
+              ? event.composedPath()
+              : [];
+
+
+          const button =
+            path.find(
+              function (node) {
+
+                return (
+                  node instanceof HTMLElement &&
+                  node.matches(
+                    'joy-wishlist-button'
+                  )
+                );
+
+              }
+            );
+
+
+          /*
+           * This wasn't a Joy wishlist click.
+           */
+          if (!button) {
+            return;
+          }
+
+
+          /*
+           * CRITICAL:
+           *
+           * If this is the original button being replayed
+           * after successful authentication, DO NOT intercept it.
+           *
+           * Let Joy handle it normally.
+           */
+          if (
+            replayingButtons.has(button)
+          ) {
+            return;
+          }
+
+
+          /*
+           * We found a wishlist heart.
+           *
+           * Stop Joy from performing the action while
+           * the visitor is signed out.
+           */
+          event.__buzzkoWishlistHandled =
+            true;
+
+
+          event.preventDefault();
+
+          event.stopImmediatePropagation();
+
+
+          /*
+           * Remember this exact Joy button.
+           */
+          openModal(button);
+
+        },
+        true
+      );
+
+
+      /* =======================================================
+         ESCAPE KEY
+         ======================================================= */
+
+      document.addEventListener(
+        'keydown',
+        function (event) {
+
+          if (
+            event.key !== 'Escape'
+          ) {
+            return;
+          }
+
+
+          if (
+            !modal.classList.contains(
+              'is-open'
+            )
+          ) {
+            return;
+          }
+
+
+          clearPendingButtons();
+
+
+          closeModal({
+            clearPending: false
+          });
+
+        }
+      );
+
+
+      /* =======================================================
+         BASIC FOCUS TRAP
+         ======================================================= */
+
+      modal.addEventListener(
+        'keydown',
+        function (event) {
+
+          if (
+            event.key !== 'Tab'
+          ) {
+            return;
+          }
+
+
+          const focusable =
+            modal.querySelectorAll(
+              'button:not([disabled])'
+            );
+
+
+          if (!focusable.length) {
+            return;
+          }
+
+
+          const first =
+            focusable[0];
+
+
+          const last =
+            focusable[
+              focusable.length - 1
+            ];
+
+
+          if (
+            event.shiftKey &&
+            document.activeElement === first
+          ) {
+
+            event.preventDefault();
+
+            last.focus();
+
+          } else if (
+            !event.shiftKey &&
+            document.activeElement === last
+          ) {
+
+            event.preventDefault();
+
+            first.focus();
+          }
+
+        }
+      );
+
+/* Public API — lets other scripts mark a Joy button click
+   as a legitimate replay so the interceptor lets it through. */
+window.buzzkoWishlistReplay = function (button) {
+  if (!button) return;
+  replayingButtons.add(button);
+  setTimeout(function () {
+    replayingButtons.delete(button);
+  }, 400);
+};
+    })();
+
+  </script>
+
+{% endif %}

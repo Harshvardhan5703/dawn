@@ -1,0 +1,689 @@
+{% comment %}
+  BUZZKO WISHLIST CUSTOMIZATION
+  - Custom wishlist card styling
+  - Custom Add to Cart button
+  - Add item to Shopify cart
+  - Remove item from Joy wishlist
+  - Redirect to cart
+{% endcomment %}
+
+<script>
+(function () {
+  'use strict';
+
+  const STYLE_ID = 'buzzko-wishlist-custom-style';
+  const CARD_STYLE_ID = 'buzzko-wishlist-card-style';
+
+  let initializedPages = new WeakSet();
+  let initializedCards = new WeakSet();
+
+  /* =========================================================
+     PAGE STYLES
+  ========================================================= */
+
+  function styleWishlistPage(page) {
+    const root = page?.shadowRoot;
+
+    if (!root) return;
+
+    if (root.querySelector('#' + STYLE_ID)) return;
+
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+
+    style.textContent = `
+      /* ===============================
+         BUZZKO WISHLIST PAGE
+      =============================== */
+
+      .Joy-Wishlist-ManagePage__Wrapper {
+        background: #FFFAF5 !important;
+        color: #1A1A1A !important;
+      }
+
+      .Joy-Wishlist-ManagePage__Padding {
+        padding-top: 42px !important;
+        padding-bottom: 60px !important;
+      }
+
+      .Joy-Wishlist-ManagePage__Container {
+        max-width: 1400px !important;
+      }
+
+      /* Header */
+
+      .Joy-Wishlist-ManagePage__Header {
+        text-align: left !important;
+      }
+
+      .Joy-Wishlist-ManagePage__Title {
+        font-family: var(--font-heading-family) !important;
+        font-size: clamp(32px, 4vw, 52px) !important;
+        font-weight: 900 !important;
+        letter-spacing: -1.5px !important;
+        line-height: 1 !important;
+        margin-bottom: 10px !important;
+        color: #1A1A1A !important;
+      }
+
+      .Joy-Wishlist-ManagePage__Description {
+        font-family: var(--font-body-family) !important;
+        font-size: 15px !important;
+        color: #666 !important;
+        margin: 0 !important;
+      }
+
+      /* Product grid */
+
+      .Joy-Wishlist-ManagePage__ProductGrid {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 22px !important;
+        margin-top: 35px !important;
+      }
+
+      @media screen and (max-width: 1100px) {
+        .Joy-Wishlist-ManagePage__ProductGrid {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+      }
+
+      @media screen and (max-width: 750px) {
+        .Joy-Wishlist-ManagePage__ProductGrid {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 12px !important;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .Joy-Wishlist-ManagePage__ProductGrid {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+      }
+    `;
+
+    root.appendChild(style);
+
+    initializedPages.add(page);
+  }
+
+
+  /* =========================================================
+     CARD STYLES
+  ========================================================= */
+
+  function styleWishlistCard(card) {
+    const root = card?.shadowRoot;
+
+    if (!root) return;
+
+    let style = root.querySelector('#' + CARD_STYLE_ID);
+
+    if (!style) {
+      style = document.createElement('style');
+      style.id = CARD_STYLE_ID;
+
+      style.textContent = `
+        /* ===============================
+           BUZZKO WISHLIST CARD
+        =============================== */
+
+        :host([layout="vertical"]) {
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+
+          background: #FAF8F6 !important;
+
+          border: 3px solid #F7CFCF !important;
+          border-radius: 20px !important;
+
+          padding: 11px !important;
+
+          overflow: hidden !important;
+
+          color: #1A1A1A !important;
+
+          font-family: var(--font-heading-family) !important;
+
+          transition:
+            transform .18s ease,
+            box-shadow .18s ease !important;
+        }
+
+        :host([layout="vertical"]):hover {
+          transform: translateY(-4px) !important;
+          box-shadow: 0 10px 25px rgba(0,0,0,.08) !important;
+        }
+
+        .Joy-Wishlist-Product__Image--Wrapper {
+          width: 100% !important;
+          aspect-ratio: 1 / 1 !important;
+
+          overflow: hidden !important;
+
+          border-radius: 14px !important;
+
+          background: #F0ECE8 !important;
+        }
+
+        .Joy-Wishlist-Product__Image {
+          display: block !important;
+          width: 100% !important;
+          height: 100% !important;
+        }
+
+        .Joy-Wishlist-Product__Image img {
+          width: 100% !important;
+          height: 100% !important;
+
+          object-fit: cover !important;
+
+          display: block !important;
+
+          transition: transform .25s ease !important;
+        }
+
+        :host([layout="vertical"]):hover
+        .Joy-Wishlist-Product__Image img {
+          transform: scale(1.04) !important;
+        }
+
+        .Joy-Wishlist-Product__Content--Wrapper {
+          display: flex !important;
+          flex-direction: column !important;
+          flex: 1 !important;
+
+          padding: 13px 3px 3px !important;
+        }
+
+        .Joy-Wishlist-Product__Title {
+          color: #1A1A1A !important;
+
+          font-family: var(--font-heading-family) !important;
+
+          font-size: 16px !important;
+          font-weight: 800 !important;
+
+          line-height: 1.2 !important;
+
+          text-decoration: none !important;
+        }
+
+        .Joy-Wishlist-Product__Price {
+          color: #1A1A1A !important;
+
+          font-family: var(--font-heading-family) !important;
+
+          font-size: 15px !important;
+          font-weight: 700 !important;
+        }
+
+        .Joy-Wishlist-Product__Content--Bottom {
+          display: flex !important;
+
+          align-items: center !important;
+          justify-content: space-between !important;
+
+          gap: 10px !important;
+
+          margin-top: auto !important;
+
+          padding-top: 16px !important;
+        }
+
+        /*
+          Hide Joy's own Add to Cart button.
+          We replace it with BuzzKo's button.
+        */
+
+        button.Joy-Wishlist__Button {
+          display: none !important;
+        }
+
+        /*
+          Remove button
+        */
+
+        .Joy-Wishlist-Product__RemoveBtn {
+          position: absolute !important;
+
+          top: 18px !important;
+          right: 18px !important;
+
+          z-index: 5 !important;
+        }
+
+        .Joy-Wishlist-Product__RemoveBtn joy-wishlist-button {
+          --joy-wl-page-btn-bg: #FFFAF5 !important;
+          --joy-wl-page-btn-color: #1A1A1A !important;
+        }
+
+        /*
+          Our custom Add to Cart button
+        */
+
+        .buzzko-wishlist-atc {
+          appearance: none !important;
+
+          border: 0 !important;
+
+          background: #E469AF !important;
+          color: #201E1E !important;
+
+          border-radius: 999px !important;
+
+          padding: 9px 16px !important;
+
+          font-family: var(--font-heading-family) !important;
+
+          font-size: 11px !important;
+          font-weight: 800 !important;
+
+          letter-spacing: .2px !important;
+
+          line-height: 1 !important;
+
+          cursor: pointer !important;
+
+          white-space: nowrap !important;
+
+          min-height: 34px !important;
+
+          transition:
+            transform .15s ease,
+            opacity .15s ease !important;
+        }
+
+        .buzzko-wishlist-atc:hover {
+          transform: translateY(-1px) !important;
+        }
+
+        .buzzko-wishlist-atc:active {
+          transform: scale(.96) !important;
+        }
+
+        .buzzko-wishlist-atc[disabled] {
+          opacity: .6 !important;
+          cursor: wait !important;
+        }
+
+        .buzzko-wishlist-atc.is-success {
+          background: #B9E404 !important;
+        }
+
+        .buzzko-wishlist-atc.is-error {
+          background: #FF8B8B !important;
+        }
+
+        @media screen and (max-width: 600px) {
+          .Joy-Wishlist-Product__Content--Wrapper {
+            padding-top: 10px !important;
+          }
+
+          .Joy-Wishlist-Product__Title {
+            font-size: 14px !important;
+          }
+
+          .Joy-Wishlist-Product__Price {
+            font-size: 13px !important;
+          }
+
+          .buzzko-wishlist-atc {
+            padding: 8px 11px !important;
+            font-size: 10px !important;
+          }
+        }
+      `;
+
+      root.appendChild(style);
+    }
+
+    /*
+      Give different cards the BuzzKo rotating border colors.
+    */
+
+    const cards = [
+      '#F7CFCF',
+      '#B9E404',
+      '#9DDCF7',
+      '#FFD96A',
+      '#CDB8F5'
+    ];
+
+    const index = [
+      ...document.querySelectorAll('joy-wishlist-product')
+    ].indexOf(card);
+
+    const borderColor = cards[
+      Math.max(0, index) % cards.length
+    ];
+
+    card.style.setProperty('--buzzko-card-border', borderColor);
+
+    /*
+      Apply through a style override because the actual card
+      lives inside Joy's shadow root.
+    */
+
+    const borderStyleId = 'buzzko-border-override';
+
+    let borderStyle = root.querySelector('#' + borderStyleId);
+
+    if (!borderStyle) {
+      borderStyle = document.createElement('style');
+      borderStyle.id = borderStyleId;
+      root.appendChild(borderStyle);
+    }
+
+    borderStyle.textContent = `
+      :host([layout="vertical"]) {
+        border-color: ${borderColor} !important;
+      }
+    `;
+  }
+
+
+  /* =========================================================
+     CREATE CUSTOM ATC
+  ========================================================= */
+
+  function setupAddToCart(card) {
+    const root = card?.shadowRoot;
+
+    if (!root) return;
+
+    const bottom = root.querySelector(
+      '.Joy-Wishlist-Product__Content--Bottom'
+    );
+
+    if (!bottom) return;
+
+    /*
+      If Joy already has our button, don't create another.
+    */
+
+    let button = bottom.querySelector(
+      '.buzzko-wishlist-atc'
+    );
+
+    if (!button) {
+      button = document.createElement('button');
+
+      button.type = 'button';
+      button.className = 'buzzko-wishlist-atc';
+
+      button.textContent = 'Add to Cart';
+
+      bottom.appendChild(button);
+    }
+
+    /*
+      Don't attach multiple listeners.
+    */
+
+    if (button.dataset.buzzkoInitialized === 'true') {
+      return;
+    }
+
+    button.dataset.buzzkoInitialized = 'true';
+
+    button.addEventListener('click', async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (button.disabled) return;
+
+      const variantId = card.getAttribute('variant-id');
+      const title = card.getAttribute('title') || 'Item';
+
+      if (!variantId) {
+        console.error(
+          '[BuzzKo Wishlist] Missing variant ID'
+        );
+
+        button.textContent = 'Error';
+        button.classList.add('is-error');
+
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Adding…';
+
+      try {
+
+        /* =========================================
+           1. ADD TO SHOPIFY CART
+        ========================================= */
+
+        const response = await fetch(
+          window.Shopify.routes.root + 'cart/add.js',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+
+            body: JSON.stringify({
+              items: [
+                {
+                  id: Number(variantId),
+                  quantity: 1
+                }
+              ]
+            })
+          }
+        );
+
+        if (!response.ok) {
+          let errorData = null;
+
+          try {
+            errorData = await response.json();
+          } catch (_) {}
+
+          console.error(
+            '[BuzzKo Wishlist] Cart error:',
+            errorData
+          );
+
+          throw new Error(
+            errorData?.description ||
+            'Could not add item to cart.'
+          );
+        }
+
+        await response.json();
+
+        /* =========================================
+           2. REMOVE FROM JOY WISHLIST
+        ========================================= */
+
+        const removeButton =
+          root.querySelector(
+            '.Joy-Wishlist-Product__RemoveBtn joy-wishlist-button[type="collection"]'
+          );
+
+        if (removeButton) {
+
+          removeButton.click();
+
+          /*
+            Give Joy time to update its wishlist state.
+          */
+
+          await new Promise(resolve =>
+            setTimeout(resolve, 700)
+          );
+        }
+
+        /* =========================================
+           3. SUCCESS STATE
+        ========================================= */
+
+        button.classList.add('is-success');
+        button.textContent = 'Added ✓';
+
+        /*
+          Small delay so the user sees the success state.
+        */
+
+        await new Promise(resolve =>
+          setTimeout(resolve, 250)
+        );
+
+        /* =========================================
+           4. GO TO CART
+        ========================================= */
+
+        window.location.href = '/cart';
+
+      } catch (error) {
+
+        console.error(
+          '[BuzzKo Wishlist] Add to cart failed:',
+          error
+        );
+
+        button.disabled = false;
+
+        button.classList.remove('is-success');
+        button.classList.add('is-error');
+
+        button.textContent = 'Try Again';
+
+        setTimeout(() => {
+          button.classList.remove('is-error');
+
+          if (!button.disabled) {
+            button.textContent = 'Add to Cart';
+          }
+        }, 1800);
+      }
+    });
+  }
+
+
+  /* =========================================================
+     INITIALIZE CARD
+  ========================================================= */
+
+  function initializeCard(card) {
+
+    if (!card.shadowRoot) return;
+
+    styleWishlistCard(card);
+    setupAddToCart(card);
+
+    initializedCards.add(card);
+  }
+
+
+  /* =========================================================
+     INITIALIZE PAGE
+  ========================================================= */
+
+  function initializePage() {
+
+    const page =
+      document.querySelector('joy-wishlist-page');
+
+    if (!page || !page.shadowRoot) return;
+
+    styleWishlistPage(page);
+
+    const cards =
+      page.shadowRoot.querySelectorAll(
+        'joy-wishlist-product'
+      );
+
+    cards.forEach(initializeCard);
+  }
+
+
+  /* =========================================================
+     WATCH JOY RERENDERS
+  ========================================================= */
+
+  function observeWishlistPage(page) {
+
+    if (!page?.shadowRoot) return;
+
+    const observer =
+      new MutationObserver(() => {
+
+        styleWishlistPage(page);
+
+        const cards =
+          page.shadowRoot.querySelectorAll(
+            'joy-wishlist-product'
+          );
+
+        cards.forEach(initializeCard);
+
+      });
+
+    observer.observe(page.shadowRoot, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+
+  /* =========================================================
+     START
+  ========================================================= */
+
+  function start() {
+
+    const page =
+      document.querySelector('joy-wishlist-page');
+
+    if (page?.shadowRoot) {
+
+      initializePage();
+      observeWishlistPage(page);
+
+      return;
+    }
+
+    /*
+      Joy may not have finished hydrating yet.
+    */
+
+    const observer =
+      new MutationObserver(() => {
+
+        const currentPage =
+          document.querySelector('joy-wishlist-page');
+
+        if (!currentPage?.shadowRoot) return;
+
+        observer.disconnect();
+
+        initializePage();
+        observeWishlistPage(currentPage);
+
+      });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      start
+    );
+  } else {
+    start();
+  }
+
+})();
+</script>

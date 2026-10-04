@@ -1,0 +1,1214 @@
+{% comment %}
+  BuzzKo Wishlist Page Customization
+  Styles Joy's wishlist cards to match the BuzzKo product card exactly.
+  Adds a custom Add to Cart that also removes the item from the wishlist.
+  Handles page-level pre-hydration loading state.
+
+  Requires: `window.buzzkoWishlistReplay` exposed by the auth snippet
+  so the remove button click is not intercepted.
+{% endcomment %}
+
+<script>
+(function () {
+  'use strict';
+
+  if (window.__buzzkoWishlistCustom) return;
+  window.__buzzkoWishlistCustom = true;
+
+  var STYLE_ID = 'buzzko-wishlist-card-style';
+  var PAGE_STYLE_ID = 'buzzko-wishlist-page-style';
+  var BORDER_COLORS = ['#F7CFCF', '#B9E404', '#9DDCF7', '#FFD96A', '#CDB8F5', '#FF9FC8'];
+
+  var initializedCards = new WeakSet();
+  var initTimer = null;
+
+
+  /* =========================================================
+     PAGE-LEVEL STYLES
+     Injected into the joy-wishlist-page shadow root.
+
+     Two responsibilities:
+     1. Hide <joy-wishlist-product> host elements until our script
+        has styled them (prevents Joy's default FOUC).
+     2. Recolor Joy's skeleton to match BuzzKo palette.
+  ========================================================= */
+
+  /* =========================================================
+     HELPER — inject styles into a custom element's shadow root
+  ========================================================= */
+
+  function injectButtonShadowStyle(el) {
+    if (!el || !el.shadowRoot) return;
+
+    var tag = el.tagName.toLowerCase();
+    var styleId = tag + '-buzzko-style';
+
+    if (el.shadowRoot.querySelector('#' + styleId)) return;
+
+    var style = document.createElement('style');
+    style.id = styleId;
+
+    style.textContent = `
+      button, a {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+
+        appearance: none !important;
+        -webkit-appearance: none !important;
+
+        padding: 9px 18px !important;
+
+        background: #FFFFFF !important;
+        color: #1A1A1A !important;
+
+        border: 1.5px solid rgba(26, 26, 26, 0.16) !important;
+        border-radius: 999px !important;
+
+        font-family: var(--font-body-family) !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1 !important;
+
+        cursor: pointer !important;
+
+        transition:
+          background .15s ease,
+          border-color .15s ease,
+          color .15s ease,
+          transform .15s ease !important;
+      }
+
+      button:hover, a:hover {
+        background: #1A1A1A !important;
+        border-color: #1A1A1A !important;
+        color: #FFFAF5 !important;
+        transform: translateY(-1px) !important;
+      }
+
+      button svg, a svg {
+        width: 15px !important;
+        height: 15px !important;
+        flex-shrink: 0 !important;
+      }
+
+      @media screen and (max-width: 749px) {
+        button, a {
+          font-size: 12px !important;
+          padding: 8px 14px !important;
+        }
+      }
+    `;
+
+    el.shadowRoot.appendChild(style);
+  }
+
+
+  /* =========================================================
+     PAGE-LEVEL STYLES
+  ========================================================= */
+
+  function injectPageStyles(page) {
+    var root = page && page.shadowRoot;
+    if (!root) return false;
+
+    if (!root.querySelector('#' + PAGE_STYLE_ID)) {
+      var style = document.createElement('style');
+      style.id = PAGE_STYLE_ID;
+
+      style.textContent = `
+        /* =====================================================
+           PAGE SHELL
+           ===================================================== */
+
+        .Joy-Wishlist-ManagePage__Wrapper {
+          background: #FFFAF5 !important;
+          color: #1A1A1A !important;
+          --joy-wl-page-btn-bg: #FFFFFF !important;
+          --joy-wl-page-btn-color: #1A1A1A !important;
+        }
+
+        .Joy-Wishlist-ManagePage__Padding {
+          padding-top: 48px !important;
+          padding-bottom: 64px !important;
+        }
+
+        .Joy-Wishlist-ManagePage__Container {
+          max-width: 1380px !important;
+        }
+
+
+        /* =====================================================
+           FOUC GUARD
+           ===================================================== */
+
+        joy-wishlist-product:not([data-buzzko-styled="true"]) {
+          visibility: hidden !important;
+        }
+
+        joy-wishlist-product[data-buzzko-styled="true"] {
+          visibility: visible !important;
+        }
+
+
+        /* =====================================================
+           HEADER
+           ===================================================== */
+
+        .Joy-Wishlist-ManagePage__Header--Wrapper {
+          margin-bottom: 36px !important;
+          text-align: center !important;
+        }
+
+        .Joy-Wishlist-ManagePage__Header {
+          text-align: center !important;
+        }
+
+        .Joy-Wishlist-ManagePage__Title {
+          display: inline-block !important;
+
+          font-family: var(--font-heading-family) !important;
+          font-size: clamp(34px, 4.2vw, 52px) !important;
+          font-weight: 900 !important;
+          line-height: 1.05 !important;
+          letter-spacing: -0.04em !important;
+
+          color: #1A1A1A !important;
+
+          margin: 0 0 12px !important;
+          text-align: center !important;
+        }
+
+        .Joy-Wishlist-ManagePage__Title::after {
+          content: " ✦";
+          display: inline-block;
+          margin-left: 10px;
+          color: #FF60B9;
+          font-size: 0.55em;
+          font-weight: 400;
+          vertical-align: middle;
+          transform: translateY(-0.05em) rotate(-8deg);
+        }
+
+        .Joy-Wishlist-ManagePage__Description {
+          font-family: var(--font-body-family) !important;
+          font-size: 15px !important;
+          font-weight: 400 !important;
+          line-height: 1.55 !important;
+          color: #6B6663 !important;
+          margin: 0 auto !important;
+          max-width: 460px !important;
+          text-align: center !important;
+        }
+
+
+        /* =====================================================
+           ACTION ROW
+           ===================================================== */
+
+        .Joy-Wishlist-ActionRow {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 16px !important;
+          flex-wrap: wrap !important;
+          padding: 16px 0 !important;
+          margin: 0 0 32px !important;
+          border-top: 1px solid rgba(26, 26, 26, 0.08) !important;
+          border-bottom: 1px solid rgba(26, 26, 26, 0.08) !important;
+        }
+
+        .Joy-Wishlist-ActionRow__Count {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          color: #6B6663 !important;
+          font-family: var(--font-body-family) !important;
+          font-size: 14px !important;
+          font-weight: 600 !important;
+        }
+
+        .Joy-Wishlist-ActionRow__Count svg {
+          width: 18px !important;
+          height: 18px !important;
+          color: #FF60B9 !important;
+          flex-shrink: 0 !important;
+        }
+
+        .Joy-Wishlist-ActionRow__Actions {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 10px !important;
+        }
+
+
+        /* =====================================================
+           SIGN-IN BANNER
+           ===================================================== */
+
+        .Joy-Wishlist-SignInBanner {
+          display: flex !important;
+          align-items: center !important;
+          gap: 14px !important;
+          padding: 16px 20px !important;
+          margin: 0 0 26px !important;
+          background: #FFF0F8 !important;
+          border: 1.5px solid #FFDCEF !important;
+          border-radius: 16px !important;
+          flex-wrap: wrap !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Icon {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 40px !important;
+          height: 40px !important;
+          flex-shrink: 0 !important;
+          border-radius: 50% !important;
+          background: #FFFFFF !important;
+          color: #FF60B9 !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Icon svg {
+          width: 20px !important;
+          height: 20px !important;
+          display: block !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Copy {
+          flex: 1 1 auto !important;
+          min-width: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 3px !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Title {
+          display: block !important;
+          color: #1A1A1A !important;
+          font-family: var(--font-heading-family) !important;
+          font-size: 14px !important;
+          font-weight: 700 !important;
+          line-height: 1.2 !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Subtitle {
+          display: block !important;
+          color: #6B6663 !important;
+          font-family: var(--font-body-family) !important;
+          font-size: 12.5px !important;
+          font-weight: 400 !important;
+          line-height: 1.4 !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Button {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 8px !important;
+          flex-shrink: 0 !important;
+          padding: 10px 20px !important;
+          background: #FF60B9 !important;
+          color: #1A1A1A !important;
+          border-radius: 999px !important;
+          font-family: var(--font-body-family) !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          line-height: 1 !important;
+          text-decoration: none !important;
+          transition: background .15s ease, transform .15s ease !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Button:hover {
+          background: #e469af !important;
+          transform: translateY(-1px) !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Button svg {
+          width: 14px !important;
+          height: 14px !important;
+          transition: transform .2s ease !important;
+        }
+
+        .Joy-Wishlist-SignInBanner__Button:hover svg {
+          transform: translateX(3px) !important;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE (defensive — matches any Joy class
+           containing "Empty" inside the page wrapper)
+           ===================================================== */
+
+        [class*="Joy-Wishlist"][class*="Empty"],
+        [class*="Joy-Wishlist"][class*="empty"] {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 14px !important;
+
+          padding: 72px 28px !important;
+          margin: 40px auto !important;
+          max-width: 560px !important;
+
+          background:
+            radial-gradient(ellipse at 15% 20%, #F8B5D1 0, transparent 30%),
+            radial-gradient(ellipse at 85% 25%, #BEE3F8 0, transparent 30%),
+            radial-gradient(ellipse at 80% 85%, #D0F4DE 0, transparent 28%),
+            radial-gradient(ellipse at 15% 85%, #FFECB3 0, transparent 26%),
+            #FFF9F6 !important;
+
+          border: 1.5px solid #FFDCEF !important;
+          border-radius: 24px !important;
+
+          text-align: center !important;
+        }
+
+        /* Empty state icon/illustration area */
+        [class*="Joy-Wishlist"][class*="Empty"] svg,
+        [class*="Joy-Wishlist"][class*="Empty"] img {
+          max-width: 72px !important;
+          max-height: 72px !important;
+          opacity: 0.85 !important;
+          color: #FF60B9 !important;
+        }
+
+        /* Empty state title */
+        [class*="Joy-Wishlist"][class*="Empty"] h2,
+        [class*="Joy-Wishlist"][class*="Empty"] h3 {
+          margin: 0 !important;
+          color: #1A1A1A !important;
+          font-family: var(--font-heading-family) !important;
+          font-size: 26px !important;
+          font-weight: 900 !important;
+          line-height: 1.15 !important;
+          letter-spacing: -0.035em !important;
+        }
+
+        /* Empty state body text */
+        [class*="Joy-Wishlist"][class*="Empty"] p,
+        [class*="Joy-Wishlist"][class*="Empty"] span {
+          margin: 0 !important;
+          color: #6B6663 !important;
+          font-family: var(--font-body-family) !important;
+          font-size: 14px !important;
+          line-height: 1.55 !important;
+          max-width: 380px !important;
+        }
+
+        /* Empty state CTA */
+        [class*="Joy-Wishlist"][class*="Empty"] a,
+        [class*="Joy-Wishlist"][class*="Empty"] button {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 8px !important;
+
+          padding: 13px 26px !important;
+          margin-top: 6px !important;
+
+          background: #FF60B9 !important;
+          color: #1A1A1A !important;
+
+          border: 0 !important;
+          border-radius: 999px !important;
+
+          font-family: var(--font-body-family) !important;
+          font-size: 14px !important;
+          font-weight: 700 !important;
+          line-height: 1 !important;
+
+          text-decoration: none !important;
+          cursor: pointer !important;
+
+          transition: background .15s ease, transform .15s ease !important;
+        }
+
+        [class*="Joy-Wishlist"][class*="Empty"] a:hover,
+        [class*="Joy-Wishlist"][class*="Empty"] button:hover {
+          background: #e469af !important;
+          transform: translateY(-1px) !important;
+        }
+
+
+        /* =====================================================
+           SKELETON
+           ===================================================== */
+
+        .Joy-Wishlist-ActionRow__CountSkeleton {
+          display: inline-block !important;
+          min-width: 90px !important;
+          min-height: 18px !important;
+          background: #FFE9F3 !important;
+          border-radius: 999px !important;
+          color: transparent !important;
+        }
+
+        .Joy-Wishlist-ProductSkeleton {
+          box-sizing: border-box !important;
+          background: #FFFFFF !important;
+          border: 3px solid #FFDCEF !important;
+          border-radius: 18px !important;
+          padding: 11px !important;
+          margin: 0 !important;
+        }
+
+        .Joy-Wishlist-ProductSkeleton__Image,
+        .Joy-Wishlist-Skeleton-Thumbnail {
+          background: #FFE9F3 !important;
+          background-image: none !important;
+          border-radius: 11px !important;
+          aspect-ratio: 1.65 / 1 !important;
+          width: 100% !important;
+          display: block !important;
+        }
+
+        .Joy-Wishlist-ProductSkeleton__Content {
+          padding: 15px 6px 8px !important;
+          background: transparent !important;
+        }
+
+        .Joy-Wishlist-Skeleton-DisplayText,
+        .Joy-Wishlist-Skeleton-BodyText,
+        .Joy-Wishlist-Skeleton-BodyText__Line {
+          background: #FFE9F3 !important;
+          background-image: none !important;
+          border-radius: 999px !important;
+          color: transparent !important;
+        }
+
+        .Joy-Wishlist-Skeleton-Button {
+          background: #FFDCEF !important;
+          background-image: none !important;
+          border-radius: 999px !important;
+          min-height: 30px !important;
+        }
+
+        .Joy-Wishlist-ProductSkeleton *,
+        .Joy-Wishlist-ActionRow__CountSkeleton {
+          animation: none !important;
+        }
+
+        .Joy-Wishlist-ProductSkeleton *::before,
+        .Joy-Wishlist-ProductSkeleton *::after {
+          background: transparent !important;
+          background-image: none !important;
+          animation: none !important;
+        }
+
+
+        /* =====================================================
+           PRODUCT GRID
+           ===================================================== */
+
+        .Joy-Wishlist-ManagePage__ProductGrid {
+          display: grid !important;
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+          gap: 22px !important;
+          margin-top: 0 !important;
+        }
+
+        @media screen and (max-width: 1100px) {
+          .Joy-Wishlist-ManagePage__ProductGrid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          }
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media screen and (max-width: 749px) {
+          .Joy-Wishlist-ManagePage__Padding {
+            padding-top: 32px !important;
+            padding-bottom: 48px !important;
+          }
+
+          .Joy-Wishlist-ManagePage__Header--Wrapper {
+            margin-bottom: 26px !important;
+          }
+
+          .Joy-Wishlist-ManagePage__Title {
+            font-size: 32px !important;
+          }
+
+          .Joy-Wishlist-ManagePage__Description {
+            font-size: 14px !important;
+          }
+
+          .Joy-Wishlist-ActionRow {
+            padding: 12px 0 !important;
+            margin-bottom: 22px !important;
+            gap: 12px !important;
+          }
+
+          .Joy-Wishlist-SignInBanner {
+            padding: 14px 16px !important;
+            gap: 12px !important;
+          }
+
+          .Joy-Wishlist-SignInBanner__Icon {
+            width: 34px !important;
+            height: 34px !important;
+          }
+
+          .Joy-Wishlist-SignInBanner__Button {
+            width: 100% !important;
+          }
+
+          [class*="Joy-Wishlist"][class*="Empty"] {
+            padding: 48px 22px !important;
+            border-radius: 20px !important;
+          }
+
+          [class*="Joy-Wishlist"][class*="Empty"] h2,
+          [class*="Joy-Wishlist"][class*="Empty"] h3 {
+            font-size: 22px !important;
+          }
+
+          .Joy-Wishlist-ManagePage__ProductGrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+          }
+
+          .Joy-Wishlist-ProductSkeleton {
+            padding: 7px !important;
+            border-width: 2px !important;
+            border-radius: 13px !important;
+          }
+
+          .Joy-Wishlist-ProductSkeleton__Image,
+          .Joy-Wishlist-Skeleton-Thumbnail {
+            border-radius: 8px !important;
+          }
+
+          .Joy-Wishlist-ProductSkeleton__Content {
+            padding: 10px 3px 5px !important;
+          }
+
+          .Joy-Wishlist-Skeleton-Button {
+            min-height: 28px !important;
+          }
+        }
+      `;
+
+      root.appendChild(style);
+    }
+
+    /* Style the two custom-element buttons — their inner
+       <button> lives in a shadow root, so we inject there. */
+    var notifBtn = root.querySelector('joy-wishlist-notifications-button');
+    var shareBtn = root.querySelector('joy-wishlist-share-button');
+
+    if (notifBtn) injectButtonShadowStyle(notifBtn);
+    if (shareBtn) injectButtonShadowStyle(shareBtn);
+
+    return true;
+  }
+
+
+  /* =========================================================
+     CARD STYLES — mirrors .buzzko-product-card exactly
+  ========================================================= */
+
+  function injectCardStyles(card, index) {
+    var root = card.shadowRoot;
+    if (!root) return;
+
+    var styleId = STYLE_ID + '-' + index;
+    if (root.querySelector('#' + styleId)) return;
+
+    var borderColor = BORDER_COLORS[index % BORDER_COLORS.length];
+
+    var style = document.createElement('style');
+    style.id = styleId;
+
+    style.textContent = `
+      /* =====================================================
+         STRIP THE HOST — remove Joy's default outer card
+         ===================================================== */
+
+      :host {
+        display: block !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        align-self: start !important;
+      }
+
+      :host::before,
+      :host::after {
+        display: none !important;
+        content: none !important;
+      }
+
+
+      /* =====================================================
+         CARD — matches .buzzko-product-card
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Wrapper {
+        position: relative !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: auto !important;
+
+        background: #FFFFFF !important;
+        color: #111 !important;
+
+        border: 3px solid ${borderColor} !important;
+        border-radius: 18px !important;
+
+        padding: 11px !important;
+        margin: 0 !important;
+
+        overflow: hidden !important;
+
+        text-align: left !important;
+
+        transition:
+          transform .2s ease,
+          box-shadow .2s ease !important;
+      }
+
+      .Joy-Wishlist-Product__Wrapper * {
+        text-align: left !important;
+        box-sizing: border-box !important;
+      }
+
+      .Joy-Wishlist-Product__Wrapper:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, .06) !important;
+      }
+
+
+      /* =====================================================
+         IMAGE — matches .buzzko-product-card__image-wrapper
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Image--Wrapper {
+        position: relative !important;
+
+        width: 100% !important;
+        aspect-ratio: 1.65 / 1 !important;
+
+        overflow: hidden !important;
+        border-radius: 11px !important;
+
+        background: #EEEEEE !important;
+
+        flex-shrink: 0 !important;
+      }
+
+      .Joy-Wishlist-Product__Image {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      .Joy-Wishlist-Product__Image img {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+
+        transition: transform .3s ease !important;
+      }
+
+      .Joy-Wishlist-Product__Wrapper:hover .Joy-Wishlist-Product__Image img {
+        transform: scale(1.025) !important;
+      }
+
+
+      /* =====================================================
+         CONTENT
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Content--Wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 auto !important;
+
+        padding: 15px 6px 8px !important;
+
+        min-width: 0 !important;
+      }
+
+      .Joy-Wishlist-Product__Content--Top {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+
+        text-align: left !important;
+        min-width: 0 !important;
+      }
+
+
+      /* =====================================================
+         TITLE
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Title {
+        display: block !important;
+
+        color: #111 !important;
+        font-family: var(--font-heading-family) !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        line-height: 1.3 !important;
+        letter-spacing: -0.2px !important;
+
+        text-decoration: none !important;
+        text-align: left !important;
+      }
+
+      .Joy-Wishlist-Product__Title:hover {
+        text-decoration: underline !important;
+      }
+
+
+      /* =====================================================
+         VARIANT
+         ===================================================== */
+
+      .Joy-Wishlist-Product__VariantTitle {
+        display: block !important;
+
+        color: #777 !important;
+        font-family: var(--font-body-family) !important;
+        font-size: 12px !important;
+        font-weight: 400 !important;
+        line-height: 1.35 !important;
+
+        text-align: left !important;
+        margin: 0 !important;
+      }
+
+
+      /* =====================================================
+         BOTTOM ROW — price left, ATC right
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Content--Bottom {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+
+        align-items: center !important;
+        justify-content: space-between !important;
+
+        gap: 10px !important;
+
+        margin-top: 16px !important;
+        padding-top: 0 !important;
+
+        width: 100% !important;
+
+        text-align: left !important;
+      }
+
+      .Joy-Wishlist-Product__PriceRow {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: baseline !important;
+        flex-wrap: wrap !important;
+
+        gap: 8px !important;
+
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+      }
+
+
+      /* =====================================================
+         PRICE
+         ===================================================== */
+
+      .Joy-Wishlist-Product__Price {
+        display: inline !important;
+
+        color: #111 !important;
+        font-family: var(--font-heading-family) !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+
+        text-align: left !important;
+        white-space: nowrap !important;
+      }
+
+
+      /* =====================================================
+         HIDE JOY'S DEFAULT ATC
+         ===================================================== */
+
+      button.Joy-Wishlist__Button {
+        display: none !important;
+      }
+
+
+      /* =====================================================
+         CUSTOM ATC — matches .buzzko-product-card__atc
+         ===================================================== */
+
+      .buzzko-wishlist-atc {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        flex: 0 0 auto !important;
+
+        border: 0 !important;
+
+        background: #FF60B9 !important;
+        color: #201E1E !important;
+
+        border-radius: 999px !important;
+        padding: 7px 14px !important;
+
+        font-family: var(--font-heading-family) !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: .3px !important;
+        line-height: 1 !important;
+
+        min-height: 30px !important;
+        white-space: nowrap !important;
+
+        cursor: pointer !important;
+
+        text-align: center !important;
+
+        transition:
+          background .2s ease,
+          transform .15s ease !important;
+      }
+
+      .buzzko-wishlist-atc:hover:not(:disabled) {
+        background: #E469AF !important;
+      }
+
+      .buzzko-wishlist-atc:active:not(:disabled) {
+        transform: translateY(1px) !important;
+      }
+
+      .buzzko-wishlist-atc:disabled {
+        background: #CCCCCC !important;
+        color: #201E1E !important;
+        cursor: not-allowed !important;
+      }
+
+      .buzzko-wishlist-atc.is-success {
+        background: #B9E404 !important;
+      }
+
+      .buzzko-wishlist-atc.is-error {
+        background: #FF8B8B !important;
+      }
+
+
+      /* =====================================================
+         REMOVE (heart) — matches trending card top-right
+         ===================================================== */
+
+      .Joy-Wishlist-Product__RemoveBtn {
+        position: absolute !important;
+        top: 8px !important;
+        right: 8px !important;
+        z-index: 5 !important;
+        line-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .Joy-Wishlist-Product__RemoveBtn joy-wishlist-button,
+      .Joy-Wishlist-Product__RemoveBtn joy-wishlist-button * {
+        position: static !important;
+        bottom: auto !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        text-align: initial !important;
+        display: block !important;
+        margin: 0 !important;
+      }
+
+
+      /* =====================================================
+         MOBILE
+         ===================================================== */
+
+      @media screen and (max-width: 749px) {
+        .Joy-Wishlist-Product__Wrapper {
+          padding: 7px !important;
+          border-width: 2px !important;
+          border-radius: 13px !important;
+        }
+
+        .Joy-Wishlist-Product__Image--Wrapper {
+          border-radius: 8px !important;
+        }
+
+        .Joy-Wishlist-Product__Content--Wrapper {
+          padding: 10px 3px 5px !important;
+        }
+
+        .Joy-Wishlist-Product__Title {
+          font-size: 13px !important;
+          line-height: 1.25 !important;
+        }
+
+        .Joy-Wishlist-Product__VariantTitle {
+          font-size: 10px !important;
+        }
+
+        .Joy-Wishlist-Product__Content--Bottom {
+          margin-top: 12px !important;
+          gap: 6px !important;
+        }
+
+        .Joy-Wishlist-Product__Price {
+          font-size: 13px !important;
+        }
+
+        .buzzko-wishlist-atc {
+          padding: 6px 10px !important;
+          font-size: 10px !important;
+          min-height: 28px !important;
+        }
+
+        .Joy-Wishlist-Product__RemoveBtn {
+          top: 5px !important;
+          right: 5px !important;
+        }
+      }
+    `;
+
+    root.appendChild(style);
+  }
+
+
+  /* =========================================================
+     CUSTOM ADD TO CART
+  ========================================================= */
+
+  function setupAddToCart(card) {
+    var root = card.shadowRoot;
+    if (!root) return;
+
+    var bottom = root.querySelector('.Joy-Wishlist-Product__Content--Bottom');
+    if (!bottom) return;
+
+    var button = bottom.querySelector('.buzzko-wishlist-atc');
+
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'buzzko-wishlist-atc';
+      button.textContent = 'Add to Cart';
+      bottom.appendChild(button);
+    }
+
+    if (button.dataset.buzzkoInit === 'true') return;
+    button.dataset.buzzkoInit = 'true';
+
+    button.addEventListener('click', async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (button.disabled) return;
+
+      var innerButton = root.querySelector('joy-wishlist-button');
+      var variantId = innerButton && innerButton.getAttribute('variant-id');
+
+      if (!variantId) {
+        console.error('[BuzzKo Wishlist] No variant ID on card');
+        button.textContent = 'Error';
+        button.classList.add('is-error');
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Adding…';
+
+      try {
+        var res = await fetch(window.Shopify.routes.root + 'cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            items: [{ id: Number(variantId), quantity: 1 }]
+          })
+        });
+
+        if (!res.ok) {
+          var err = null;
+          try { err = await res.json(); } catch (_) {}
+          throw new Error((err && err.description) || 'Could not add to cart.');
+        }
+
+        await res.json();
+
+        var removeBtn = root.querySelector('.Joy-Wishlist-Product__RemoveBtn joy-wishlist-button');
+
+        if (removeBtn) {
+          if (typeof window.buzzkoWishlistReplay === 'function') {
+            window.buzzkoWishlistReplay(removeBtn);
+          }
+
+          var fired = false;
+
+          if (removeBtn.shadowRoot) {
+            var innerBtn = removeBtn.shadowRoot.querySelector('button');
+            if (innerBtn) {
+              innerBtn.click();
+              fired = true;
+            }
+          }
+
+          if (!fired) {
+            try {
+              removeBtn.dispatchEvent(new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+                view: window
+              }));
+            } catch (_) {
+              removeBtn.click();
+            }
+          }
+
+          await new Promise(function (r) { setTimeout(r, 900); });
+        }
+
+        button.classList.add('is-success');
+        button.textContent = 'Added ✓';
+
+        await new Promise(function (r) { setTimeout(r, 250); });
+
+        window.location.href = '/cart';
+      } catch (error) {
+        console.error('[BuzzKo Wishlist] Add to cart failed:', error);
+
+        button.disabled = false;
+        button.classList.remove('is-success');
+        button.classList.add('is-error');
+        button.textContent = 'Try Again';
+
+        setTimeout(function () {
+          button.classList.remove('is-error');
+          if (!button.disabled) button.textContent = 'Add to Cart';
+        }, 1800);
+      }
+    });
+  }
+
+
+  /* =========================================================
+     INIT
+  ========================================================= */
+
+  function initializeCard(card, index) {
+    if (!card.shadowRoot) return;
+    if (initializedCards.has(card)) return;
+
+    initializedCards.add(card);
+
+    injectCardStyles(card, index);
+    setupAddToCart(card);
+
+    /* Reveal the card — removes the FOUC guard */
+    card.setAttribute('data-buzzko-styled', 'true');
+  }
+
+  function initializePage() {
+    var page = document.querySelector('joy-wishlist-page');
+    if (!page || !page.shadowRoot) return false;
+
+    /* Ensure page styles are in place before we touch cards */
+    injectPageStyles(page);
+
+    var cards = page.shadowRoot.querySelectorAll('joy-wishlist-product');
+    cards.forEach(initializeCard);
+
+    return true;
+  }
+
+  function scheduleInit() {
+    if (initTimer) clearTimeout(initTimer);
+    initTimer = setTimeout(function () {
+      initializePage();
+    }, 60);
+  }
+
+
+  /* =========================================================
+     BOOT — find the page as fast as possible so the
+     FOUC guard is in place before Joy hydrates cards.
+  ========================================================= */
+
+  function boot() {
+    var startedAt = Date.now();
+
+    /* Poll every 30ms until the page's shadow root exists,
+       then inject styles immediately. Gives up after 8s. */
+    var poll = setInterval(function () {
+      var page = document.querySelector('joy-wishlist-page');
+
+      if (page && page.shadowRoot) {
+        clearInterval(poll);
+
+        injectPageStyles(page);
+
+        /* Now that styles are in place, initialize cards */
+        initializePage();
+
+        /* Watch for future changes (add/remove items, re-renders) */
+        var innerObserver = new MutationObserver(function () {
+          injectPageStyles(page);
+          scheduleInit();
+        });
+
+        innerObserver.observe(page.shadowRoot, {
+          childList: true,
+          subtree: true
+        });
+
+        return;
+      }
+
+      if (Date.now() - startedAt > 8000) {
+        clearInterval(poll);
+      }
+    }, 30);
+  }
+
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
