@@ -31,6 +31,7 @@
   }
 
   #RelatedProducts-{{ section.id }} .buzzko-related-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -254,6 +255,13 @@
               class="buzzko-related-card"
               style="--buzzko-card-border: {{ card_border }};"
             >
+              <joy-wishlist-button
+                type="collection"
+                product-handle="{{ recommendation.handle }}"
+                class="buzzko-wishlist-button"
+                style="position: absolute; top: 8px; right: 8px; z-index: 10;"
+              ></joy-wishlist-button>
+
               <a
                 href="{{ recommendation.url }}"
                 class="buzzko-related-card__image"

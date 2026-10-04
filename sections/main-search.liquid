@@ -357,6 +357,7 @@
   }
 
   #ProductGridContainer .buzzko-product-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -813,6 +814,13 @@
                         {%- endcase -%}
 
                         <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
+                          <joy-wishlist-button
+                            type="collection"
+                            product-handle="{{ product.handle }}"
+                            class="buzzko-wishlist-button"
+                            style="position: absolute; top: 8px; right: 8px; z-index: 10;"
+                          ></joy-wishlist-button>
+
                           <div class="buzzko-product-card__image-wrapper">
                             <a href="{{ product.url }}" class="buzzko-product-card__image-link" aria-label="{{ product.title | escape }}">
                               {% if product.featured_image != blank %}

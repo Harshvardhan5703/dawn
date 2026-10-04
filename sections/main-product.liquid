@@ -75,6 +75,25 @@
       flex-wrap: wrap;
     }
 
+    /* Joy Wishlist app block is moved into the quantity row by the script below. */
+    #MainProduct-{{ section.id }} .price-per-item__container > .shopify-block[data-block-handle="wishlist-button"] {
+      margin-left: auto;
+      flex: 0 0 44px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #MainProduct-{{ section.id }} .price-per-item__container > .shopify-block[data-block-handle="wishlist-button"] joy-wishlist-button {
+      position: static !important;
+      display: block !important;
+      width: 44px !important;
+      height: 44px !important;
+      margin: 0 !important;
+    }
+
     #MainProduct-{{ section.id }} .product-form__wishlist {
       flex: 0 0 auto;
       width: 4.4rem;
@@ -925,25 +944,15 @@
             const root = document.getElementById('MainProduct-{{ section.id }}');
             if (!root) return;
 
-            // ---- 1. Inject heart button next to the quantity selector ----
-            {% comment %} const qtyRow = root.querySelector('.price-per-item__container');
-            if (qtyRow && !qtyRow.querySelector('.product-form__wishlist')) {
-              const heartBtn = document.createElement('button');
-              heartBtn.type = 'button';
-              heartBtn.className = 'product-form__wishlist';
-              heartBtn.setAttribute('aria-label', 'Add to wishlist');
-              heartBtn.innerHTML =
-                '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" ' +
-                'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-                'stroke-linejoin="round" aria-hidden="true">' +
-                '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>' +
-                '</svg>';
-              qtyRow.appendChild(heartBtn);
+            // ---- 1. Move Joy's injected wishlist block into the quantity row ----
+            const qtyRow = root.querySelector('.price-per-item__container');
+            const wishlistBlock = document.querySelector(
+              '.shopify-block[data-block-handle="wishlist-button"]'
+            );
 
-              heartBtn.addEventListener('click', function () {
-                heartBtn.classList.toggle('is-active');
-              });
-            } {% endcomment %}
+            if (qtyRow && wishlistBlock && !qtyRow.contains(wishlistBlock)) {
+              qtyRow.appendChild(wishlistBlock);
+            }
 
             // ---- 2. Rename "Buy it now" -> "Buy" ----
             const buy = root.querySelector(
@@ -960,12 +969,15 @@
             initProductFormButtons();
           }
 
-          // Retry because Shopify injects the payment button asynchronously
-          let tries = 0;
-          const iv = setInterval(function () {
+          // Joy injects its app block asynchronously, so watch for it and move it once it appears.
+          const observer = new MutationObserver(function () {
             initProductFormButtons();
-            if (++tries > 20) clearInterval(iv);
-          }, 200);
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
 
           // Re-run on variant change / theme editor reloads
           document.addEventListener('shopify:section:load', initProductFormButtons);
