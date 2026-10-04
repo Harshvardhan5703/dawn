@@ -109,6 +109,50 @@
 
       style.textContent = `
         /* =====================================================
+           HOST RESET — kill the outer card on <joy-wishlist-product>
+
+           Joy's merchant CSS (and prior versions of our own styles)
+           applies background + border + padding directly to the host
+           element. :host { } inside the card's shadow root can't beat
+           an external attribute selector, so we reset it from here.
+           Our style tag is injected after Joy's, so we win on order.
+           ===================================================== */
+
+        joy-wishlist-product,
+        joy-wishlist-product[layout],
+        joy-wishlist-product[layout="vertical"],
+        joy-wishlist-product[layout="horizontal"] {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+
+          border: 0 !important;
+          border-width: 0 !important;
+          border-style: none !important;
+          border-color: transparent !important;
+          border-radius: 0 !important;
+
+          padding: 0 !important;
+          margin: 0 !important;
+
+          box-shadow: none !important;
+          outline: 0 !important;
+
+          display: block !important;
+          align-self: start !important;
+
+          min-height: 0 !important;
+          max-height: none !important;
+        }
+
+        joy-wishlist-product::before,
+        joy-wishlist-product::after {
+          display: none !important;
+          content: none !important;
+        }
+
+
+        /* =====================================================
            PAGE SHELL
            ===================================================== */
 
@@ -232,7 +276,6 @@
 
         /* =====================================================
            SIGN-IN BANNER
-           Wrapper-prefixed to beat Joy's defaults.
            ===================================================== */
 
         .Joy-Wishlist-ManagePage__Wrapper .Joy-Wishlist-SignInBanner {
@@ -330,7 +373,7 @@
 
 
         /* =====================================================
-           EMPTY STATE — exact class names, no wildcards
+           EMPTY STATE
            ===================================================== */
 
         .Joy-Wishlist-EmptyState {
@@ -361,16 +404,12 @@
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-
           width: 72px !important;
           height: 72px !important;
-
           margin: 0 0 6px !important;
-
           background: #FFFFFF !important;
           border-radius: 50% !important;
           color: #FF60B9 !important;
-
           box-shadow: 0 4px 14px rgba(255, 96, 185, 0.15) !important;
         }
 
@@ -412,24 +451,18 @@
           align-items: center !important;
           justify-content: center !important;
           gap: 8px !important;
-
           margin-top: 8px !important;
           padding: 13px 26px !important;
-
           background: #FF60B9 !important;
           color: #1A1A1A !important;
-
           border: 0 !important;
           border-radius: 999px !important;
-
           font-family: var(--font-body-family) !important;
           font-size: 14px !important;
           font-weight: 700 !important;
           line-height: 1 !important;
-
           text-decoration: none !important;
           cursor: pointer !important;
-
           transition: background .15s ease, transform .15s ease !important;
         }
 
