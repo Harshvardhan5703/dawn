@@ -103,7 +103,9 @@
     var root = page && page.shadowRoot;
     if (!root) return false;
 
-    if (!root.querySelector('#' + PAGE_STYLE_ID)) {
+    var existing = root.querySelector('#' + PAGE_STYLE_ID);
+
+    if (!existing) {
       var style = document.createElement('style');
       style.id = PAGE_STYLE_ID;
 
@@ -111,11 +113,11 @@
         /* =====================================================
            HOST RESET — kill the outer card on <joy-wishlist-product>
 
-           Joy's merchant CSS (and prior versions of our own styles)
-           applies background + border + padding directly to the host
-           element. :host { } inside the card's shadow root can't beat
-           an external attribute selector, so we reset it from here.
-           Our style tag is injected after Joy's, so we win on order.
+           Joy's merchant CSS applies background + border + padding
+           directly to the host element. :host { } inside the card's
+           shadow root can't beat an external attribute selector,
+           so we reset it from here — and re-append on every call
+           so our style stays LAST in the shadow root.
            ===================================================== */
 
         joy-wishlist-product,
@@ -143,6 +145,7 @@
 
           min-height: 0 !important;
           max-height: none !important;
+          min-width: 0 !important;
         }
 
         joy-wishlist-product::before,
@@ -649,6 +652,11 @@
       `;
 
       root.appendChild(style);
+    } else {
+      /* Our style tag already exists. Move it to the END of the
+         shadow root so it wins on source order against Joy's
+         merchant CSS, which may have been inserted after us. */
+      root.appendChild(existing);
     }
 
     var notifBtn = root.querySelector('joy-wishlist-notifications-button');
