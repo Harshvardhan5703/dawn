@@ -314,7 +314,248 @@
         align-items: center !important;
         gap: 10px !important;
       }
+      /* =====================================================
+   LOGGED-OUT WISHLIST STATE
+   ===================================================== */
 
+.Joy-Wishlist-LoginRequired {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  padding: 48px 20px 72px !important;
+  box-sizing: border-box !important;
+}
+
+.Joy-Wishlist-LoginRequired__Card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  max-width: 620px !important;
+  min-height: 330px !important;
+  box-sizing: border-box !important;
+
+  padding: 64px 40px !important;
+
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(255, 96, 185, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(157, 220, 247, 0.24),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 90%,
+      rgba(255, 217, 106, 0.22),
+      transparent 30%
+    ),
+    #FFF9F6 !important;
+
+  border: 2px solid #FFDCEF !important;
+  border-radius: 28px !important;
+
+  text-align: center !important;
+  overflow: hidden !important;
+
+  box-shadow:
+    0 12px 35px rgba(26, 26, 26, 0.06) !important;
+}
+
+
+/* Little heart above the heading */
+
+.Joy-Wishlist-LoginRequired__Card::before {
+  content: "♡" !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 64px !important;
+  height: 64px !important;
+
+  margin-bottom: 20px !important;
+
+  background: #FFFFFF !important;
+  border: 1px solid #FFDCEF !important;
+  border-radius: 50% !important;
+
+  color: #FF60B9 !important;
+
+  font-family: Arial, sans-serif !important;
+  font-size: 38px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+
+  box-shadow:
+    0 6px 18px rgba(255, 96, 185, 0.12) !important;
+}
+
+
+/* Heading */
+
+.Joy-Wishlist-LoginRequired__Title {
+  margin: 0 0 10px !important;
+
+  color: #1A1A1A !important;
+
+  font-family: var(--font-heading-family) !important;
+  font-size: clamp(28px, 4vw, 38px) !important;
+  font-weight: 900 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.035em !important;
+
+  text-align: center !important;
+}
+
+
+/* Description */
+
+.Joy-Wishlist-LoginRequired__Subtitle {
+  max-width: 420px !important;
+
+  margin: 0 0 28px !important;
+
+  color: #6B6663 !important;
+
+  font-family: var(--font-body-family) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+
+  text-align: center !important;
+}
+
+
+/* Buttons */
+
+.Joy-Wishlist-LoginRequired__Button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  max-width: 260px !important;
+
+  min-height: 46px !important;
+  box-sizing: border-box !important;
+
+  padding: 13px 24px !important;
+
+  border-radius: 999px !important;
+
+  font-family: var(--font-body-family) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+
+  text-decoration: none !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform .15s ease,
+    background .15s ease,
+    border-color .15s ease !important;
+}
+
+
+/* Create account */
+
+.Joy-Wishlist-LoginRequired__Button--primary {
+  margin-bottom: 10px !important;
+
+  background: #FF60B9 !important;
+  color: #1A1A1A !important;
+
+  border: 1.5px solid #FF60B9 !important;
+}
+
+
+/* Log in */
+
+.Joy-Wishlist-LoginRequired__Button--secondary {
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
+
+  border: 1.5px solid rgba(26, 26, 26, 0.14) !important;
+}
+
+
+/* Hover */
+
+.Joy-Wishlist-LoginRequired__Button:hover {
+  transform: translateY(-2px) !important;
+}
+
+.Joy-Wishlist-LoginRequired__Button--primary:hover {
+  background: #E469AF !important;
+  border-color: #E469AF !important;
+}
+
+.Joy-Wishlist-LoginRequired__Button--secondary:hover {
+  background: #1A1A1A !important;
+  border-color: #1A1A1A !important;
+  color: #FFFAF5 !important;
+}
+
+
+/* Mobile */
+
+@media screen and (max-width: 749px) {
+
+  .Joy-Wishlist-LoginRequired {
+    padding: 28px 12px 48px !important;
+  }
+
+  .Joy-Wishlist-LoginRequired__Card {
+    min-height: 300px !important;
+    padding: 44px 22px !important;
+    border-radius: 22px !important;
+  }
+
+  .Joy-Wishlist-LoginRequired__Card::before {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 32px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .Joy-Wishlist-LoginRequired__Title {
+    font-size: 26px !important;
+  }
+
+  .Joy-Wishlist-LoginRequired__Subtitle {
+    font-size: 13px !important;
+    max-width: 300px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .Joy-Wishlist-LoginRequired__Button {
+    max-width: 240px !important;
+  }
+}
+
+/* Hide wishlist heading while logged out */
+
+.Joy-Wishlist-ManagePage__Wrapper:has(.Joy-Wishlist-LoginRequired)
+  .Joy-Wishlist-ManagePage__Header--Wrapper {
+  display: none !important;
+}
+
+
+.Joy-Wishlist-ManagePage__Wrapper:has(.Joy-Wishlist-LoginRequired)
+  .Joy-Wishlist-ManagePage__Padding {
+  padding-top: 48px !important;
+}
 
       /* =====================================================
          SIGN-IN BANNER
