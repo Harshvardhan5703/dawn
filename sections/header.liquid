@@ -76,29 +76,26 @@
   }
 
   shopify-account.header__icon {
-  --shopify-account-font-heading: var(--font-heading-family);
-  --shopify-account-font-heading-weight: 900;
-  --shopify-account-font-body: var(--font-body-family);
-  --shopify-account-font-body-weight: 500;
-  --shopify-account-radius-base: 16px;
-  --shopify-account-radius-button: 999px;
-  --shopify-account-radius-button-small: 999px;
-  --shopify-account-radius-input: 12px;
-  --shopify-account-color-background: #FFFAF5;
-  --shopify-account-color-text: #1A1A1A;
-  --shopify-account-color-accent: #FFFAF5;
-  --shopify-account-color-accent-text: #1A1A1A;
-  --shopify-account-dialog-position-top: var(--account-dialog-top, var(--header-height, 0px));
-}
+    --shopify-account-font-heading: var(--font-heading-family);
+    --shopify-account-font-heading-weight: 900;
+    --shopify-account-font-body: var(--font-body-family);
+    --shopify-account-font-body-weight: 500;
+    --shopify-account-radius-base: 16px;
+    --shopify-account-radius-button: 999px;
+    --shopify-account-radius-button-small: 999px;
+    --shopify-account-radius-input: 12px;
+    --shopify-account-color-background: #FFFAF5;
+    --shopify-account-color-text: #1A1A1A;
+    --shopify-account-color-accent: #FFFAF5;
+    --shopify-account-color-accent-text: #1A1A1A;
+    --shopify-account-dialog-position-top: var(--account-dialog-top, var(--header-height, 0px));
+  }
 
-
-shopify-account.header__icon svg,
-shopify-account.header__icon .svg-wrapper {
-  color: #1A1A1A;
-  transition: color 0.15s ease;
-}
-
-
+  shopify-account.header__icon svg,
+  shopify-account.header__icon .svg-wrapper {
+    color: #1A1A1A;
+    transition: color 0.15s ease;
+  }
 
   shopify-account.header__icon:not(:defined) {
     display: flex;
@@ -107,7 +104,9 @@ shopify-account.header__icon .svg-wrapper {
     min-width: 4.4rem;
     height: 4.4rem;
   }
-  .buzzko-header-wishlist {
+
+  /* Wishlist icon: no circular border or background */
+  .header__icon.buzzko-header-wishlist {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -116,47 +115,62 @@ shopify-account.header__icon .svg-wrapper {
     height: 4.4rem;
     min-width: 4.4rem;
     margin-right: 0.2rem;
-    border: 1px solid #1A1A1A;
-    border-radius: 50%;
+    overflow: visible;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
     color: #1A1A1A;
-    background: transparent;
     text-decoration: none;
     box-sizing: border-box;
   }
-  .buzzko-header-wishlist:hover {
-    background: transparent;
+
+  .header__icon.buzzko-header-wishlist:hover {
+    background: transparent !important;
     color: #1A1A1A;
+    transform: scale(1.07);
   }
+
+  /* Wishlist count: follow Dawn's cart bubble positioning */
   .buzzko-header-wishlist .buzzko-wishlist-count {
     position: absolute;
-    right: -0.35rem;
-    bottom: -0.25rem;
-    display: inline-flex;
-    align-items: center;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
+    height: 1.7rem;
+    min-width: 1.7rem;
+    padding: 0 0.2rem;
+    box-sizing: border-box;
+    border-radius: 100%;
+    display: flex;
     justify-content: center;
-    min-width: 1.8rem;
-    height: 1.8rem;
-    padding: 0 0.35rem;
-    border: 1px solid #1A1A1A;
-    border-radius: 999px;
-    background: #F8B5D1;
-    color: #1A1A1A;
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    bottom: 0.8rem;
+    left: 2.2rem;
+    line-height: calc(1 + 0.1 / var(--font-body-scale));
+    font-variant-numeric: tabular-nums;
+    z-index: 2;
   }
-  .buzzko-header-wishlist .buzzko-wishlist-count:empty,
+
   .buzzko-header-wishlist .buzzko-wishlist-count[data-count="0"] {
     display: none;
   }
+
   @media screen and (max-width: 749px) {
-    .buzzko-header-wishlist {
+    .header__icon.buzzko-header-wishlist {
       width: 3.8rem;
       height: 3.8rem;
       min-width: 3.8rem;
     }
+
+    .buzzko-header-wishlist .buzzko-wishlist-count {
+      bottom: 0.65rem;
+      left: 1.9rem;
+    }
   }
 </style>
+
 <script src="{{ 'buzzko-wishlist.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
@@ -223,6 +237,7 @@ shopify-account.header__icon .svg-wrapper {
       assign language_selector = true
     endif
   -%}
+
   <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if country_selector or language_selector %} header--has-localizations{% endif %}">
     {%- liquid
       assign render_search_left = false
@@ -339,6 +354,7 @@ shopify-account.header__icon .svg-wrapper {
           </localization-form>
         {%- endif -%}
       </div>
+
       {% render 'header-search', input_id: 'Search-In-Modal' %}
 
       {%- if shop.customer_accounts_enabled -%}
@@ -361,7 +377,43 @@ shopify-account.header__icon .svg-wrapper {
         <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
         </svg>
-        <span class="buzzko-wishlist-count" data-buzzko-wishlist-count data-count="0" aria-live="polite">0</span>
+        
+{% if customer %}
+  <span
+    class="buzzko-wishlist-count"
+    data-buzzko-wishlist-count
+    data-count="0"
+    aria-live="polite"
+  >0</span>
+
+  <script>
+    (function () {
+      var badge = document.querySelector(
+        '.buzzko-header-wishlist [data-buzzko-wishlist-count]'
+      );
+
+      if (!badge) return;
+
+      try {
+        var items = JSON.parse(
+          localStorage.getItem('buzzko:wishlist:v1') || '[]'
+        );
+
+        var count = Array.isArray(items) ? items.length : 0;
+
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.dataset.count = String(count);
+        badge.setAttribute(
+          'aria-label',
+          count + (count === 1 ? ' item in wishlist' : ' items in wishlist')
+        );
+      } catch (error) {
+        // The main wishlist script will perform the normal refresh.
+      }
+    })();
+  </script>
+{% endif %}
+
       </a>
 
       {%- for block in section.blocks -%}

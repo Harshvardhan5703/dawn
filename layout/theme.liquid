@@ -1,5 +1,9 @@
 <!doctype html>
-<html class="js" lang="{{ request.locale.iso_code }}">
+<html
+  class="js"
+  lang="{{ request.locale.iso_code }}"
+  data-buzzko-customer-signed-in="{% if customer %}true{% else %}false{% endif %}"
+>
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

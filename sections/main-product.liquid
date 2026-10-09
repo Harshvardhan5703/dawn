@@ -67,6 +67,34 @@
 #MediaGallery-{{ section.id }} .product__media img {
   border-radius: 14px;
 }
+
+
+#MainProduct-{{ section.id }} .buzzko-wishlist-product-action {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+#MainProduct-{{ section.id }} .buzzko-wishlist-product-action .product-form__wishlist {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 2;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
   {%- endstyle -%}
 
   {%- style -%}
@@ -101,6 +129,9 @@
       border-radius: 9999px;
       cursor: pointer;
       transition: background-color .15s ease, color .15s ease, transform .1s ease;
+    }
+    #MainProduct-{{ section.id }} .product-form__wishlist--fallback {
+      margin: 0 0 1rem auto;
     }
     #MainProduct-{{ section.id }} .product-form__wishlist:hover {
       background: #000;
@@ -477,6 +508,7 @@
                           </span>
                         </button>
                       </quantity-input>
+
                       {%- liquid
                         assign volume_pricing_array = product.selected_or_first_available_variant.quantity_price_breaks | sort: 'quantity' | reverse
                         assign current_qty_for_volume_pricing = cart_qty | plus: product.selected_or_first_available_variant.quantity_rule.min
@@ -672,6 +704,36 @@
                     product_form_id: product_form_id
                   %}
                 {%- when 'buy_buttons' -%}
+                <div class="buzzko-wishlist-product-action">
+  <button
+    type="button"
+    class="product-form__wishlist"
+    data-buzzko-wishlist-toggle
+    data-product-id="{{ product.id }}"
+    data-product-handle="{{ product.handle }}"
+    data-product-title="{{ product.title | escape }}"
+    data-product-url="{{ product.url }}"
+    data-product-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 700 }}{% endif %}"
+    data-product-price="{{ product.selected_or_first_available_variant.price }}"
+    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+    aria-label="Add to wishlist"
+    aria-pressed="false"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+    </svg>
+  </button>
+</div>
                   {%- render 'buy-buttons',
                     block: block,
                     product: product,
@@ -936,35 +998,18 @@
             const root = document.getElementById('MainProduct-{{ section.id }}');
             if (!root) return;
 
-            // ---- 1. Add the native BuzzKo wishlist heart beside quantity ----
-            const qtyRow = root.querySelector('.price-per-item__container');
-            let heartBtn = qtyRow && qtyRow.querySelector('[data-buzzko-wishlist-toggle]');
-
-            if (qtyRow && !heartBtn) {
-              heartBtn = document.createElement('button');
-              heartBtn.type = 'button';
-              heartBtn.className = 'product-form__wishlist';
-              heartBtn.setAttribute('data-buzzko-wishlist-toggle', '');
-              heartBtn.setAttribute('aria-label', 'Add to wishlist');
-              heartBtn.setAttribute('aria-pressed', 'false');
-              heartBtn.innerHTML =
-                '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" ' +
-                'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-                'stroke-linejoin="round" aria-hidden="true">' +
-                '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>' +
-                '</svg>';
-              qtyRow.appendChild(heartBtn);
-            }
-
+            // The wishlist button is rendered directly in Liquid so theme updates
+            // cannot remove a button that was injected after page load.
+            const heartBtn = root.querySelector('[data-buzzko-wishlist-toggle]');
             if (heartBtn) {
               const selectedVariant = root.querySelector('form[action*="/cart/add"] input[name="id"]');
-              heartBtn.dataset.productId = root.dataset.productId || '';
-              heartBtn.dataset.productHandle = root.dataset.productHandle || '';
-              heartBtn.dataset.productTitle = root.dataset.productTitle || '';
-              heartBtn.dataset.productUrl = root.dataset.url || '';
-              heartBtn.dataset.productImage = root.dataset.productImage || '';
-              heartBtn.dataset.productPrice = root.dataset.productPrice || '';
               heartBtn.dataset.variantId = selectedVariant ? selectedVariant.value : (root.dataset.variantId || '');
+              const currentPrice = root.querySelector('[id^="price-"] .price__regular .price-item--regular, [id^="price-"] .price__sale .price-item--sale');
+              if (currentPrice && currentPrice.textContent) {
+                // Keep the server-rendered price as a fallback; wishlist page
+                // resolves the selected variant's authoritative price from Shopify.
+                heartBtn.dataset.productPrice = heartBtn.dataset.productPrice || root.dataset.productPrice || '';
+              }
               if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
                 window.BuzzkoWishlist.refresh();
               }
