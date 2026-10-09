@@ -1,4 +1,3 @@
-
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
@@ -498,17 +497,39 @@
     background: #B9E404;
   }
 
-  /* BuzzKo: force 2 products per row on mobile */
+  /* ============================================================
+     BuzzKo: FORCE 2 products per row on mobile.
+     Dawn's `.grid` is `display:flex`, which is why the old
+     `grid-template-columns` rule did nothing. We must switch to
+     `display:grid` AND use high specificity + !important.
+     ============================================================ */
   @media screen and (max-width: 749px) {
+    #ProductGridContainer #product-grid.product-grid,
     #ProductGridContainer .product-grid {
+      display: grid !important;
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      column-gap: 10px;
-      row-gap: 14px;
+      grid-auto-flow: row !important;
+      column-gap: 10px !important;
+      row-gap: 14px !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none !important;
     }
 
-    #ProductGridContainer .product-grid .grid__item {
-      width: 100%;
-      max-width: 100%;
+    #ProductGridContainer .product-grid > .grid__item {
+      display: block !important;
+      width: auto !important;
+      max-width: none !important;
+      min-width: 0 !important;
+      flex: 0 0 auto !important;
+      grid-column: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    #ProductGridContainer .product-grid > .grid__item:only-child {
+      grid-column: span 2 !important;
     }
 
     #ProductGridContainer .buzzko-product-card {
@@ -831,7 +852,7 @@
                                   | image_tag:
                                     loading: 'lazy',
                                     widths: '300,450,600,700',
-                                    sizes: '(min-width: 990px) 22vw, (min-width: 750px) 45vw, 90vw',
+                                    sizes: '(min-width: 990px) 22vw, (min-width: 750px) 45vw, 45vw',
                                     alt: image_alt,
                                     class: 'buzzko-product-card__image'
                                 }}
