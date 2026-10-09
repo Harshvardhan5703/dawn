@@ -29,7 +29,7 @@
           "settings": {
             "image": "shopify://shop_images/IMG20260309142908.jpg",
             "alt_text": "",
-            "button_label": "Shop New Collection",
+            "button_label": "Show Now",
             "button_link": "",
             "button_color": "#ff5ca8",
             "button_text_color": "#111111",
@@ -349,14 +349,14 @@
       "settings": {
         "eyebrow": "Follow Along",
         "first_line": "Real People",
-        "first_line_color": "#1A1A1A",
+        "first_line_color": "#1a1a1a",
         "second_line": "Cuter Lives.",
-        "second_line_color": "#59C8F5",
+        "second_line_color": "#59c8f5",
         "subtext": "Tag @buzz.ko in your photos, we'll reshare our favourites.",
         "cta_text": "Follow @buzz.ko",
         "instagram_url": "https://www.instagram.com/buzz.ko/",
         "social_proof": "Joined by 1,600+ happy customers",
-        "card_color": "#FFF0F8"
+        "card_color": "#fff0f8"
       }
     },
     "1790848691c0544c6f": {
