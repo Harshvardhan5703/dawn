@@ -400,7 +400,8 @@
                 box-shadow 220ms ease;
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview {
     transform: translateY(-4px);
     box-shadow: 0 18px 34px rgba(0, 0, 0, 0.09);
   }
@@ -493,6 +494,8 @@
 
   /* =====================================================
      ICON ANIMATIONS
+     Triggered by :hover on pointer devices, and by the
+     .bz-inview class on touch devices (set via JS below).
      ===================================================== */
 
   /* Truck — drives forward with a springy overshoot,
@@ -505,7 +508,8 @@
     transition: transform 680ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck {
     transform: translate(14px, 7px);
   }
 
@@ -525,23 +529,28 @@
     transition: transform 620ms cubic-bezier(0.22, 1.2, 0.5, 1);
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck-smoke {
     opacity: 1;
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck-smoke path {
     transform: translate(-12px, -6px);
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(1) {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(1),
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck-smoke path:nth-child(1) {
     transition-delay: 100ms;
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(2) {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(2),
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck-smoke path:nth-child(2) {
     transition-delay: 180ms;
   }
 
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(3) {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-truck-smoke path:nth-child(3),
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-truck-smoke path:nth-child(3) {
     transition-delay: 260ms;
   }
 
@@ -550,7 +559,8 @@
     transform-origin: center bottom;
     transition: transform 460ms cubic-bezier(0.34, 1.5, 0.5, 1);
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-gift-lid {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-gift-lid,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-gift-lid {
     transform: translateY(-10px) rotate(-5deg);
   }
   #BuzzkoBenefits-{{ section.id }} .bzi-gift-sparkles {
@@ -558,7 +568,8 @@
     transition: opacity 280ms ease 180ms, transform 440ms cubic-bezier(0.34, 1.5, 0.5, 1) 180ms;
     transform: scale(0.4);
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-gift-sparkles {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-gift-sparkles,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-gift-sparkles {
     opacity: 1;
     transform: scale(1);
   }
@@ -567,7 +578,8 @@
   #BuzzkoBenefits-{{ section.id }} .bzi-heart {
     transform-origin: 50% 55%;
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-heart {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-heart,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-heart {
     animation: bzHeartBeat 720ms ease-in-out;
   }
   @keyframes bzHeartBeat {
@@ -583,7 +595,8 @@
     transform-origin: 50% 50%;
     transition: transform 700ms cubic-bezier(0.34, 1.2, 0.5, 1);
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-sparkle {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-sparkle,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-sparkle {
     transform: rotate(180deg) scale(1.06);
   }
 
@@ -592,7 +605,8 @@
     transform-origin: 50% 50%;
     transition: transform 420ms cubic-bezier(0.34, 1.5, 0.5, 1);
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-shield {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-shield,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-shield {
     transform: scale(1.1);
   }
 
@@ -601,7 +615,8 @@
     transform-origin: 50% 40%;
     transition: transform 560ms cubic-bezier(0.34, 1.4, 0.5, 1);
   }
-  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-return-arrow {
+  #BuzzkoBenefits-{{ section.id }} .bz-tile:hover .bzi-return-arrow,
+  #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview .bzi-return-arrow {
     transform: rotate(-14deg);
   }
 
@@ -726,9 +741,54 @@
       font-size: 13px;
     }
 
+    /* On mobile the tile itself shouldn't jump up while scrolling —
+       the icon animations carry the motion. */
+    #BuzzkoBenefits-{{ section.id }} .bz-tile.bz-inview {
+      transform: none;
+      box-shadow: none;
+    }
+
   }
 
 </style>
+
+
+<script>
+  (function () {
+    var root = document.getElementById('BuzzkoBenefits-{{ section.id }}');
+    if (!root) return;
+
+    var tiles = root.querySelectorAll('.bz-tile');
+    if (!tiles.length) return;
+
+    /* Only drive animations from the viewport on devices that can't hover.
+       Desktop keeps the pure :hover behaviour — no JS needed there. */
+    var touchLike = window.matchMedia('(hover: none), (max-width: 749px)').matches;
+    var reduced   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!touchLike || reduced) return;
+
+    /* No IntersectionObserver? Just show everything at once. */
+    if (!('IntersectionObserver' in window)) {
+      tiles.forEach(function (t) { t.classList.add('bz-inview'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        /* toggle() rather than add() so the animation replays
+           every time a tile scrolls back into view */
+        entry.target.classList.toggle('bz-inview', entry.isIntersecting);
+      });
+    }, {
+      /* Fire when half the tile is visible — feels natural for the
+         wide/short tiles and won't miss the tall ones. */
+      threshold: 0.5
+    });
+
+    tiles.forEach(function (t) { observer.observe(t); });
+  })();
+</script>
 
 
 {% schema %}
