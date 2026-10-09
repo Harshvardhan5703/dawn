@@ -3804,3 +3804,9 @@ details-disclosure > details {
   }
 }
 
+@media screen and (max-width: 749px) {
+  .menu-drawer {
+    width: 70vw !important;
+    max-width: 70vw !important;
+  }
+}
