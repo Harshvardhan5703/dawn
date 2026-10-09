@@ -27,32 +27,66 @@
         </h2>
       {% endif %}
 
-      {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
-        <a
-          href="{{ section.settings.view_all_link }}"
-          class="buzzko-categories__view-all"
-        >
-          {{ section.settings.view_all_text }}
-          <svg
-            class="buzzko-categories__arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+      <div class="buzzko-categories__header-right">
+
+        {% if section.settings.show_arrows %}
+          <div class="buzzko-categories__nav">
+            <button
+              type="button"
+              class="buzzko-categories__nav-btn"
+              data-buzzko-prev
+              aria-label="Previous categories"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              class="buzzko-categories__nav-btn"
+              data-buzzko-next
+              aria-label="Next categories"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        {% endif %}
+
+        {% if section.settings.show_view_all and section.settings.view_all_link != blank %}
+          <a
+            href="{{ section.settings.view_all_link }}"
+            class="buzzko-categories__view-all"
           >
-            <line x1="5" y1="12" x2="19" y2="12"/>
-            <polyline points="12 5 19 12 12 19"/>
-          </svg>
-        </a>
-      {% endif %}
+            {{ section.settings.view_all_text }}
+            <svg
+              class="buzzko-categories__arrow"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        {% endif %}
+
+      </div>
 
     </div>
 
 
-    <!-- CATEGORY CARDS -->
+    <!-- CATEGORY CARDS (slider at every breakpoint) -->
     <div class="buzzko-categories__grid">
 
       {% for block in section.blocks %}
@@ -192,10 +226,19 @@
 
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
+    gap: 20px;
 
     margin-bottom: 26px;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    flex-shrink: 0;
   }
 
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__heading {
@@ -210,13 +253,73 @@
   }
 
   /* Sparkle gets its own size, matching the Trending section's ratio */
-    #BuzzkoCategories-{{ section.id }} .buzzko-categories__sparkle {
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__sparkle {
     display: inline-block;
     margin-left: 8px;
     font-size: 0.8em;
     font-weight: 400;
     transform: none;
     vertical-align: middle;
+  }
+
+
+  /* CAROUSEL ARROWS */
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* the [hidden] attribute must beat the display rule above */
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav[hidden] {
+    display: none;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    padding: 0;
+
+    border: 1px solid rgba(17, 17, 17, 0.15);
+    border-radius: 50%;
+
+    background: #ffffff;
+    color: #111111;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav-btn:hover:not(:disabled) {
+    background: #111111;
+    border-color: #111111;
+    color: #ffffff;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav-btn:disabled {
+    opacity: 0.28;
+    cursor: default;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav-btn:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
   }
 
 
@@ -256,12 +359,37 @@
   }
 
 
-  /* GRID */
+  /* ============================================================
+     TRACK — horizontal scroller at EVERY breakpoint
+     --buzzko-per-view : how many cards are fully visible
+     (the decimal part is the "peek" of the next card)
+     ============================================================ */
 
   #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+    --buzzko-gap: 18px;
+    --buzzko-per-view: 4.2;
+
+    display: flex;
+    align-items: flex-start;      /* keep aspect-ratio heights, no stretch */
+    gap: var(--buzzko-gap);
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    /* headroom so the hover lift + drop shadow aren't clipped */
+    padding: 8px 0 30px;
+  }
+
+  #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid::-webkit-scrollbar {
+    display: none;
   }
 
 
@@ -272,9 +400,15 @@
 
     display: block;
 
+    flex: 0 0 calc(
+      (100% - (var(--buzzko-per-view) - 1) * var(--buzzko-gap)) / var(--buzzko-per-view)
+    );
+
     min-width: 0;
 
     aspect-ratio: 400 / 340;
+
+    scroll-snap-align: start;
 
     background: transparent;
 
@@ -425,8 +559,8 @@
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      --buzzko-gap: 14px;
+      --buzzko-per-view: 2.2;
     }
 
   }
@@ -454,6 +588,11 @@
       margin-left: 6px;
     }
 
+    /* swipe is the interaction on touch — drop the arrows */
+    #BuzzkoCategories-{{ section.id }} .buzzko-categories__nav {
+      display: none;
+    }
+
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__view-all {
       gap: 8px;
       font-size: 13px;
@@ -465,29 +604,12 @@
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid {
-      display: flex;
+      --buzzko-gap: 12px;
+      --buzzko-per-view: 1.3;
 
-      overflow-x: auto;
-
-      gap: 12px;
-
+      /* let the last card bleed to the screen edge */
       margin-right: -14px;
-      padding-right: 14px;
-      padding-bottom: 10px;
-
-      scroll-snap-type: x mandatory;
-
-      scrollbar-width: none;
-    }
-
-    #BuzzkoCategories-{{ section.id }} .buzzko-categories__grid::-webkit-scrollbar {
-      display: none;
-    }
-
-    #BuzzkoCategories-{{ section.id }} .buzzko-category-card {
-      flex: 0 0 76%;
-
-      scroll-snap-align: start;
+      padding: 8px 14px 26px 0;
     }
 
     #BuzzkoCategories-{{ section.id }} .buzzko-category-card__content {
@@ -504,6 +626,63 @@
 </style>
 
 
+<script>
+  (function () {
+    var root = document.getElementById('BuzzkoCategories-{{ section.id }}');
+    if (!root) return;
+
+    var track = root.querySelector('.buzzko-categories__grid');
+    var prev  = root.querySelector('[data-buzzko-prev]');
+    var next  = root.querySelector('[data-buzzko-next]');
+    var nav   = root.querySelector('.buzzko-categories__nav');
+
+    if (!track || !prev || !next) return;
+
+    function stepSize() {
+      var card = track.querySelector('.buzzko-category-card');
+      if (!card) return track.clientWidth;
+
+      var gap = parseFloat(getComputedStyle(track).columnGap);
+      if (isNaN(gap)) gap = 0;
+
+      return card.getBoundingClientRect().width + gap;
+    }
+
+    function update() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      var x = track.scrollLeft;
+
+      prev.disabled = x <= 1;
+      next.disabled = x >= maxScroll - 1;
+
+      if (nav) nav.hidden = maxScroll <= 1;
+    }
+
+    prev.addEventListener('click', function () {
+      track.scrollBy({ left: -stepSize(), behavior: 'smooth' });
+    });
+
+    next.addEventListener('click', function () {
+      track.scrollBy({ left: stepSize(), behavior: 'smooth' });
+    });
+
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    window.addEventListener('load', update);
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(update).observe(track);
+    }
+
+    /* images are lazy-loaded, so re-check once they settle */
+    setTimeout(update, 400);
+    setTimeout(update, 1200);
+
+    update();
+  })();
+</script>
+
+
 {% schema %}
 
 {
@@ -516,6 +695,14 @@
       "id": "heading",
       "label": "Heading",
       "default": "Shop by Category"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show carousel arrows",
+      "info": "Hidden on mobile — visitors swipe instead.",
+      "default": true
     },
 
     {
@@ -671,6 +858,7 @@
     {
       "name": "BuzzKo Categories",
       "blocks": [
+        { "type": "category" },
         { "type": "category" },
         { "type": "category" },
         { "type": "category" },
