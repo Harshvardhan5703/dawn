@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "buzzko-wishlist",
+      "settings": {
+        "heading": "Your Wishlist",
+        "description": "All the little things you have your eye on."
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

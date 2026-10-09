@@ -3,6 +3,11 @@
   class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}"
   data-section="{{ section.id }}"
   data-product-id="{{ product.id }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-title="{{ product.title | escape }}"
+  data-product-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 700 }}{% endif %}"
+  data-product-price="{{ product.selected_or_first_available_variant.price }}"
+  data-variant-id="{{ product.selected_or_first_available_variant.id }}"
   data-update-url="true"
   data-url="{{ product.url }}"
   {% if section.settings.image_zoom == 'hover' %}
@@ -75,24 +80,11 @@
       flex-wrap: wrap;
     }
 
-    /* Joy Wishlist app block is moved into the quantity row by the script below. */
-    #MainProduct-{{ section.id }} .price-per-item__container > .shopify-block[data-block-handle="wishlist-button"] {
-      margin-left: auto;
-      flex: 0 0 44px;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Hide the legacy Joy block while the native localStorage wishlist is used. */
+    #MainProduct-{{ section.id }} .shopify-block[data-block-handle="wishlist-button"] {
+      display: none !important;
     }
 
-    #MainProduct-{{ section.id }} .price-per-item__container > .shopify-block[data-block-handle="wishlist-button"] joy-wishlist-button {
-      position: static !important;
-      display: block !important;
-      width: 44px !important;
-      height: 44px !important;
-      margin: 0 !important;
-    }
 
     #MainProduct-{{ section.id }} .product-form__wishlist {
       flex: 0 0 auto;
@@ -944,17 +936,41 @@
             const root = document.getElementById('MainProduct-{{ section.id }}');
             if (!root) return;
 
-            // ---- 1. Move Joy's injected wishlist block into the quantity row ----
+            // ---- 1. Add the native BuzzKo wishlist heart beside quantity ----
             const qtyRow = root.querySelector('.price-per-item__container');
-            const wishlistBlock = document.querySelector(
-              '.shopify-block[data-block-handle="wishlist-button"]'
-            );
+            let heartBtn = qtyRow && qtyRow.querySelector('[data-buzzko-wishlist-toggle]');
 
-            if (qtyRow && wishlistBlock && !qtyRow.contains(wishlistBlock)) {
-              qtyRow.appendChild(wishlistBlock);
+            if (qtyRow && !heartBtn) {
+              heartBtn = document.createElement('button');
+              heartBtn.type = 'button';
+              heartBtn.className = 'product-form__wishlist';
+              heartBtn.setAttribute('data-buzzko-wishlist-toggle', '');
+              heartBtn.setAttribute('aria-label', 'Add to wishlist');
+              heartBtn.setAttribute('aria-pressed', 'false');
+              heartBtn.innerHTML =
+                '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" ' +
+                'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+                'stroke-linejoin="round" aria-hidden="true">' +
+                '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>' +
+                '</svg>';
+              qtyRow.appendChild(heartBtn);
             }
 
-            // ---- 2. Rename "Buy it now" -> "Buy" ----
+            if (heartBtn) {
+              const selectedVariant = root.querySelector('form[action*="/cart/add"] input[name="id"]');
+              heartBtn.dataset.productId = root.dataset.productId || '';
+              heartBtn.dataset.productHandle = root.dataset.productHandle || '';
+              heartBtn.dataset.productTitle = root.dataset.productTitle || '';
+              heartBtn.dataset.productUrl = root.dataset.url || '';
+              heartBtn.dataset.productImage = root.dataset.productImage || '';
+              heartBtn.dataset.productPrice = root.dataset.productPrice || '';
+              heartBtn.dataset.variantId = selectedVariant ? selectedVariant.value : (root.dataset.variantId || '');
+              if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+                window.BuzzkoWishlist.refresh();
+              }
+            }
+
+            // ---- 2. Rename "Buy it now" -> "Buy"
             const buy = root.querySelector(
               '.shopify-payment-button__button--unbranded, .shopify-payment-button__button'
             );
@@ -969,17 +985,7 @@
             initProductFormButtons();
           }
 
-          // Joy injects its app block asynchronously, so watch for it and move it once it appears.
-          const observer = new MutationObserver(function () {
-            initProductFormButtons();
-          });
-
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-
-          // Re-run on variant change / theme editor reloads
+          // Re-run on theme editor reloads and keep the selected variant on the heart current.
           document.addEventListener('shopify:section:load', initProductFormButtons);
           const form = document.getElementById('product-form-{{ section.id }}');
           if (form) {

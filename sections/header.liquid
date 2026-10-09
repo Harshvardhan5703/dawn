@@ -107,7 +107,57 @@ shopify-account.header__icon .svg-wrapper {
     min-width: 4.4rem;
     height: 4.4rem;
   }
+  .buzzko-header-wishlist {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.4rem;
+    height: 4.4rem;
+    min-width: 4.4rem;
+    margin-right: 0.2rem;
+    border: 1px solid #1A1A1A;
+    border-radius: 50%;
+    color: #1A1A1A;
+    background: transparent;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .buzzko-header-wishlist:hover {
+    background: transparent;
+    color: #1A1A1A;
+  }
+  .buzzko-header-wishlist .buzzko-wishlist-count {
+    position: absolute;
+    right: -0.35rem;
+    bottom: -0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    padding: 0 0.35rem;
+    border: 1px solid #1A1A1A;
+    border-radius: 999px;
+    background: #F8B5D1;
+    color: #1A1A1A;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .buzzko-header-wishlist .buzzko-wishlist-count:empty,
+  .buzzko-header-wishlist .buzzko-wishlist-count[data-count="0"] {
+    display: none;
+  }
+  @media screen and (max-width: 749px) {
+    .buzzko-header-wishlist {
+      width: 3.8rem;
+      height: 3.8rem;
+      min-width: 3.8rem;
+    }
+  }
 </style>
+<script src="{{ 'buzzko-wishlist.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .header {
@@ -301,6 +351,18 @@ shopify-account.header__icon .svg-wrapper {
           <span slot="signed-out-avatar" class="visually-hidden">{{ 'customer.log_in' | t }}</span>
         </shopify-account>
       {%- endif -%}
+
+      <a
+        href="{{ pages['wishlist'].url | default: '/pages/wishlist' }}"
+        class="header__icon link focus-inset buzzko-header-wishlist"
+        aria-label="Wishlist"
+        data-buzzko-wishlist-link
+      >
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+        </svg>
+        <span class="buzzko-wishlist-count" data-buzzko-wishlist-count data-count="0" aria-live="polite">0</span>
+      </a>
 
       {%- for block in section.blocks -%}
         {%- case block.type -%}
