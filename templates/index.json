@@ -134,6 +134,23 @@
             "text_align": "left"
           }
         },
+        "category_FdTVUm": {
+          "type": "category",
+          "settings": {
+            "collection": "handcrafted",
+            "image": "shopify://shop_images/Cute_Crochet_Frog_Hood_Amigurumi_Doll.png",
+            "image_alt": "Handcrafted",
+            "title": "",
+            "link": "",
+            "background_color": "#CDA1E4",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left"
+          }
+        },
         "category_kWDKP4": {
           "type": "category",
           "settings": {
@@ -156,6 +173,7 @@
         "category_NVMCiY",
         "category_bnx9KM",
         "category_VeKkyn",
+        "category_FdTVUm",
         "category_kWDKP4"
       ],
       "name": "BuzzKo Categories",
