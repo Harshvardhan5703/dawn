@@ -169,6 +169,14 @@
     "buzzko_trending_products_GjexL4": {
       "type": "buzzko-trending-products",
       "blocks": {
+        "product_wxaw4c": {
+          "type": "product",
+          "settings": {
+            "product": "black-monster",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
         "product_fqW4Le": {
           "type": "product",
           "settings": {
@@ -211,6 +219,7 @@
         }
       },
       "block_order": [
+        "product_wxaw4c",
         "product_fqW4Le",
         "product_K3Rr8p",
         "product_A8bbKy",
