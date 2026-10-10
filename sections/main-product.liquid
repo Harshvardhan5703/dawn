@@ -108,6 +108,13 @@
       flex-wrap: wrap;
     }
 
+    /* When the JS relocates the wishlist wrapper into the qty row, collapse
+       it so the heart sits inline instead of taking the full row width. */
+    #MainProduct-{{ section.id }} .price-per-item__container > .buzzko-wishlist-product-action.is-inline {
+      width: auto;
+      margin: 0 0 0 auto;   /* push heart to the right end of the qty row */
+    }
+
     /* Hide the legacy Joy block while the native localStorage wishlist is used. */
     #MainProduct-{{ section.id }} .shopify-block[data-block-handle="wishlist-button"] {
       display: none !important;
@@ -247,6 +254,10 @@
   position: relative;
   top: 0.35em;
 }
+
+
+
+
   {%- endstyle -%}
 
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
@@ -368,10 +379,10 @@
                             {{- 'icon-inventory-status.svg' | inline_asset_content -}}
                           </span>
                           {%- if block.settings.show_inventory_quantity -%}
-                            {{-
+                            {{
                               'products.product.inventory_low_stock_show_count'
                               | t: quantity: product.selected_or_first_available_variant.inventory_quantity
-                            -}}
+                            }}
                           {%- else -%}
                             {{- 'products.product.inventory_low_stock' | t -}}
                           {%- endif -%}
@@ -380,10 +391,10 @@
                             {{- 'icon-inventory-status.svg' | inline_asset_content -}}
                           </span>
                           {%- if block.settings.show_inventory_quantity -%}
-                            {{-
+                            {{
                               'products.product.inventory_in_stock_show_count'
                               | t: quantity: product.selected_or_first_available_variant.inventory_quantity
-                            -}}
+                            }}
                           {%- else -%}
                             {{- 'products.product.inventory_in_stock' | t -}}
                           {%- endif -%}
@@ -549,10 +560,10 @@
                                   {%- if current_qty_for_volume_pricing >= price_break.minimum_quantity -%}
                                     {%- assign price_break_price = price_break.price | money_with_currency -%}
                                     <span class="price-per-item--current">
-                                      {{-
+                                      {{
                                         'products.product.volume_pricing.price_at_each_html'
                                         | t: price: price_break_price
-                                      -}}
+                                      }}
                                     </span>
                                     {%- break -%}
                                   {%- endif -%}
@@ -580,10 +591,10 @@
                                   </dt>
                                   <dd>
                                     <span class="price-per-item--current">
-                                      {{-
+                                      {{
                                         'products.product.volume_pricing.price_at_each_html'
                                         | t: price: variant_price
-                                      -}}
+                                      }}
                                     </span>
                                   </dd>
                                 </dl>
@@ -600,26 +611,26 @@
                     <div class="quantity__rules caption" id="Quantity-Rules-{{ section.id }}">
                       {%- if product.selected_or_first_available_variant.quantity_rule.increment > 1 -%}
                         <span class="divider">
-                          {{-
+                          {{
                             'products.product.quantity.multiples_of'
                             | t: quantity: product.selected_or_first_available_variant.quantity_rule.increment
-                          -}}
+                          }}
                         </span>
                       {%- endif -%}
                       {%- if product.selected_or_first_available_variant.quantity_rule.min > 1 -%}
                         <span class="divider">
-                          {{-
+                          {{
                             'products.product.quantity.minimum_of'
                             | t: quantity: product.selected_or_first_available_variant.quantity_rule.min
-                          -}}
+                          }}
                         </span>
                       {%- endif -%}
                       {%- if product.selected_or_first_available_variant.quantity_rule.max != null -%}
                         <span class="divider">
-                          {{-
+                          {{
                             'products.product.quantity.maximum_of'
                             | t: quantity: product.selected_or_first_available_variant.quantity_rule.max
-                          -}}
+                          }}
                         </span>
                       {%- endif -%}
                     </div>
@@ -1013,6 +1024,18 @@
               if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
                 window.BuzzkoWishlist.refresh();
               }
+            }
+
+            // ---- Relocate wishlist heart into the quantity row ----
+            // The button is authored inside the buy_buttons block so it always
+            // exists in the page, even if a merchant removes the Quantity block.
+            // When a quantity row is present we move it inline, right of the
+            // quantity stepper, instead of leaving it on its own full-width row.
+            const qtyRow = root.querySelector('.price-per-item__container');
+            const wishlistWrap = root.querySelector('.buzzko-wishlist-product-action');
+            if (qtyRow && wishlistWrap && wishlistWrap.parentElement !== qtyRow) {
+              qtyRow.appendChild(wishlistWrap);
+              wishlistWrap.classList.add('is-inline');
             }
 
             // ---- 2. Rename "Buy it now" -> "Buy"
@@ -2614,4 +2637,4 @@
     }
   ]
 }
-{% endschema %} 
+{% endschema %}
