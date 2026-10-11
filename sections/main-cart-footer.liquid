@@ -21,11 +21,22 @@
   if offer_remaining <= 0
     assign offer_unlocked = true
   endif
+
+  # Detect whether the reserved code is already applied in Shopify's cart.
+  assign offer_discount_applied = false
+  assign normalized_discount_code = discount_code | downcase | strip
+  for cart_discount in cart.cart_level_discount_applications
+    assign cart_discount_title = cart_discount.title | downcase | strip
+    if cart_discount_title == normalized_discount_code
+      assign offer_discount_applied = true
+    endif
+  endfor
+
   assign initial_discount = 0
-  if offer_unlocked
+  if offer_unlocked and offer_discount_applied == false
     assign initial_discount = cart.total_price | times: offer_percent | divided_by: 100
   endif
-  assign initial_discounted_total = cart.total_price | minus: initial_discount
+  assign initial_discounted_total = cart.total_price
 -%}
 
 {%- style -%}
@@ -453,7 +464,7 @@
         <div
           class="buzzko-summary__row"
           data-buzzko-discount-row
-          {% unless offer_unlocked %}hidden{% endunless %}
+          {% unless offer_unlocked and offer_discount_applied == false %}hidden{% endunless %}
         >
           <span>Discount ({{ offer_percent }}%)</span>
           <span class="buzzko-summary__row-value" data-buzzko-discount-amount>
@@ -645,6 +656,7 @@
        ========================================================= */
     var OPTIMISTIC_WINDOW = 900;
     var lastOptimisticTime = 0;
+    var buzzko10AlreadyApplied = {{ offer_discount_applied | json }};
 
     /* ---------- Money ---------- */
     /* Inline the shop's money format via Liquid JSON — no DOM lookup,
@@ -726,11 +738,13 @@
         var discountAmountEl = document.querySelector('[data-buzzko-discount-amount]');
         var totalEl = document.querySelector('[data-buzzko-total]');
 
-        var discountCents = unlocked ? Math.round(rawTotal * percent / 100) : 0;
-        var finalTotal = rawTotal - discountCents;
+        var discountCents = unlocked && !buzzko10AlreadyApplied
+          ? Math.round(rawTotal * percent / 100)
+          : 0;
+        var finalTotal = rawTotal;
 
-        if (discountRow) discountRow.hidden = !unlocked;
-        if (discountAmountEl && unlocked) {
+        if (discountRow) discountRow.hidden = !unlocked || buzzko10AlreadyApplied;
+        if (discountAmountEl && unlocked && !buzzko10AlreadyApplied) {
           discountAmountEl.textContent = '-' + formatMoney(discountCents);
         }
 
@@ -762,6 +776,13 @@
         return;
       }
       log('renderCart', cart);
+
+      var cartDiscounts = Array.isArray(cart.cart_level_discount_applications)
+        ? cart.cart_level_discount_applications
+        : [];
+      buzzko10AlreadyApplied = cartDiscounts.some(function (discount) {
+        return String(discount.title || '').trim().toUpperCase() === 'BUZZKO10';
+      });
 
       __updating = true;
       try {
@@ -1056,6 +1077,28 @@
       var input = form.querySelector('input');
       var code = input && input.value ? input.value.trim() : '';
       if (!code) return;
+
+      var existingMessage = form.querySelector('[data-buzzko-promo-message]');
+
+      // BUZZKO10 is reserved for the automatic offer and cannot be entered manually.
+      if (code.toUpperCase() === 'BUZZKO10') {
+        if (!existingMessage) {
+          existingMessage = document.createElement('p');
+          existingMessage.setAttribute('data-buzzko-promo-message', '');
+          form.style.flexWrap = 'wrap';
+          existingMessage.style.cssText =
+            'flex-basis:100%;width:100%;margin:0 0 0 4px;color:#9C285F;font-size:12px;line-height:1.4;';
+          form.appendChild(existingMessage);
+        }
+
+        existingMessage.textContent =
+          'This 10% offer is applied automatically at checkout. You do not need to enter BUZZKO10.';
+        input.setAttribute('aria-invalid', 'true');
+        return;
+      }
+
+      if (existingMessage) existingMessage.remove();
+      input.removeAttribute('aria-invalid');
 
       window.location.href = ROOT + 'discount/' + encodeURIComponent(code) +
                              '?redirect=' + encodeURIComponent(ROOT + 'cart');
