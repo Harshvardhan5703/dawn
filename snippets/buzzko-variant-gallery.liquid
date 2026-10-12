@@ -54,20 +54,47 @@
     }
   }
 
+    /* ---- Mobile: peek layout, no scrollbar ---- */
   @media screen and (max-width: 749px) {
     #MainProduct-{{ section.id }} .variant-gallery {
+      --vg-gap: 10px;
+      --vg-per-view: 3.3;
+
       flex-wrap: nowrap;
       overflow-x: auto;
       overflow-y: hidden;
+
       scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
-      scrollbar-width: thin;
+
+      /* kill the scrollbar visually */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      gap: var(--vg-gap);
+      padding: 4px 0 10px;
     }
-    #MainProduct-{{ section.id }} .variant-gallery__thumb { scroll-snap-align: start; }
-    #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar { height: 4px; }
-    #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar-thumb {
-      background: #F8B5D1; border-radius: 4px;
+    #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar {
+      display: none;
+    }
+
+    #MainProduct-{{ section.id }} .variant-gallery__thumb {
+      flex: 0 0 calc(
+        (100% - (var(--vg-per-view) - 1) * var(--vg-gap)) / var(--vg-per-view)
+      );
+      width: auto;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      scroll-snap-align: start;
+    }
+  }
+
+  /* Slightly wider phones: show 4 + peek instead of 3 + peek */
+  @media screen and (min-width: 480px) and (max-width: 749px) {
+    #MainProduct-{{ section.id }} .variant-gallery {
+      --vg-per-view: 4.3;
     }
   }
 </style>
