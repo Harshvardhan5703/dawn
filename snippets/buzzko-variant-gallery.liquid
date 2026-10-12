@@ -5,7 +5,7 @@
   {
     {%- for variant in product.variants -%}
       {%- assign files = variant.metafields.custom.variant_gallery.value -%}
-      {{ variant.id | json }}: [
+      "{{ variant.id }}": [
         {%- if files -%}
           {%- for file in files -%}
             {
