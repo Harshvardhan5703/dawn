@@ -22,13 +22,19 @@
 
 <style>
   #MainProduct-{{ section.id }} .variant-gallery {
-    display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb {
     width: 76px; height: 76px; padding: 0;
     border: 2px solid #F8B5D1; border-radius: 12px;
     overflow: hidden; background: #fff; cursor: pointer;
     transition: border-color .15s ease, transform .1s ease;
+    flex: 0 0 auto;
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb img {
     width: 100%; height: 100%; object-fit: cover; display: block;
@@ -38,6 +44,26 @@
     border-color: #050505;
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb:active { transform: scale(.96); }
+
+  /* ---- Mobile: single row, horizontal scroll ---- */
+  @media screen and (max-width: 749px) {
+    #MainProduct-{{ section.id }} .variant-gallery {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+    #MainProduct-{{ section.id }} .variant-gallery__thumb {
+      scroll-snap-align: start;
+    }
+    #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar { height: 4px; }
+    #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar-thumb {
+      background: #F8B5D1; border-radius: 4px;
+    }
+  }
 </style>
 
 <script>
@@ -60,7 +86,6 @@
     return input ? String(input.value) : null;
   }
 
-  // Grab the currently displayed main image inside Dawn's media gallery
   function getMainImage() {
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!gallery) return null;
@@ -70,11 +95,31 @@
   function setMainImage(src, alt) {
     const mainImg = getMainImage();
     if (!mainImg) return;
-    // Kill srcset/sizes so the browser can't override our swap with the old set
     mainImg.removeAttribute('srcset');
     mainImg.removeAttribute('sizes');
     mainImg.src = src;
     if (alt) mainImg.alt = alt;
+  }
+
+  /* ---- Align strip with the media gallery on desktop ---- */
+  function alignStrip() {
+    if (!container) return;
+    container.style.paddingLeft  = '';
+    container.style.paddingRight = '';
+    if (window.innerWidth < 750) return;
+
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (!gallery) return;
+
+    const mediaEl = gallery.querySelector('.product-media-container')
+                 || gallery.querySelector('.product__media')
+                 || gallery;
+    const mediaRect   = mediaEl.getBoundingClientRect();
+    const wrapperRect = container.parentElement.getBoundingClientRect();
+    const padLeft  = Math.max(0, Math.round(mediaRect.left  - wrapperRect.left));
+    const padRight = Math.max(0, Math.round(wrapperRect.right - mediaRect.right));
+    container.style.paddingLeft  = padLeft  + 'px';
+    container.style.paddingRight = padRight + 'px';
   }
 
   function render() {
@@ -83,7 +128,6 @@
     currentVariantId = id;
 
     const images = data[id] || [];
-
     if (!images.length) {
       container.hidden = true;
       container.innerHTML = '';
@@ -100,9 +144,10 @@
         <img src="${img.thumb}" alt="${img.alt}" loading="lazy" width="120" height="120">
       </button>
     `).join('');
+
+    requestAnimationFrame(alignStrip);
   }
 
-  // ----- Click handler: swap clicked thumb with main image -----
   container.addEventListener('click', function (e) {
     const btn = e.target.closest('.variant-gallery__thumb');
     if (!btn) return;
@@ -116,30 +161,27 @@
     const newMainSrc  = btn.dataset.full;
     const newMainAlt  = btn.dataset.alt || '';
 
-    // 1. Clicked image goes up into the main slot
     setMainImage(newMainSrc, newMainAlt);
 
-    // 2. Previous main image comes down into the clicked thumb
     thumbImg.removeAttribute('srcset');
     thumbImg.removeAttribute('sizes');
     thumbImg.src = oldMainSrc;
     thumbImg.alt = oldMainAlt;
 
-    // 3. Update this thumb's data so clicking it again swaps back
     btn.dataset.full = oldMainSrc;
     btn.dataset.alt  = oldMainAlt;
 
-    // 4. Move the active outline to the clicked thumb
     container.querySelectorAll('.variant-gallery__thumb')
       .forEach(b => b.classList.remove('is-active'));
     btn.classList.add('is-active');
   });
 
-  // Re-render the strip whenever the variant changes
   document.addEventListener('change', () => setTimeout(render, 100));
   window.addEventListener('popstate', () => setTimeout(render, 100));
+  window.addEventListener('resize', alignStrip);
   setInterval(render, 400);
 
   render();
+  alignStrip();
 })();
 </script>
