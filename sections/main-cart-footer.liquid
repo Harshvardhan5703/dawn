@@ -4,14 +4,10 @@
 {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  # ===== BuzzKo cart config — change these numbers =====
-  # Values are in your store currency. 500 = ₹500.
   assign offer_threshold = 500 | times: 100
   assign offer_percent = 10
-  # Must match the discount code you create in Shopify admin → Discounts
   assign discount_code = 'BUZZKO10'
 
-  # Initial server-side render values
   assign offer_remaining = offer_threshold | minus: cart.total_price
   assign offer_progress = cart.total_price | times: 100.0 | divided_by: offer_threshold
   if offer_progress > 100
@@ -22,15 +18,27 @@
     assign offer_unlocked = true
   endif
 
-  # Detect whether the reserved code is already applied in Shopify's cart.
-  assign offer_discount_applied = false
+  # --- Robust BUZZKO10 detection: check BOTH fields, allow substring ---
   assign normalized_discount_code = discount_code | downcase | strip
+  assign offer_discount_applied = false
+
   for cart_discount in cart.cart_level_discount_applications
-    assign cart_discount_title = cart_discount.title | downcase | strip
-    if cart_discount_title == normalized_discount_code
+    assign t = cart_discount.title | downcase
+    if t contains normalized_discount_code
       assign offer_discount_applied = true
+      break
     endif
   endfor
+
+  if offer_discount_applied == false and cart.discount_applications
+    for cart_discount in cart.discount_applications
+      assign t = cart_discount.title | default: cart_discount.code | downcase
+      if t contains normalized_discount_code
+        assign offer_discount_applied = true
+        break
+      endif
+    endfor
+  endif
 
   assign initial_discount = 0
   if offer_unlocked and offer_discount_applied == false
@@ -40,408 +48,160 @@
 -%}
 
 {%- style -%}
-  /* =====================================================
-     BuzzKo order summary card
-  ===================================================== */
   #main-cart-footer .buzzko-summary {
-    position: sticky;
-    top: 24px;
-    padding: 26px 24px 24px;
-    background: #BEE3F8;
-    border-radius: 20px;
+    position: sticky; top: 24px; padding: 26px 24px 24px;
+    background: #BEE3F8; border-radius: 20px;
   }
-
-  @media screen and (max-width: 989px) {
-    #main-cart-footer .buzzko-summary { position: static; }
-  }
+  @media screen and (max-width: 989px) { #main-cart-footer .buzzko-summary { position: static; } }
 
   #main-cart-footer .buzzko-summary__title {
-    margin: 0 0 20px;
-    color: #1A1A1A;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.025em;
+    margin: 0 0 20px; color: #1A1A1A; font-size: 20px; font-weight: 800; letter-spacing: -0.025em;
   }
-
   #main-cart-footer .buzzko-summary__rows {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+    display: flex; flex-direction: column; gap: 10px;
+    padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid rgba(26, 26, 26, 0.08);
   }
-
   #main-cart-footer .buzzko-summary__row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    color: #6B6663;
-    font-size: 13.5px;
-    line-height: 1.4;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    color: #6B6663; font-size: 13.5px; line-height: 1.4;
   }
+  #main-cart-footer .buzzko-summary__row-value { color: #1A1A1A; font-weight: 600; white-space: nowrap; }
 
-  #main-cart-footer .buzzko-summary__row-value {
-    color: #1A1A1A;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  /* Discount row — highlighted when active */
-  #main-cart-footer [data-buzzko-discount-row] {
-    color: #1A1A1A;
-    font-weight: 600;
-  }
-
-  #main-cart-footer [data-buzzko-discount-row] .buzzko-summary__row-value {
-    color: #008A3E;
-    font-weight: 700;
-  }
-
+  #main-cart-footer [data-buzzko-discount-row] { color: #1A1A1A; font-weight: 600; }
+  #main-cart-footer [data-buzzko-discount-row] .buzzko-summary__row-value { color: #008A3E; font-weight: 700; }
   #main-cart-footer [data-buzzko-discount-row][hidden] { display: none; }
+  #main-cart-footer .buzzko-summary.buzzko-has-buzzko10 [data-buzzko-discount-row] { display: none !important; }
 
-  /* Promo code */
-  #main-cart-footer .buzzko-promo {
-    display: flex;
-    gap: 8px;
-    margin: 0 0 16px;
-  }
-
+  #main-cart-footer .buzzko-promo { display: flex; gap: 8px; margin: 0 0 16px; }
   #main-cart-footer .buzzko-promo__input {
-    flex: 1;
-    min-width: 0;
-    height: 42px;
-    padding: 0 16px;
-    border: 1.5px solid #EBE5DF;
-    border-radius: 999px;
-    background: #fff;
-    color: #1A1A1A;
-    font-size: 13px;
-    font-family: inherit;
-    transition: border-color .15s ease;
+    flex: 1; min-width: 0; height: 42px; padding: 0 16px;
+    border: 1.5px solid #EBE5DF; border-radius: 999px; background: #fff;
+    color: #1A1A1A; font-size: 13px; font-family: inherit; transition: border-color .15s ease;
   }
-
   #main-cart-footer .buzzko-promo__input::placeholder { color: #B5AEA7; }
   #main-cart-footer .buzzko-promo__input:focus { outline: none; border-color: #FF60B9; }
-
   #main-cart-footer .buzzko-promo__btn {
-    flex-shrink: 0;
-    height: 42px;
-    padding: 0 20px;
-    border: 0;
-    border-radius: 999px;
-    background: #1A1A1A;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background .15s ease, transform .15s ease;
+    flex-shrink: 0; height: 42px; padding: 0 20px; border: 0; border-radius: 999px;
+    background: #1A1A1A; color: #fff; font-size: 13px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: background .15s ease, transform .15s ease;
   }
-
   #main-cart-footer .buzzko-promo__btn:hover { background: #333; transform: translateY(-1px); }
 
-  /* Gift checkbox */
   #main-cart-footer .buzzko-gift {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 14px 16px;
-    margin: 0 0 16px;
-    background: #fff;
-    border: 1.5px dashed #FF60B9;
-    border-radius: 14px;
-    cursor: pointer;
+    display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; margin: 0 0 16px;
+    background: #fff; border: 1.5px dashed #FF60B9; border-radius: 14px; cursor: pointer;
     transition: background .15s ease;
   }
-
   #main-cart-footer .buzzko-gift:hover { background: #FFF8FC; }
-
-  #main-cart-footer .buzzko-gift input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
+  #main-cart-footer .buzzko-gift input { position: absolute; opacity: 0; pointer-events: none; }
   #main-cart-footer .buzzko-gift__box {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    margin-top: 1px;
-    display: grid;
-    place-items: center;
-    border: 1.5px solid #1A1A1A;
-    border-radius: 6px;
-    background: #fff;
-    transition: background .15s ease;
+    flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px; display: grid; place-items: center;
+    border: 1.5px solid #1A1A1A; border-radius: 6px; background: #fff; transition: background .15s ease;
   }
-
   #main-cart-footer .buzzko-gift__box::after {
-    content: "";
-    width: 10px;
-    height: 6px;
-    border-left: 2px solid #1A1A1A;
-    border-bottom: 2px solid #1A1A1A;
-    transform: rotate(-45deg) translate(1px, -1px);
-    opacity: 0;
-    transition: opacity .15s ease;
+    content: ""; width: 10px; height: 6px;
+    border-left: 2px solid #1A1A1A; border-bottom: 2px solid #1A1A1A;
+    transform: rotate(-45deg) translate(1px, -1px); opacity: 0; transition: opacity .15s ease;
   }
-
   #main-cart-footer .buzzko-gift input:checked + .buzzko-gift__box { background: #FF60B9; }
   #main-cart-footer .buzzko-gift input:checked + .buzzko-gift__box::after { opacity: 1; }
-  #main-cart-footer .buzzko-gift input:focus-visible + .buzzko-gift__box {
-    outline: 2px solid #FF60B9;
-    outline-offset: 2px;
-  }
+  #main-cart-footer .buzzko-gift input:focus-visible + .buzzko-gift__box { outline: 2px solid #FF60B9; outline-offset: 2px; }
+  #main-cart-footer .buzzko-gift__label { color: #1A1A1A; font-size: 13px; font-weight: 600; line-height: 1.4; }
 
-  #main-cart-footer .buzzko-gift__label {
-    color: #1A1A1A;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-
-  /* Cart note */
   #main-cart-footer .buzzko-note { margin: 0 0 20px; }
-
   #main-cart-footer .buzzko-note summary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    color: #1A1A1A;
-    font-size: 13px;
-    font-weight: 600;
-    list-style: none;
-    padding: 4px 0;
+    display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1A1A1A;
+    font-size: 13px; font-weight: 600; list-style: none; padding: 4px 0;
   }
-
   #main-cart-footer .buzzko-note summary::-webkit-details-marker { display: none; }
-  #main-cart-footer .buzzko-note summary svg {
-    width: 10px;
-    height: 10px;
-    transition: transform .2s ease;
-  }
+  #main-cart-footer .buzzko-note summary svg { width: 10px; height: 10px; transition: transform .2s ease; }
   #main-cart-footer .buzzko-note[open] summary svg { transform: rotate(180deg); }
-
   #main-cart-footer .buzzko-note__textarea {
-    width: 100%;
-    min-height: 72px;
-    margin-top: 10px;
-    padding: 12px 14px;
-    border: 1.5px solid #EBE5DF;
-    border-radius: 12px;
-    background: #fff;
-    color: #1A1A1A;
-    font-size: 13px;
-    font-family: inherit;
-    line-height: 1.5;
-    resize: vertical;
-    box-sizing: border-box;
+    width: 100%; min-height: 72px; margin-top: 10px; padding: 12px 14px;
+    border: 1.5px solid #EBE5DF; border-radius: 12px; background: #fff;
+    color: #1A1A1A; font-size: 13px; font-family: inherit; line-height: 1.5;
+    resize: vertical; box-sizing: border-box;
   }
-
   #main-cart-footer .buzzko-note__textarea:focus { outline: none; border-color: #FF60B9; }
 
-  /* =====================================================
-     Offer bar (real-time)
-  ===================================================== */
   #main-cart-footer .buzzko-offer {
-    position: relative;
-    padding: 14px 16px 16px;
-    margin: 0 0 20px;
-    background: #fff;
-    border: 1.5px solid #EBE5DF;
-    border-radius: 14px;
-    overflow: hidden;
+    position: relative; padding: 14px 16px 16px; margin: 0 0 20px;
+    background: #fff; border: 1.5px solid #EBE5DF; border-radius: 14px; overflow: hidden;
     transition: background .35s ease, border-color .35s ease;
   }
-
-  #main-cart-footer .buzzko-offer--unlocked {
-    background: #FFF0F8;
-    border-color: #FFC7E3;
-  }
-
+  #main-cart-footer .buzzko-offer--unlocked { background: #FFF0F8; border-color: #FFC7E3; }
   #main-cart-footer .buzzko-offer__row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    color: #1A1A1A;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.35;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    color: #1A1A1A; font-size: 13px; font-weight: 600; line-height: 1.35;
   }
-
   #main-cart-footer .buzzko-offer__sparkle {
-    flex-shrink: 0;
-    color: #FF60B9;
-    font-size: 12px;
-    line-height: 1;
+    flex-shrink: 0; color: #FF60B9; font-size: 12px; line-height: 1;
     transition: color .3s ease, transform .3s ease;
   }
-
-  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__sparkle {
-    color: #1A1A1A;
-    transform: rotate(20deg) scale(1.2);
-  }
-
+  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__sparkle { color: #1A1A1A; transform: rotate(20deg) scale(1.2); }
   #main-cart-footer .buzzko-offer__track {
-    position: relative !important;
-    display: block !important;
-    height: 8px !important;
-    background: #F1ECE7 !important;
-    border-radius: 999px !important;
-    overflow: hidden !important;
-    isolation: isolate;
+    position: relative !important; display: block !important; height: 8px !important;
+    background: #F1ECE7 !important; border-radius: 999px !important; overflow: hidden !important;
   }
-
-  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__track {
-    background: rgba(255, 96, 185, 0.18) !important;
-  }
-
+  #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__track { background: rgba(255, 96, 185, 0.18) !important; }
   #main-cart-footer .buzzko-offer__fill {
-    display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    height: 8px !important;
-    min-height: 8px !important;
-    width: 0;
-    min-width: 0;
+    display: block !important; position: absolute !important; left: 0 !important; top: 0 !important;
+    height: 8px !important; min-height: 8px !important; width: 0; min-width: 0;
     border-radius: 999px !important;
     background-color: #FF60B9 !important;
     background-image: linear-gradient(90deg, #FF60B9 0%, #F8B5D1 100%) !important;
     box-sizing: border-box !important;
     transition: width .55s cubic-bezier(.25, 1, .35, 1) !important;
   }
-
   #main-cart-footer .buzzko-offer--unlocked .buzzko-offer__fill {
-    background-color: #FF60B9 !important;
     background-image: linear-gradient(90deg, #FF60B9 0%, #FF8EC9 100%) !important;
   }
-
   #main-cart-footer .buzzko-offer__fill::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+    content: ""; position: absolute; top: 0; left: 0; height: 100%; width: 100%;
     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .35) 50%, transparent 100%);
-    transform: translateX(-100%);
-    animation: buzzkoShimmer 2.8s ease-in-out infinite;
-    pointer-events: none;
+    transform: translateX(-100%); animation: buzzkoShimmer 2.8s ease-in-out infinite; pointer-events: none;
   }
+  @keyframes buzzkoShimmer { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(200%); } }
 
-  @keyframes buzzkoShimmer {
-    0% { transform: translateX(-100%); }
-    60%, 100% { transform: translateX(200%); }
-  }
-
-  /* =====================================================
-     Total row (pulses on update)
-  ===================================================== */
   #main-cart-footer .buzzko-total {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 20px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 20px;
   }
-
-  #main-cart-footer .buzzko-total__label {
-    margin: 0;
-    color: #1A1A1A;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
+  #main-cart-footer .buzzko-total__label { margin: 0; color: #1A1A1A; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
   #main-cart-footer .buzzko-total__value {
-    margin: 0;
-    color: #1A1A1A;
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    display: inline-block;
-    transition: transform .3s ease, color .3s ease;
+    margin: 0; color: #1A1A1A; font-size: 22px; font-weight: 900; letter-spacing: -0.03em;
+    display: inline-block; transition: transform .3s ease, color .3s ease;
   }
-
-  #main-cart-footer .buzzko-total__value.is-updated {
-    animation: buzzkoPulse .55s cubic-bezier(.3, 1.4, .5, 1);
-  }
-
+  #main-cart-footer .buzzko-total__value.is-updated { animation: buzzkoPulse .55s cubic-bezier(.3, 1.4, .5, 1); }
   @keyframes buzzkoPulse {
     0% { transform: scale(1); color: #1A1A1A; }
     35% { transform: scale(1.08); color: #FF60B9; }
     100% { transform: scale(1); color: #1A1A1A; }
   }
 
-  /* Checkout button */
   #main-cart-footer .cart__ctas { margin: 0; }
-
   #main-cart-footer .cart__checkout-button {
-    width: 100%;
-    min-height: 52px;
-    padding: 14px 24px;
-    border: 0;
-    border-radius: 999px;
-    background: #e656a8;
-    color: #1A1A1A;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    cursor: pointer;
-    transition: background .15s ease, transform .15s ease;
+    width: 100%; min-height: 52px; padding: 14px 24px; border: 0; border-radius: 999px;
+    background: #e656a8; color: #1A1A1A; font-family: inherit; font-size: 15px; font-weight: 800;
+    letter-spacing: 0.01em; cursor: pointer; transition: background .15s ease, transform .15s ease;
   }
-
-  #main-cart-footer .cart__checkout-button:hover:not(:disabled) {
-    background: #e469af;
-    transform: translateY(-1px);
-  }
-
-  #main-cart-footer .cart__checkout-button:disabled {
-    background: #E5DED7;
-    color: #85807B;
-    cursor: not-allowed;
-    transform: none;
-  }
-
+  #main-cart-footer .cart__checkout-button:hover:not(:disabled) { background: #e469af; transform: translateY(-1px); }
+  #main-cart-footer .cart__checkout-button:disabled { background: #E5DED7; color: #85807B; cursor: not-allowed; transform: none; }
   #main-cart-footer .additional-checkout-buttons { margin-top: 10px; }
 
-  /* Trust badges */
   #main-cart-footer .buzzko-trust {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 18px;
-    padding-top: 18px;
+    display: flex; flex-direction: column; gap: 8px; margin-top: 18px; padding-top: 18px;
     border-top: 1px solid rgba(26, 26, 26, 0.08);
   }
-
-  #main-cart-footer .buzzko-trust__row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #6B6663;
-    font-size: 12px;
-    line-height: 1.4;
-  }
-
-  #main-cart-footer .buzzko-trust__row svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    color: #1A1A1A;
-  }
+  #main-cart-footer .buzzko-trust__row { display: flex; align-items: center; gap: 8px; color: #6B6663; font-size: 12px; line-height: 1.4; }
+  #main-cart-footer .buzzko-trust__row svg { width: 14px; height: 14px; flex-shrink: 0; color: #1A1A1A; }
 
   @media screen and (max-width: 749px) {
     #main-cart-footer .buzzko-summary { padding: 22px 18px; border-radius: 18px; }
     #main-cart-footer .buzzko-total__value { font-size: 20px; }
     #main-cart-footer .cart__checkout-button { min-height: 50px; font-size: 14px; }
   }
+
+  
 {%- endstyle -%}
 
 <div
@@ -450,7 +210,8 @@
   data-id="{{ section.id }}"
 >
   {%- if cart != empty -%}
-    <div class="buzzko-summary">
+  <div class="js-contents">
+    <div class="buzzko-summary{% if offer_discount_applied %} buzzko-has-buzzko10{% endif %}">
 
       <h2 class="buzzko-summary__title">Order Summary</h2>
 
@@ -460,7 +221,6 @@
           <span class="buzzko-summary__row-value" data-buzzko-subtotal>{{ cart.items_subtotal_price | money }}</span>
         </div>
 
-        {%- comment -%} Real-time offer discount row {%- endcomment -%}
         <div
           class="buzzko-summary__row"
           data-buzzko-discount-row
@@ -507,9 +267,7 @@
           {% if cart.attributes.gift == 'Yes' %}checked{% endif %}
         >
         <span class="buzzko-gift__box" aria-hidden="true"></span>
-        <span class="buzzko-gift__label">
-          Is it a gift? Make it special at no extra cost.
-        </span>
+        <span class="buzzko-gift__label">Is it a gift? Make it special at no extra cost.</span>
       </label>
 
       {%- if settings.show_cart_note -%}
@@ -530,7 +288,6 @@
         </details>
       {%- endif -%}
 
-      {%- comment -%} ===== Real-time offer bar ===== {%- endcomment -%}
       <div
         class="buzzko-offer{% if offer_unlocked %} buzzko-offer--unlocked{% endif %}"
         data-buzzko-offer
@@ -543,18 +300,14 @@
           <span class="buzzko-offer__sparkle" aria-hidden="true">✦</span>
           <span data-buzzko-offer-label>
             {%- if offer_unlocked -%}
-              {{ offer_percent }}% off unlocked! 
+              {{ offer_percent }}% off unlocked!
             {%- else -%}
               Add {{ offer_remaining | money }} more to unlock {{ offer_percent }}% off!
             {%- endif -%}
           </span>
         </div>
         <div class="buzzko-offer__track">
-          <div
-            class="buzzko-offer__fill"
-            data-buzzko-offer-fill
-            style="width: {{ offer_progress }}%;"
-          ></div>
+          <div class="buzzko-offer__fill" data-buzzko-offer-fill style="width: {{ offer_progress }}%;"></div>
         </div>
       </div>
 
@@ -568,13 +321,7 @@
       </div>
 
       <div class="cart__ctas">
-        <button
-          type="submit"
-          id="checkout"
-          class="cart__checkout-button"
-          name="checkout"
-          form="cart"
-        >
+        <button type="submit" id="checkout" class="cart__checkout-button" name="checkout" form="cart">
           Proceed to Checkout
         </button>
       </div>
@@ -603,6 +350,7 @@
         </div>
       </div>
     </div>
+  </div>
   {%- endif -%}
 </div>
 
@@ -611,464 +359,12 @@
     if (window.__buzzkoCartFooterInit) return;
     window.__buzzkoCartFooterInit = true;
 
-    var DEBUG = false;
-    function log() {
-      if (DEBUG && window.console) {
-        console.log.apply(console, ['[BuzzKo cart]'].concat([].slice.call(arguments)));
-      }
-    }
-
     var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
-
-    /* =========================================================
-       Speed up quantity changes
-       Dawn re-renders main-cart-items + main-cart-footer on every
-       quantity click, which is the source of the delay.
-       We stub getSectionsToRender to request only the tiny cart-count
-       bubble, then update the rest of the UI ourselves from the JSON.
-       ========================================================= */
-    (function stubSections() {
-      function apply() {
-        var el = document.querySelector('cart-items');
-        if (!el || el.__buzzkoSpeedUp) return;
-        el.__buzzkoSpeedUp = true;
-
-        el.getSectionsToRender = function () {
-          return [
-            { id: 'cart-icon-bubble', section: 'cart-icon-bubble', selector: '.shopify-section' }
-          ];
-        };
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', apply);
-      } else {
-        apply();
-      }
-    })();
-
-    /* =========================================================
-       Optimistic UI
-       Paint the new price / totals / offer bar the instant the
-       user clicks + or -. Server response confirms ~1s later.
-       If the click happened less than OPTIMISTIC_WINDOW ago,
-       we skip the server's authoritative paint so it doesn't
-       flicker back to the old value mid-transition.
-       ========================================================= */
-    var OPTIMISTIC_WINDOW = 900;
-    var lastOptimisticTime = 0;
-    var buzzko10AlreadyApplied = {{ offer_discount_applied | json }};
-
-    /* ---------- Money ---------- */
-    /* Inline the shop's money format via Liquid JSON — no DOM lookup,
-       no race conditions, no chance of the format being empty. */
-    var MONEY_FORMAT = {{ shop.money_format | json }};
-
-    /* Sanity fallback if Liquid somehow rendered empty.
-       The brace sequences are built from character codes so a literal
-       double-brace never appears in this file. Liquid would otherwise
-       try to parse it as an output tag and throw a syntax error. */
-    if (!MONEY_FORMAT || String(MONEY_FORMAT).indexOf('{') === -1) {
-      var LB = String.fromCharCode(123, 123);
-      var RB = String.fromCharCode(125, 125);
-      MONEY_FORMAT = '\u20B9' + LB + 'amount' + RB;
-    }
-
-    function formatMoney(cents) {
-      cents = Math.round(Number(cents) || 0);
-
-      /* Primary: Shopify's own formatter — knows about all placeholder types */
-      try {
-        if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
-          var out = window.Shopify.formatMoney(cents, MONEY_FORMAT);
-          if (out && out.indexOf('{') === -1) return out;
-        }
-      } catch (e) {
-        if (DEBUG) console.warn('[BuzzKo money] Shopify.formatMoney failed:', e);
-      }
-
-      /* Fallback: manual placeholder replacement so the currency symbol
-         never vanishes even if Shopify's helper is missing or throws. */
-      var num = (cents / 100).toFixed(2);
-      var withCommas = num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-      return String(MONEY_FORMAT)
-        .replace(/\{\{\s*amount\s*\}\}/g, withCommas)
-        .replace(/\{\{\s*amount_no_decimals\s*\}\}/g, Math.round(cents / 100).toString())
-        .replace(/\{\{\s*amount_with_comma_separator\s*\}\}/g, num.replace('.', ','));
-    }
-
-    function parseMoneyToCents(text) {
-      if (text == null) return null;
-
-      /* Match the first numeric run that starts with a digit.
-         Prevents grabbing the "." after "Rs." or "₹" like the previous
-         regex did — which turned "Rs. 80.00" into ".80.00" and
-         parseFloat read it as 0.80 instead of 80.00. */
-      var match = String(text).match(/\d[\d,]*(?:\.\d+)?/);
-      if (!match) return null;
-
-      var num = parseFloat(match[0].replace(/,/g, ''));
-      if (isNaN(num)) return null;
-
-      return Math.round(num * 100);
-    }
-
-    /* ---------- Paint summary (used by renderCart & optimistic) ---------- */
-    function paintSummary(rawTotal, subtotal) {
-      var offerEl = document.querySelector('[data-buzzko-offer]');
-      if (offerEl) {
-        var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 50000;
-        var percent = parseInt(offerEl.getAttribute('data-percent'), 10) || 10;
-        var progress = Math.min(100, (rawTotal / threshold) * 100);
-        var unlocked = rawTotal >= threshold;
-
-        var fill = offerEl.querySelector('[data-buzzko-offer-fill]');
-        var label = offerEl.querySelector('[data-buzzko-offer-label]');
-
-        if (fill) fill.style.setProperty('width', progress + '%', 'important');
-        offerEl.classList.toggle('buzzko-offer--unlocked', unlocked);
-
-        if (label) {
-          label.textContent = unlocked
-            ? percent + '% off unlocked!'
-            : 'Add ' + formatMoney(threshold - rawTotal) + ' more to unlock ' + percent + '% off!';
-        }
-
-        var discountRow = document.querySelector('[data-buzzko-discount-row]');
-        var discountAmountEl = document.querySelector('[data-buzzko-discount-amount]');
-        var totalEl = document.querySelector('[data-buzzko-total]');
-
-        var discountCents = unlocked && !buzzko10AlreadyApplied
-          ? Math.round(rawTotal * percent / 100)
-          : 0;
-        var finalTotal = rawTotal;
-
-        if (discountRow) discountRow.hidden = !unlocked || buzzko10AlreadyApplied;
-        if (discountAmountEl && unlocked && !buzzko10AlreadyApplied) {
-          discountAmountEl.textContent = '-' + formatMoney(discountCents);
-        }
-
-        if (totalEl) {
-          totalEl.setAttribute('data-total-cents', String(rawTotal));
-          var next = formatMoney(finalTotal);
-          if (totalEl.textContent.trim() !== next) {
-            totalEl.textContent = next;
-            totalEl.classList.remove('is-updated');
-            void totalEl.offsetWidth;
-            totalEl.classList.add('is-updated');
-          }
-        }
-      }
-
-      if (subtotal != null) {
-        var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
-        if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
-      }
-    }
-
-    /* ---------- Render ---------- */
-    var lastRenderedTotalText = null;
-    var __updating = false;
-
-    function renderCart(cart) {
-      if (!cart || typeof cart.total_price !== 'number') {
-        log('renderCart: invalid cart payload', cart);
-        return;
-      }
-      log('renderCart', cart);
-
-      var cartDiscounts = Array.isArray(cart.cart_level_discount_applications)
-        ? cart.cart_level_discount_applications
-        : [];
-      buzzko10AlreadyApplied = cartDiscounts.some(function (discount) {
-        return String(discount.title || '').trim().toUpperCase() === 'BUZZKO10';
-      });
-
-      __updating = true;
-      try {
-        /* === Skip summary paint if a click just happened === */
-        var recentlyClicked = Date.now() - lastOptimisticTime < OPTIMISTIC_WINDOW;
-
-        if (!recentlyClicked) {
-          paintSummary(cart.total_price, cart.items_subtotal_price);
-        }
-
-        /* === Line-item UI updates === */
-        if (Array.isArray(cart.items)) {
-          cart.items.forEach(function (line) {
-            var itemEl = document.querySelector('.buzzko-item[data-line-key="' + line.key + '"]');
-            if (!itemEl) return;
-
-            /* Skip painting the item the user is actively hovering (just clicked) */
-            if (recentlyClicked && itemEl.matches(':hover')) {
-              return;
-            }
-
-            var priceEl = itemEl.querySelector('.buzzko-item__price');
-            if (priceEl) {
-              var html = '';
-              if (line.original_line_price !== line.final_line_price) {
-                html =
-                  '<span>' + formatMoney(line.final_line_price) + '</span>' +
-                  '<s class="buzzko-item__price-compare">' + formatMoney(line.original_line_price) + '</s>';
-              } else {
-                html = '<span>' + formatMoney(line.original_line_price) + '</span>';
-                var compareUnit = line.variant && line.variant.compare_at_price;
-                if (compareUnit && compareUnit > line.final_price) {
-                  html += '<s class="buzzko-item__price-compare">' + formatMoney(compareUnit * line.quantity) + '</s>';
-                }
-              }
-              priceEl.innerHTML = html;
-            }
-
-            var eachEl = itemEl.querySelector('[data-buzzko-each]');
-            if (eachEl) {
-              if (line.quantity > 1) {
-                eachEl.hidden = false;
-                eachEl.textContent = formatMoney(line.final_price) + ' each';
-              } else {
-                eachEl.hidden = true;
-              }
-            }
-
-            var compareEl = itemEl.querySelector('[data-buzzko-compare]');
-            if (compareEl) {
-              var unitCompare2 = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
-              compareEl.textContent = formatMoney(unitCompare2 * line.quantity);
-            }
-          });
-        }
-
-        if (cart.item_count === 0) {
-          window.location.reload();
-          return;
-        }
-      } finally {
-        setTimeout(function () { __updating = false; }, 200);
-      }
-    }
-
-    /* =========================================================
-       Remove button handler
-       Dawn uses the line index (line: 3) which goes stale because
-       we've stubbed section re-rendering. Send the stable line key
-       (id: "1234:abc...") instead, and remove the row from the DOM
-       ourselves once the server confirms.
-       ========================================================= */
-    document.addEventListener('click', function (event) {
-      var trashLink = event.target.closest && event.target.closest('.buzzko-item__trash');
-      if (!trashLink) return;
-
-      /* Block Dawn's own handler entirely */
-      event.preventDefault();
-      event.stopPropagation();
-
-      var itemEl = trashLink.closest('.buzzko-item');
-      if (!itemEl) return;
-
-      var lineKey = itemEl.getAttribute('data-line-key');
-      if (!lineKey) return;
-
-      /* Don't allow double-clicks */
-      if (itemEl.dataset.buzzkoRemoving === 'true') return;
-      itemEl.dataset.buzzkoRemoving = 'true';
-
-      /* Fade out the row immediately for feedback */
-      itemEl.style.transition = 'opacity .25s ease, transform .25s ease';
-      itemEl.style.opacity = '0.35';
-      itemEl.style.pointerEvents = 'none';
-
-      _fetch.call(window, ROOT + 'cart/change.js', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          id: lineKey,
-          quantity: 0
-        })
-      })
-        .then(function (r) {
-          return r.json().then(function (data) {
-            if (!r.ok) throw data;
-            return data;
-          });
-        })
-        .then(function (cart) {
-          /* Collapse the row's height, then remove it */
-          var height = itemEl.offsetHeight;
-          itemEl.style.height = height + 'px';
-          itemEl.style.overflow = 'hidden';
-          itemEl.style.marginBottom = '0';
-
-          /* Force reflow so the transition applies */
-          void itemEl.offsetHeight;
-
-          itemEl.style.height = '0px';
-          itemEl.style.paddingTop = '0';
-          itemEl.style.paddingBottom = '0';
-          itemEl.style.opacity = '0';
-          itemEl.style.borderWidth = '0';
-
-          setTimeout(function () {
-            itemEl.remove();
-
-            if (cart.item_count === 0) {
-              window.location.reload();
-              return;
-            }
-
-            /* Update summary + remaining items from the fresh cart */
-            lastOptimisticTime = 0; /* bypass the recentlyClicked guard */
-            renderCart(cart);
-          }, 260);
-        })
-        .catch(function (error) {
-          console.error('[BuzzKo remove]', error);
-          /* Restore the row on failure */
-          itemEl.dataset.buzzkoRemoving = '';
-          itemEl.style.opacity = '';
-          itemEl.style.pointerEvents = '';
-        });
-    }, true); /* capture phase — runs before Dawn's own click handler */
-
-    /* =========================================================
-       Optimistic quantity click handler
-       ========================================================= */
-    document.addEventListener('click', function (event) {
-      var btn = event.target.closest && event.target.closest('.buzzko-item .quantity__button');
-      if (!btn || btn.disabled) return;
-
-      var itemEl = btn.closest('.buzzko-item');
-      if (!itemEl) return;
-
-      var priceEl = itemEl.querySelector('.buzzko-item__price > span');
-      if (!priceEl) return;
-
-      var lineCents = parseMoneyToCents(priceEl.textContent);
-      if (lineCents == null) return;
-
-      var input = itemEl.querySelector('.quantity__input');
-      var oldQty = parseInt(input && input.value, 10) || 1;
-      var delta = btn.name === 'plus' ? 1 : -1;
-      var newQty = Math.max(0, oldQty + delta);
-      if (newQty === oldQty) return;
-
-      var unitCents = Math.round(lineCents / oldQty);
-      var newLineCents = unitCents * newQty;
-      var deltaCents = newLineCents - lineCents;
-
-      /* Paint the line item */
-      priceEl.textContent = formatMoney(newLineCents);
-
-      var compareEl = itemEl.querySelector('[data-buzzko-compare]');
-      if (compareEl) {
-        var unitCompare = parseInt(compareEl.getAttribute('data-compare-unit'), 10) || 0;
-        compareEl.textContent = formatMoney(unitCompare * newQty);
-      }
-
-      var eachEl = itemEl.querySelector('[data-buzzko-each]');
-      if (eachEl) {
-        if (newQty > 1) {
-          eachEl.hidden = false;
-          eachEl.textContent = formatMoney(unitCents) + ' each';
-        } else {
-          eachEl.hidden = true;
-        }
-      }
-
-      /* Paint the summary */
-      var totalEl = document.querySelector('[data-buzzko-total]');
-      var subtotalEl = document.querySelector('[data-buzzko-subtotal]');
-
-      var rawTotal = (parseInt(totalEl && totalEl.getAttribute('data-total-cents'), 10) || 0) + deltaCents;
-      var subtotalCents = (parseMoneyToCents(subtotalEl && subtotalEl.textContent) || 0) + deltaCents;
-
-      lastOptimisticTime = Date.now();
-      paintSummary(Math.max(0, rawTotal), Math.max(0, subtotalCents));
-    }, true);
-
-    /* ---------- Debounced refetch ---------- */
-    var refreshTimer = null;
-    function scheduleRefresh() {
-      if (refreshTimer) clearTimeout(refreshTimer);
-      refreshTimer = setTimeout(function () {
-        _fetch.call(window, ROOT + 'cart.js', { headers: { Accept: 'application/json' } })
-          .then(function (r) { return r.json(); })
-          .then(renderCart)
-          .catch(function (err) { log('refresh failed', err); });
-      }, 80);
-    }
-
-    /* ---------- Intercept fetch ---------- */
-    var CART_RE = /\/cart\/(change|update|add|clear)/;
-    var _fetch = window.fetch;
-
-    if (typeof _fetch === 'function') {
-      window.fetch = function (input, init) {
-        var url = typeof input === 'string' ? input : (input && input.url) || '';
-        var promise = _fetch.apply(this, arguments);
-
-        if (CART_RE.test(url)) {
-          log('fetch intercepted:', url);
-          promise.then(function (response) {
-            try {
-              response.clone().json().then(function (data) {
-                if (data && typeof data.total_price === 'number') {
-                  renderCart(data);
-                } else {
-                  scheduleRefresh();
-                }
-              }).catch(function () { scheduleRefresh(); });
-            } catch (e) { scheduleRefresh(); }
-          }).catch(function () {});
-        }
-        return promise;
-      };
-    }
-
-    /* ---------- Intercept XHR ---------- */
-    var _open = XMLHttpRequest.prototype.open;
-    var _send = XMLHttpRequest.prototype.send;
-
-    XMLHttpRequest.prototype.open = function (method, url) {
-      this.__buzzkoCartUrl = url;
-      return _open.apply(this, arguments);
-    };
-
-    XMLHttpRequest.prototype.send = function () {
-      var xhr = this;
-      if (xhr.__buzzkoCartUrl && CART_RE.test(String(xhr.__buzzkoCartUrl))) {
-        log('XHR intercepted:', xhr.__buzzkoCartUrl);
-        xhr.addEventListener('load', function () {
-          try {
-            var data = JSON.parse(xhr.responseText);
-            if (data && typeof data.total_price === 'number') renderCart(data);
-            else scheduleRefresh();
-          } catch (e) { scheduleRefresh(); }
-        });
-      }
-      return _send.apply(this, arguments);
-    };
-
-    /* ---------- Fallback: watch total for external changes ---------- */
-    (function watchTotal() {
-      var totalEl = document.querySelector('[data-buzzko-total]');
-      if (!totalEl) { setTimeout(watchTotal, 300); return; }
-
-      var observer = new MutationObserver(function () {
-        if (__updating) return;
-        var currentText = totalEl.textContent.trim();
-        if (lastRenderedTotalText !== null && currentText !== lastRenderedTotalText) {
-          log('total changed externally:', currentText, '(was', lastRenderedTotalText + ')');
-          scheduleRefresh();
-        }
-      });
-      observer.observe(totalEl, { childList: true, characterData: true, subtree: true });
-    })();
-
-    /* ---------- Promo code ---------- */
+    var DISCOUNT_CODE = {{ discount_code | json }};
+    var DISCOUNT_CODE_UPPER = DISCOUNT_CODE.toUpperCase();
+    var OFFER_PERCENT = {{ offer_percent | json }};
+
+    /* ---- Promo code ---- */
     document.addEventListener('submit', function (event) {
       var form = event.target;
       if (!form.matches || !form.matches('[data-buzzko-promo]')) return;
@@ -1080,8 +376,7 @@
 
       var existingMessage = form.querySelector('[data-buzzko-promo-message]');
 
-      // BUZZKO10 is reserved for the automatic offer and cannot be entered manually.
-      if (code.toUpperCase() === 'BUZZKO10') {
+      if (code.toUpperCase() === DISCOUNT_CODE_UPPER) {
         if (!existingMessage) {
           existingMessage = document.createElement('p');
           existingMessage.setAttribute('data-buzzko-promo-message', '');
@@ -1090,9 +385,8 @@
             'flex-basis:100%;width:100%;margin:0 0 0 4px;color:#9C285F;font-size:12px;line-height:1.4;';
           form.appendChild(existingMessage);
         }
-
         existingMessage.textContent =
-          'This 10% offer is applied automatically at checkout. You do not need to enter BUZZKO10.';
+          'This ' + OFFER_PERCENT + '% offer is applied automatically. You do not need to enter ' + DISCOUNT_CODE_UPPER + '.';
         input.setAttribute('aria-invalid', 'true');
         return;
       }
@@ -1104,7 +398,7 @@
                              '?redirect=' + encodeURIComponent(ROOT + 'cart');
     });
 
-    /* ---------- Gift checkbox ---------- */
+    /* ---- Gift checkbox ---- */
     document.addEventListener('change', function (event) {
       var cb = event.target;
       if (!cb.matches || !cb.matches('[data-buzzko-gift]')) return;
@@ -1114,17 +408,23 @@
         if (other !== cb) other.checked = cb.checked;
       });
 
-      _fetch.call(window, ROOT + 'cart/update.js', {
+      fetch(ROOT + 'cart/update.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ attributes: { gift: value } })
       }).catch(function () {});
     });
 
-    /* ---------- Checkout: pass discount code when offer is unlocked ---------- */
+    /* ---- Checkout: append discount only when it's NOT already on the cart ---- */
     document.addEventListener('click', function (event) {
       var btn = event.target.closest && event.target.closest('#checkout');
       if (!btn) return;
+
+      var summary = btn.closest('.buzzko-summary');
+      if (summary && summary.classList.contains('buzzko-has-buzzko10')) {
+        /* Already applied server-side — let the form submit normally */
+        return;
+      }
 
       var totalEl = document.querySelector('[data-buzzko-total]');
       var offerEl = document.querySelector('[data-buzzko-offer]');
@@ -1136,10 +436,47 @@
 
       if (cents >= threshold && code) {
         event.preventDefault();
-        log('checkout with discount', code, 'total', cents);
         window.location.href = ROOT + 'checkout?discount=' + encodeURIComponent(code);
       }
     }, true);
+        /* =========================================================
+       When the cart becomes empty, reload the page so the
+       server-rendered empty state is shown. Without this, Dawn's
+       section re-render tries to replace `.js-contents` in an empty
+       cart HTML that doesn't contain it — throws a TypeError and
+       leaves the stale summary card in place.
+       ========================================================= */
+    document.addEventListener('cart-update', function (event) {
+      var data = event && event.detail && event.detail.cartData;
+      if (data && typeof data.item_count === 'number' && data.item_count === 0) {
+        window.location.reload();
+      }
+    });
+
+    /* Belt & braces: if Dawn adds .is-empty to the footer wrapper
+       but the summary is still in the DOM, force a reload. Catches
+       remove-button clicks that bypass cart-update. */
+    (function watchEmptyFooter() {
+      function attach() {
+        var footer = document.getElementById('main-cart-footer');
+        if (!footer) { setTimeout(attach, 300); return; }
+
+        var observer = new MutationObserver(function () {
+          if (
+            footer.classList.contains('is-empty') &&
+            footer.querySelector('.buzzko-summary')
+          ) {
+            window.location.reload();
+          }
+        });
+        observer.observe(footer, { attributes: true, attributeFilter: ['class'] });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+      } else {
+        attach();
+      }
+    })();
   })();
 </script>
 

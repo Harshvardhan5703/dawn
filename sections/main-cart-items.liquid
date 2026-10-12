@@ -228,19 +228,11 @@
 
   .buzzko-item .quantity__button svg,
   .buzzko-item .quantity__button .svg-wrapper {
-    transition: transform .2s cubic-bezier(.3, 1.4, .5, 1);
-    transform-origin: center;
+    transition: none;
+    transform: none;
   }
 
-  .buzzko-item .quantity__button:hover:not(:disabled) svg,
-  .buzzko-item .quantity__button:hover:not(:disabled) .svg-wrapper {
-    transform: scale(1.2);
-  }
 
-  .buzzko-item .quantity__button:active:not(:disabled) svg,
-  .buzzko-item .quantity__button:active:not(:disabled) .svg-wrapper {
-    transform: scale(1.2);
-  }
 
   .buzzko-item .quantity__button:disabled { opacity: .35; cursor: not-allowed; }
 
