@@ -45,6 +45,17 @@
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb:active { transform: scale(.96); }
 
+  /* ---- Desktop: make the WHOLE media column sticky so image + strip move together ---- */
+  @media screen and (min-width: 990px) {
+    #MainProduct-{{ section.id }} .product__media-wrapper {
+      position: sticky;
+      top: 3rem;
+      align-self: start;
+      z-index: 1;
+      /* keep our strip inside the sticky block, so it sticks with the image */
+    }
+  }
+
   /* ---- Mobile: single row, horizontal scroll ---- */
   @media screen and (max-width: 749px) {
     #MainProduct-{{ section.id }} .variant-gallery {
@@ -122,6 +133,27 @@
     container.style.paddingRight = padRight + 'px';
   }
 
+  /* ---- Neutralize any sticky INSIDE the wrapper so only the wrapper sticks ---- */
+  function neutralizeInnerSticky() {
+    if (window.innerWidth < 990) return;
+    const wrapper = root.querySelector('.product__media-wrapper');
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (!wrapper || !gallery) return;
+
+    // If any element between gallery and wrapper is sticky, un-stick it.
+    // The wrapper itself is now sticky (via CSS), so the whole block travels
+    // together — image and strip stay in the same relative position.
+    let el = gallery;
+    while (el && el !== wrapper) {
+      const pos = getComputedStyle(el).position;
+      if (pos === 'sticky') {
+        el.style.position = 'static';
+        el.style.top = '';
+      }
+      el = el.parentElement;
+    }
+  }
+
   function render() {
     const id = getVariantId();
     if (!id || id === currentVariantId) return;
@@ -178,9 +210,10 @@
 
   document.addEventListener('change', () => setTimeout(render, 100));
   window.addEventListener('popstate', () => setTimeout(render, 100));
-  window.addEventListener('resize', alignStrip);
+  window.addEventListener('resize', () => { neutralizeInnerSticky(); alignStrip(); });
   setInterval(render, 400);
 
+  neutralizeInnerSticky();
   render();
   alignStrip();
 })();
