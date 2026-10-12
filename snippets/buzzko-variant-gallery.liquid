@@ -215,33 +215,21 @@
   }
 
   container.addEventListener('click', function (e) {
-    const btn = e.target.closest('.variant-gallery__thumb');
-    if (!btn) return;
-    if (btn.classList.contains('is-active')) return; // already main
+  const btn = e.target.closest('.variant-gallery__thumb');
+  if (!btn) return;
+  if (btn.classList.contains('is-active')) return;
 
-    const mainImg = getMainImage();
-    if (!mainImg) return;
+  const mainImg = getMainImage();
+  if (!mainImg) return;
 
-    const thumbImg    = btn.querySelector('img');
-    const oldMainSrc  = mainImg.currentSrc || mainImg.src;
-    const oldMainAlt  = mainImg.alt || '';
-    const newMainSrc  = btn.dataset.full;
-    const newMainAlt  = btn.dataset.alt || '';
+  // Just change the main image — no shuffling of the strip
+  setMainImage(btn.dataset.full, btn.dataset.alt || '');
 
-    setMainImage(newMainSrc, newMainAlt);
-
-    thumbImg.removeAttribute('srcset');
-    thumbImg.removeAttribute('sizes');
-    thumbImg.src = withWidth(oldMainSrc, 240);
-    thumbImg.alt = oldMainAlt;
-
-    btn.dataset.full = withWidth(oldMainSrc, 1400);
-    btn.dataset.alt  = oldMainAlt;
-
-    container.querySelectorAll('.variant-gallery__thumb')
-      .forEach(b => b.classList.remove('is-active'));
-    btn.classList.add('is-active');
-  });
+  // Move the black border to the clicked thumb
+  container.querySelectorAll('.variant-gallery__thumb')
+    .forEach(b => b.classList.remove('is-active'));
+  btn.classList.add('is-active');
+});
 
   document.addEventListener('change', () => setTimeout(render, 100));
   window.addEventListener('popstate', () => setTimeout(render, 100));
