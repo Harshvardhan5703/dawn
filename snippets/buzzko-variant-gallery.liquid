@@ -1,4 +1,4 @@
-{%- comment -%} BuzzKo per‑variant image strip — click thumb to swap with main image {%- endcomment -%}
+{%- comment -%} BuzzKo per‑variant image strip — includes current main image, swap on click {%- endcomment -%}
 <div class="variant-gallery" data-variant-gallery hidden></div>
 
 <script type="application/json" id="VariantGalleryData-{{ section.id }}">
@@ -45,18 +45,15 @@
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb:active { transform: scale(.96); }
 
-  /* ---- Desktop: make the WHOLE media column sticky so image + strip move together ---- */
   @media screen and (min-width: 990px) {
     #MainProduct-{{ section.id }} .product__media-wrapper {
       position: sticky;
       top: 3rem;
       align-self: start;
       z-index: 1;
-      /* keep our strip inside the sticky block, so it sticks with the image */
     }
   }
 
-  /* ---- Mobile: single row, horizontal scroll ---- */
   @media screen and (max-width: 749px) {
     #MainProduct-{{ section.id }} .variant-gallery {
       flex-wrap: nowrap;
@@ -67,9 +64,7 @@
       padding-bottom: 6px;
       scrollbar-width: thin;
     }
-    #MainProduct-{{ section.id }} .variant-gallery__thumb {
-      scroll-snap-align: start;
-    }
+    #MainProduct-{{ section.id }} .variant-gallery__thumb { scroll-snap-align: start; }
     #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar { height: 4px; }
     #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar-thumb {
       background: #F8B5D1; border-radius: 4px;
@@ -96,13 +91,11 @@
     const input = root.querySelector('form[action*="/cart/add"] input[name="id"]');
     return input ? String(input.value) : null;
   }
-
   function getMainImage() {
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!gallery) return null;
     return gallery.querySelector('.product__media img');
   }
-
   function setMainImage(src, alt) {
     const mainImg = getMainImage();
     if (!mainImg) return;
@@ -111,17 +104,31 @@
     mainImg.src = src;
     if (alt) mainImg.alt = alt;
   }
+  function baseName(url) {
+    if (!url) return '';
+    return url.split('?')[0].split('/').pop();
+  }
+  function withWidth(url, w) {
+    if (!url) return url;
+    const qIndex = url.indexOf('?');
+    let base = url, vParam = '';
+    if (qIndex >= 0) {
+      base = url.substring(0, qIndex);
+      url.substring(qIndex + 1).split('&').forEach(p => {
+        if (p.startsWith('v=')) vParam = p;
+      });
+    }
+    const qs = [vParam, 'width=' + w].filter(Boolean).join('&');
+    return base + '?' + qs;
+  }
 
-  /* ---- Align strip with the media gallery on desktop ---- */
   function alignStrip() {
     if (!container) return;
     container.style.paddingLeft  = '';
     container.style.paddingRight = '';
     if (window.innerWidth < 750) return;
-
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!gallery) return;
-
     const mediaEl = gallery.querySelector('.product-media-container')
                  || gallery.querySelector('.product__media')
                  || gallery;
@@ -133,20 +140,14 @@
     container.style.paddingRight = padRight + 'px';
   }
 
-  /* ---- Neutralize any sticky INSIDE the wrapper so only the wrapper sticks ---- */
   function neutralizeInnerSticky() {
     if (window.innerWidth < 990) return;
     const wrapper = root.querySelector('.product__media-wrapper');
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!wrapper || !gallery) return;
-
-    // If any element between gallery and wrapper is sticky, un-stick it.
-    // The wrapper itself is now sticky (via CSS), so the whole block travels
-    // together — image and strip stay in the same relative position.
     let el = gallery;
     while (el && el !== wrapper) {
-      const pos = getComputedStyle(el).position;
-      if (pos === 'sticky') {
+      if (getComputedStyle(el).position === 'sticky') {
         el.style.position = 'static';
         el.style.top = '';
       }
@@ -154,22 +155,41 @@
     }
   }
 
-  function render() {
+  /* Build the strip: [ current main image (active) ] + [ metafield gallery ] */
+  function buildStrip() {
     const id = getVariantId();
-    if (!id || id === currentVariantId) return;
-    currentVariantId = id;
+    if (!id) return;
 
-    const images = data[id] || [];
-    if (!images.length) {
+    const mainImg = getMainImage();
+    const mainSrc = mainImg ? (mainImg.currentSrc || mainImg.src) : '';
+    const mainAlt = mainImg ? (mainImg.alt || '') : '';
+
+    const items = [];
+    if (mainSrc) {
+      items.push({
+        thumb: withWidth(mainSrc, 240),
+        full:  withWidth(mainSrc, 1400),
+        alt:   mainAlt,
+        isMain: true
+      });
+    }
+
+    const mainKey = baseName(mainSrc);
+    (data[id] || []).forEach(img => {
+      if (baseName(img.full) !== mainKey) items.push(img);
+    });
+
+    // Nothing beyond the main image → strip is pointless, hide it
+    if (items.length <= 1) {
       container.hidden = true;
       container.innerHTML = '';
       return;
     }
 
     container.hidden = false;
-    container.innerHTML = images.map((img, i) => `
+    container.innerHTML = items.map((img, i) => `
       <button type="button"
-              class="variant-gallery__thumb${i === 0 ? ' is-active' : ''}"
+              class="variant-gallery__thumb${img.isMain ? ' is-active' : ''}"
               data-full="${img.full}"
               data-alt="${img.alt}"
               aria-label="${img.alt}">
@@ -180,9 +200,24 @@
     requestAnimationFrame(alignStrip);
   }
 
+  /* On variant change: wait for Dawn to update the main image, then rebuild */
+  let settleTimer = null;
+  function render() {
+    const id = getVariantId();
+    if (!id || id === currentVariantId) return;
+    currentVariantId = id;
+
+    // Immediate attempt + a couple of retries as Dawn updates the main img async
+    clearTimeout(settleTimer);
+    buildStrip();
+    setTimeout(buildStrip, 120);
+    setTimeout(buildStrip, 400);
+  }
+
   container.addEventListener('click', function (e) {
     const btn = e.target.closest('.variant-gallery__thumb');
     if (!btn) return;
+    if (btn.classList.contains('is-active')) return; // already main
 
     const mainImg = getMainImage();
     if (!mainImg) return;
@@ -197,10 +232,10 @@
 
     thumbImg.removeAttribute('srcset');
     thumbImg.removeAttribute('sizes');
-    thumbImg.src = oldMainSrc;
+    thumbImg.src = withWidth(oldMainSrc, 240);
     thumbImg.alt = oldMainAlt;
 
-    btn.dataset.full = oldMainSrc;
+    btn.dataset.full = withWidth(oldMainSrc, 1400);
     btn.dataset.alt  = oldMainAlt;
 
     container.querySelectorAll('.variant-gallery__thumb')
