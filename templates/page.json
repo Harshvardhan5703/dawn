@@ -19,44 +19,46 @@
         "padding_bottom": 0
       }
     },
-    "blocks_4z8znz": {
+    "blocks_y9BJXJ": {
       "type": "_blocks",
       "blocks": {
-        "ai_gen_block_c9bfe39_Pf7Y4U": {
-          "type": "ai_gen_block_c9bfe39",
+        "ai_gen_block_7cadd9e_9HVcpy": {
+          "type": "ai_gen_block_7cadd9e",
           "settings": {
             "desktop_width_percent": 100,
-            "eyebrow": "",
-            "heading": "Returns, made easy",
-            "intro": "<p>Something not quite right? Here’s the quick guide to getting things sorted.</p>",
-            "card_1_icon": "⏰",
-            "card_1_title": "Return window",
-            "card_1_copy": "<p>Request a return within 7 days of delivery. Keep your item unused and in its original packaging.</p>",
-            "card_2_icon": "💸",
-            "card_2_title": "Refund process",
-            "card_2_copy": "<p>After your return is received and checked, approved refunds go back to your original payment method.</p>",
-            "card_3_icon": "🚫",
-            "card_3_title": "Non-returnable items",
-            "card_3_copy": "<p>Personalised, custom-made, final-sale, and used items can’t be returned unless they arrive damaged or faulty.</p>",
-            "card_4_icon": "🔁",
-            "card_4_title": "Exchanges",
-            "card_4_copy": "<p>Want a different style? Contact us to check availability. Exchanges depend on stock and must meet the return conditions.</p>",
-            "card_5_icon": "📩",
-            "card_5_title": "How to initiate a return",
-            "card_5_copy": "<p>Message our support team with your order number and reason for return. We’ll share the next steps and return instructions.</p>"
+            "section_background": "#FFF7E6",
+            "eyebrow": "A little love goes a long way",
+            "heading": "Keep your good stuff looking great",
+            "intro": "Simple care tips for the little things that bring a lot of joy.",
+            "charms_title": "Charms & Keychains",
+            "charms_tip_1": "Wipe gently with a soft, dry cloth.",
+            "charms_tip_2": "Keep away from water, perfume, and harsh chemicals.",
+            "charms_tip_3": "Store separately to help prevent scratches and tangles.",
+            "lighters_title": "Lighters",
+            "lighters_tip_1": "Keep dry and wipe the exterior with a soft cloth.",
+            "lighters_tip_2": "Keep away from heat sources and direct sunlight.",
+            "lighters_tip_3": "Keep out of reach of children; follow the product instructions.",
+            "art_title": "Posters & Frames",
+            "art_tip_1": "Display away from direct sunlight to help preserve colors.",
+            "art_tip_2": "Dust frames with a soft, dry microfiber cloth.",
+            "art_tip_3": "Handle prints with clean, dry hands and store them flat.",
+            "general_title": "General Tips",
+            "general_tip_1": "Give your accessories a quick check and gentle clean regularly.",
+            "general_tip_2": "Avoid prolonged exposure to moisture, oils, and extreme temperatures.",
+            "general_tip_3": "When in doubt, follow any care guidance included with your item."
           },
           "blocks": {}
         }
       },
       "block_order": [
-        "ai_gen_block_c9bfe39_Pf7Y4U"
+        "ai_gen_block_7cadd9e_9HVcpy"
       ],
-      "name": "Returns and refunds",
+      "name": "Buzzko care guide",
       "settings": {}
     }
   },
   "order": [
     "main",
-    "blocks_4z8znz"
+    "blocks_y9BJXJ"
   ]
 }
