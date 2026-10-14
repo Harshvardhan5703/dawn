@@ -416,36 +416,6 @@
     },
     "1792010852ae9d91d4": {
       "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_d4d2118_g8mCNr": {
-          "type": "ai_gen_block_d4d2118",
-          "settings": {
-            "heading": "Where's my order?",
-            "description": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>",
-            "icon_emoji": "📦",
-            "input_label": "Order number or tracking ID",
-            "input_placeholder": "Order number or tracking ID",
-            "button_label": "Track my order",
-            "hint": "Your order number is in your confirmation email.",
-            "help_link": "",
-            "help_label": "Need a hand? Contact us",
-            "tracking_url": "",
-            "query_parameter": "order",
-            "desktop_width_percent": 100,
-            "background_color": "#FFE6D6",
-            "card_color": "#FFF9F2",
-            "accent_color": "#FFD166",
-            "text_color": "#222222",
-            "input_border_color": "#7A3E9D",
-            "button_color": "#7A3E9D",
-            "button_text_color": "#FFFFFF"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_d4d2118_g8mCNr"
-      ],
       "settings": {}
     }
   },
