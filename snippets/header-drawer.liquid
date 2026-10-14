@@ -140,32 +140,31 @@
             </ul>
           </nav>
           <div class="menu-drawer__utility-links">
-            {%- if show_country_selector or show_language_selector -%}
-              <div class="menu-drawer__localization header-localization">
-                
-                {%- if show_country_selector -%}
-                  <!-- Hardcoded India | INR ₹ display for Mobile Drawer -->
-                  <div>
-                    <span style="font-size: 1.4rem; color: #1A1A1A; display: block; padding: .1rem .1rem;">
-                      India | INR ₹
-                    </span>
-                  </div>
-                {% endif %}
-
-                {%- if show_language_selector -%}
-                  <localization-form>
-                    {%- form 'localization', id: 'HeaderLanguageMobileForm', class: 'localization-form' -%}
-                      <div>
-                        <h2 class="visually-hidden" id="HeaderLanguageMobileLabel">
-                          {{ 'localization.language_label' | t }}
-                        </h2>
-                        {%- render 'language-localization', localPosition: 'HeaderLanguageMobile' -%}
-                      </div>
-                    {%- endform -%}
-                  </localization-form>
-                {%- endif -%}
+            
+            <!-- Always render the localization container to show the hardcoded text -->
+            <div class="menu-drawer__localization header-localization">
+              
+              <!-- Hardcoded India | INR ₹ display for Mobile Drawer (No conditional check) -->
+              <div>
+                <span style="font-size: 1.4rem; color: #1A1A1A; display: block; padding: 1.1rem 3.2rem;">
+                  India | INR ₹
+                </span>
               </div>
-            {%- endif -%}
+
+              {%- if show_language_selector -%}
+                <localization-form>
+                  {%- form 'localization', id: 'HeaderLanguageMobileForm', class: 'localization-form' -%}
+                    <div>
+                      <h2 class="visually-hidden" id="HeaderLanguageMobileLabel">
+                        {{ 'localization.language_label' | t }}
+                      </h2>
+                      {%- render 'language-localization', localPosition: 'HeaderLanguageMobile' -%}
+                    </div>
+                  {%- endform -%}
+                </localization-form>
+              {%- endif -%}
+            </div>
+
             {% if show_social_links %}
               <ul class="list list-social list-unstyled" role="list">
                 {%- if settings.social_twitter_link != blank -%}
