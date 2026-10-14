@@ -44,7 +44,9 @@
   if offer_unlocked and offer_discount_applied == false
     assign initial_discount = cart.total_price | times: offer_percent | divided_by: 100
   endif
-  assign initial_discounted_total = cart.total_price
+  # BuzzKo fix #1 — reflect the unlocked discount in the rendered total so the
+  # Total line reconciles with the Discount row on first paint (before any JS).
+  assign initial_discounted_total = cart.total_price | minus: initial_discount
 -%}
 
 {%- style -%}
@@ -194,6 +196,14 @@
   }
   #main-cart-footer .buzzko-trust__row { display: flex; align-items: center; gap: 8px; color: #6B6663; font-size: 12px; line-height: 1.4; }
   #main-cart-footer .buzzko-trust__row svg { width: 14px; height: 14px; flex-shrink: 0; color: #1A1A1A; }
+
+  /* BuzzKo fix #6 — when the footer flips to .is-empty (last item removed),
+     hide the summary instantly so it can't stretch full-width for a beat
+     before the page reloads into the server-rendered empty state. */
+  #main-cart-footer.is-empty .js-contents,
+  #main-cart-footer.is-empty .buzzko-summary {
+    display: none !important;
+  }
 
   @media screen and (max-width: 749px) {
     #main-cart-footer .buzzko-summary { padding: 22px 18px; border-radius: 18px; }
@@ -415,10 +425,14 @@
       }).catch(function () {});
     });
 
-    /* ---- Checkout: append discount only when it's NOT already on the cart ---- */
+    /* ---- Checkout: only when the offer is unlocked but the discount is
+       NOT yet on the cart, route through /discount/CODE so Shopify applies
+       it server-side, then bounce to checkout with the discount already
+       baked into the order. Guard against double-fire from rapid clicks. ---- */
     document.addEventListener('click', function (event) {
       var btn = event.target.closest && event.target.closest('#checkout');
       if (!btn) return;
+      if (btn.dataset.buzzkoRedirecting) return;
 
       var summary = btn.closest('.buzzko-summary');
       if (summary && summary.classList.contains('buzzko-has-buzzko10')) {
@@ -436,26 +450,67 @@
 
       if (cents >= threshold && code) {
         event.preventDefault();
-        window.location.href = ROOT + 'checkout?discount=' + encodeURIComponent(code);
+        btn.dataset.buzzkoRedirecting = '1';
+        window.location.href = ROOT + 'discount/' + encodeURIComponent(code) +
+                               '?redirect=' + encodeURIComponent(ROOT + 'checkout');
       }
     }, true);
-        /* =========================================================
-       When the cart becomes empty, reload the page so the
-       server-rendered empty state is shown. Without this, Dawn's
-       section re-render tries to replace `.js-contents` in an empty
-       cart HTML that doesn't contain it — throws a TypeError and
-       leaves the stale summary card in place.
+
+    /* ---- Pulse the rendered total once when the offer transitions to
+       unlocked on this page (i.e. the cart was just pushed over the
+       threshold by an in-page quantity change). Uses the server-rendered
+       total already reflecting the discount from fix #1. ---- */
+    function pulseTotal() {
+      var totalEl = document.querySelector('[data-buzzko-total]');
+      if (!totalEl) return;
+      totalEl.classList.remove('is-updated');
+      void totalEl.offsetWidth; /* restart animation */
+      totalEl.classList.add('is-updated');
+      setTimeout(function () { totalEl.classList.remove('is-updated'); }, 700);
+    }
+
+    /* =========================================================
+       cart:update — Dawn's real event (colon, not dash).
+       - Reload on empty so the server-rendered empty state is shown
+         (avoids Dawn's section swap throwing on a missing .js-contents).
+       - Pulse the total when the offer first unlocks this page-load,
+         and reset the flag if the cart drops back below threshold.
        ========================================================= */
-    document.addEventListener('cart-update', function (event) {
+    window.__buzzkoPulsedForThisCart = false;
+
+    document.addEventListener('cart:update', function (event) {
       var data = event && event.detail && event.detail.cartData;
-      if (data && typeof data.item_count === 'number' && data.item_count === 0) {
+      if (!data || typeof data.item_count !== 'number') return;
+
+      if (data.item_count === 0) {
         window.location.reload();
+        return;
+      }
+
+      var offerEl = document.querySelector('[data-buzzko-offer]');
+      if (!offerEl) return;
+
+      var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
+      var summary = document.querySelector('.buzzko-summary');
+      var alreadyApplied = summary && summary.classList.contains('buzzko-has-buzzko10');
+
+      if (data.total_price < threshold) {
+        window.__buzzkoPulsedForThisCart = false;
+        return;
+      }
+
+      if (!alreadyApplied && !window.__buzzkoPulsedForThisCart) {
+        window.__buzzkoPulsedForThisCart = true;
+        /* Defer a tick so Dawn's section re-render has settled and the
+           new total element is in the DOM. */
+        setTimeout(pulseTotal, 0);
       }
     });
 
     /* Belt & braces: if Dawn adds .is-empty to the footer wrapper
-       but the summary is still in the DOM, force a reload. Catches
-       remove-button clicks that bypass cart-update. */
+       but the summary is still in the DOM, hide it immediately (CSS
+       also covers this) and force a reload. Catches remove-button
+       clicks that bypass cart:update. */
     (function watchEmptyFooter() {
       function attach() {
         var footer = document.getElementById('main-cart-footer');
@@ -466,6 +521,10 @@
             footer.classList.contains('is-empty') &&
             footer.querySelector('.buzzko-summary')
           ) {
+            var content = footer.querySelector('.js-contents');
+            if (content) content.style.display = 'none';
+            var summary = footer.querySelector('.buzzko-summary');
+            if (summary) summary.style.display = 'none';
             window.location.reload();
           }
         });
