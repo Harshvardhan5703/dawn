@@ -18,47 +18,9 @@
         "padding_top": 0,
         "padding_bottom": 0
       }
-    },
-    "blocks_y9BJXJ": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_7cadd9e_9HVcpy": {
-          "type": "ai_gen_block_7cadd9e",
-          "settings": {
-            "desktop_width_percent": 100,
-            "section_background": "#FFF7E6",
-            "eyebrow": "A little love goes a long way",
-            "heading": "Keep your good stuff looking great",
-            "intro": "Simple care tips for the little things that bring a lot of joy.",
-            "charms_title": "Charms & Keychains",
-            "charms_tip_1": "Wipe gently with a soft, dry cloth.",
-            "charms_tip_2": "Keep away from water, perfume, and harsh chemicals.",
-            "charms_tip_3": "Store separately to help prevent scratches and tangles.",
-            "lighters_title": "Lighters",
-            "lighters_tip_1": "Keep dry and wipe the exterior with a soft cloth.",
-            "lighters_tip_2": "Keep away from heat sources and direct sunlight.",
-            "lighters_tip_3": "Keep out of reach of children; follow the product instructions.",
-            "art_title": "Posters & Frames",
-            "art_tip_1": "Display away from direct sunlight to help preserve colors.",
-            "art_tip_2": "Dust frames with a soft, dry microfiber cloth.",
-            "art_tip_3": "Handle prints with clean, dry hands and store them flat.",
-            "general_title": "General Tips",
-            "general_tip_1": "Give your accessories a quick check and gentle clean regularly.",
-            "general_tip_2": "Avoid prolonged exposure to moisture, oils, and extreme temperatures.",
-            "general_tip_3": "When in doubt, follow any care guidance included with your item."
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_7cadd9e_9HVcpy"
-      ],
-      "name": "Buzzko care guide",
-      "settings": {}
     }
   },
   "order": [
-    "main",
-    "blocks_y9BJXJ"
+    "main"
   ]
 }
