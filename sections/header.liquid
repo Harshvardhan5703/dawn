@@ -75,10 +75,10 @@
     }
   }
 
-  /* FIX: Proper flex alignment for the hardcoded text */
+  /* --- FIX: STRICT VERTICAL CENTERING --- */
   .desktop-localization-wrapper {
     display: flex;
-    align-items: center; 
+    align-items: center;
     height: 100%;
   }
 
@@ -87,9 +87,16 @@
     color: #1A1A1A;
     padding-right: 1.5rem;
     white-space: nowrap; /* Prevents the ₹ from dropping to the next line */
+    
+    /* Forces the text to perfectly center within the header height */
+    display: flex;
+    align-items: center;
+    height: 100%;
+    line-height: 1;
   }
+  /* --------------------------------------- */
 
-  /* FIX: Aggressively shrink elements on tablet/laptop screens (990px - 1199px) to prevent wrapping at 1024px */
+  /* Adjust for tablet/laptop screens to save space */
   @media screen and (min-width: 990px) and (max-width: 1199px) {
     .header-localization-text {
       font-size: 1.1rem;
@@ -102,7 +109,6 @@
       padding: 0 0.4rem;
       font-size: 1.3rem;
     }
-    /* Shrink logo slightly on 1024px screens to give the menu breathing room */
     .header__heading-logo {
       max-width: 85%;
     }
