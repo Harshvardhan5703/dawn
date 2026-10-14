@@ -75,28 +75,25 @@
     }
   }
 
-  /* --- FIX: STRICT VERTICAL CENTERING --- */
+  /* --- FIX: Perfect vertical centering without breaking layout --- */
   .desktop-localization-wrapper {
     display: flex;
     align-items: center;
-    height: 100%;
+    align-self: center; /* Forces it to center within the header */
   }
 
   .header-localization-text {
     font-size: 1.4rem;
     color: #1A1A1A;
     padding-right: 1.5rem;
-    white-space: nowrap; /* Prevents the ₹ from dropping to the next line */
-    
-    /* Forces the text to perfectly center within the header height */
-    display: flex;
-    align-items: center;
-    height: 100%;
-    line-height: 1;
+    white-space: nowrap; /* Keeps it on one line */
+    line-height: 1; /* Removes extra line-height space pushing it up */
+    display: block; /* Normal block display, no forced height */
+    margin: 0;
   }
-  /* --------------------------------------- */
+  /* ----------------------------------------------------------- */
 
-  /* Adjust for tablet/laptop screens to save space */
+  /* Adjust for tablet/laptop screens to prevent wrapping at 1024px */
   @media screen and (min-width: 990px) and (max-width: 1199px) {
     .header-localization-text {
       font-size: 1.1rem;
@@ -372,12 +369,10 @@
     <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
       <div class="desktop-localization-wrapper">
         
-        <!-- Hardcoded India | INR ₹ display -->
-        <div class="small-hide medium-hide">
-          <span class="header-localization-text">
-            India | INR ₹
-          </span>
-        </div>
+        <!-- Hardcoded India | INR ₹ display (Cleaner DOM, no extra div) -->
+        <span class="header-localization-text small-hide medium-hide">
+          India | INR ₹
+        </span>
 
         {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
           <localization-form class="small-hide medium-hide" data-prevent-hide>
