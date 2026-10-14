@@ -75,25 +75,36 @@
     }
   }
 
-  /* Styling for the hardcoded India | INR ₹ text */
+  /* FIX: Proper flex alignment for the hardcoded text */
+  .desktop-localization-wrapper {
+    display: flex;
+    align-items: center; 
+    height: 100%;
+  }
+
   .header-localization-text {
     font-size: 1.4rem;
     color: #1A1A1A;
     padding-right: 1.5rem;
-    display: inline-block;
-    vertical-align: middle;
     white-space: nowrap; /* Prevents the ₹ from dropping to the next line */
   }
 
-  /* Adjust for tablet/laptop screens to save space */
-  @media screen and (max-width: 1199px) {
+  /* FIX: Aggressively shrink elements on tablet/laptop screens (990px - 1199px) to prevent wrapping at 1024px */
+  @media screen and (min-width: 990px) and (max-width: 1199px) {
     .header-localization-text {
-      font-size: 1.2rem;
-      padding-right: 1rem;
+      font-size: 1.1rem;
+      padding-right: 0.8rem;
     }
-    /* Optional: Slightly reduces gap between nav links to fit everything */
     .header__inline-menu .list-menu--inline {
-      column-gap: 1.2rem; 
+      column-gap: 0.8rem; 
+    }
+    .header__menu-item {
+      padding: 0 0.4rem;
+      font-size: 1.3rem;
+    }
+    /* Shrink logo slightly on 1024px screens to give the menu breathing room */
+    .header__heading-logo {
+      max-width: 85%;
     }
   }
 
@@ -355,7 +366,7 @@
     <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
       <div class="desktop-localization-wrapper">
         
-        <!-- Hardcoded India | INR ₹ display (No border, no dropdown icon) -->
+        <!-- Hardcoded India | INR ₹ display -->
         <div class="small-hide medium-hide">
           <span class="header-localization-text">
             India | INR ₹
@@ -583,10 +594,6 @@
     }
   }
 
-  // The account `open` event is composed but does not bubble, so listen during capture.
-  // Keep Shopify's native account dialog completely intact. When it opens, add the
-  // logout action directly inside the native shadow-DOM header so it animates and
-  // renders as part of the same component instead of appearing as an external element.
   document.addEventListener(
     'open',
     (event) => {
@@ -601,14 +608,6 @@
 
       if (!shadow) return;
 
-      /*
-       * Signed-out state:
-       * Shopify still renders the account shortcuts (Profile, Orders,
-       * All Products, Home) underneath the login form. BuzzKo doesn't
-       * need those links before the customer is signed in, so hide only
-       * that native shortcut region. The login form and native dialog
-       * remain completely untouched.
-       */
       if (!account.dataset.logoutUrl) {
         if (!shadow.querySelector('#buzzko-account-signed-out-style')) {
           const style = document.createElement('style');
