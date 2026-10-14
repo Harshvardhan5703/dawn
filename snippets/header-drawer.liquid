@@ -142,17 +142,14 @@
           <div class="menu-drawer__utility-links">
             {%- if show_country_selector or show_language_selector -%}
               <div class="menu-drawer__localization header-localization">
+                
                 {%- if show_country_selector -%}
-                  <localization-form>
-                    {%- form 'localization', id: 'HeaderCountryMobileForm', class: 'localization-form' -%}
-                      <div>
-                        <h2 class="visually-hidden" id="HeaderCountryMobileLabel">
-                          {{ 'localization.country_label' | t }}
-                        </h2>
-                        {%- render 'country-localization', localPosition: 'HeaderCountryMobile' -%}
-                      </div>
-                    {%- endform -%}
-                  </localization-form>
+                  <!-- Hardcoded India | INR ₹ display for Mobile Drawer -->
+                  <div>
+                    <span style="font-size: 1.4rem; color: #1A1A1A; display: block; padding: .1rem .1rem;">
+                      India | INR ₹
+                    </span>
+                  </div>
                 {% endif %}
 
                 {%- if show_language_selector -%}

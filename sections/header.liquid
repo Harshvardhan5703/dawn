@@ -157,16 +157,34 @@
     display: none;
   }
 
+  /* --- FIXED MOBILE ALIGNMENT --- */
   @media screen and (max-width: 749px) {
-    .header__icon.buzzko-header-wishlist {
-      width: 3.8rem;
-      height: 3.8rem;
-      min-width: 3.8rem;
+    /* Ensure all header icons are right-aligned and vertically centered */
+    .header__icons {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.2rem;
     }
 
+    /* Match the standard Dawn icon size to ensure perfect alignment */
+    .header__icon.buzzko-header-wishlist {
+      width: 4.4rem;
+      height: 4.4rem;
+      min-width: 4.4rem;
+      margin-right: 0;
+    }
+
+    /* Match the exact positioning of the cart count bubble */
     .buzzko-header-wishlist .buzzko-wishlist-count {
-      bottom: 0.65rem;
-      left: 1.9rem;
+      bottom: 0.8rem;
+      left: 2.2rem;
+    }
+
+    /* Ensure the SVG itself is perfectly centered */
+    .header__icon.buzzko-header-wishlist svg {
+      display: block;
+      margin: auto;
     }
   }
 </style>
@@ -332,16 +350,12 @@
 
     <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
       <div class="desktop-localization-wrapper">
-        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
-          <localization-form class="small-hide medium-hide" data-prevent-hide>
-            {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
-              <div>
-                <h2 class="visually-hidden" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</h2>
-                {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
-              </div>
-            {%- endform -%}
-          </localization-form>
-        {% endif %}
+                <!-- Hardcoded India | INR ₹ display (No border, no dropdown icon) -->
+        <div class="small-hide medium-hide">
+          <span style="font-size: 1.4rem; color: #1A1A1A; padding-right: 1.5rem; display: inline-block; vertical-align: middle;">
+            India | INR ₹
+          </span>
+        </div>
 
         {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
           <localization-form class="small-hide medium-hide" data-prevent-hide>
