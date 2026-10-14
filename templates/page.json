@@ -19,52 +19,44 @@
         "padding_bottom": 0
       }
     },
-    "179051336259ba2cc4": {
-      "type": "apps",
+    "blocks_4z8znz": {
+      "type": "_blocks",
       "blocks": {
-        "judge_me_reviews_reviews_grid_widget_3pPrEm": {
-          "type": "shopify://apps/judge-me-reviews/blocks/reviews_grid_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "ai_gen_block_c9bfe39_Pf7Y4U": {
+          "type": "ai_gen_block_c9bfe39",
           "settings": {
-            "show_sample_reviews": true,
-            "review_selection": "all",
-            "products": [],
-            "filter_pinned": false,
-            "filter_featured": false,
-            "filter_custom_tags": "",
-            "show_media_only": false,
-            "display_order": "media_first",
-            "card_grouping": "per_media",
-            "columns_desktop": 3,
-            "rows_desktop": 3,
-            "columns_mobile": "2",
-            "rows_mobile": 6,
-            "show_stars": true,
-            "show_reviewer_name": true,
-            "show_review_title_on_hover_desktop": true,
-            "max_width": 1100,
-            "corner_styling": "soft",
-            "card_spacing": "medium",
-            "header_text_color": "#000000",
-            "star_and_reviewer_name_color": "#F9F9F9",
-            "drop_shadow_color": "#000000",
-            "overlay_and_background_color": "#000000",
-            "content_color": "#F9F9F9",
-            "header_text": "From our customers",
-            "show_average_rating": true,
-            "rating_display": "default"
-          }
+            "desktop_width_percent": 100,
+            "eyebrow": "",
+            "heading": "Returns, made easy",
+            "intro": "<p>Something not quite right? Here’s the quick guide to getting things sorted.</p>",
+            "card_1_icon": "⏰",
+            "card_1_title": "Return window",
+            "card_1_copy": "<p>Request a return within 7 days of delivery. Keep your item unused and in its original packaging.</p>",
+            "card_2_icon": "💸",
+            "card_2_title": "Refund process",
+            "card_2_copy": "<p>After your return is received and checked, approved refunds go back to your original payment method.</p>",
+            "card_3_icon": "🚫",
+            "card_3_title": "Non-returnable items",
+            "card_3_copy": "<p>Personalised, custom-made, final-sale, and used items can’t be returned unless they arrive damaged or faulty.</p>",
+            "card_4_icon": "🔁",
+            "card_4_title": "Exchanges",
+            "card_4_copy": "<p>Want a different style? Contact us to check availability. Exchanges depend on stock and must meet the return conditions.</p>",
+            "card_5_icon": "📩",
+            "card_5_title": "How to initiate a return",
+            "card_5_copy": "<p>Message our support team with your order number and reason for return. We’ll share the next steps and return instructions.</p>"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
-        "judge_me_reviews_reviews_grid_widget_3pPrEm"
+        "ai_gen_block_c9bfe39_Pf7Y4U"
       ],
-      "settings": {
-        "include_margins": true
-      }
+      "name": "Returns and refunds",
+      "settings": {}
     }
   },
   "order": [
     "main",
-    "179051336259ba2cc4"
+    "blocks_4z8znz"
   ]
 }
