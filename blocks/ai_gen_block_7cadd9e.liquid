@@ -1,0 +1,182 @@
+{% doc %}
+  @prompt
+    Create a visually rich and vibrant Care Instructions page section for a gift and accessories brand called Buzzko. The section should have a fun, modern aesthetic with colorful icons or emoji, styled cards or blocks for each care category (Charms & Keychains, Lighters, Posters & Frames, General Tips), bold headings, pastel or vibrant background colors per card, and good spacing. Each card should have an icon or emoji, a heading, and bullet point tips. Make it feel lively and on-brand — not just plain text on a white background.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-care-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 48px 24px;
+    color: #202033;
+    background: {{ block.settings.section_background }};
+    border-radius: 24px;
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__inner-{{ ai_gen_id }} {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__header-{{ ai_gen_id }} {
+    text-align: center;
+    margin: 0 auto 32px;
+    max-width: 720px;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__eyebrow-{{ ai_gen_id }} {
+    display: inline-block;
+    margin: 0 0 10px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #202033;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__title-{{ ai_gen_id }} {
+    margin: 0 0 12px;
+    color: #202033;
+    font-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+    font-size: clamp(32px, 5vw, 54px);
+    line-height: 1.08;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__intro-{{ ai_gen_id }} {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }} {
+    padding: 26px;
+    border-radius: 20px;
+    border: 1px solid rgba(32, 32, 51, .12);
+    box-shadow: 0 8px 22px rgba(32, 32, 51, .08);
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:nth-child(1) { background: #ffe0e7; }
+  .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:nth-child(2) { background: #dff4ff; }
+  .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:nth-child(3) { background: #e8e4ff; }
+  .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:nth-child(4) { background: #e4f5d8; }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__card-top-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__icon-{{ ai_gen_id }} {
+    display: grid;
+    place-items: center;
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .75);
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__card-title-{{ ai_gen_id }} {
+    margin: 0;
+    color: #202033;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__tips-{{ ai_gen_id }} {
+    margin: 0;
+    padding-left: 22px;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__tips-{{ ai_gen_id }} li + li { margin-top: 8px; }
+
+  @media screen and (max-width: 749px) {
+    .ai-care-{{ ai_gen_id }} { padding: 34px 18px; border-radius: 18px; }
+    .ai-care-{{ ai_gen_id }} .ai-care__grid-{{ ai_gen_id }} { grid-template-columns: 1fr; gap: 14px; }
+    .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }} { padding: 22px; }
+    .ai-care-{{ ai_gen_id }} .ai-care__card-title-{{ ai_gen_id }} { font-size: 20px; }
+  }
+{% endstyle %}
+
+<section class="ai-care-{{ ai_gen_id }}" aria-labelledby="ai-care-title-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-care__inner-{{ ai_gen_id }}">
+    <header class="ai-care__header-{{ ai_gen_id }}">
+      {% if block.settings.eyebrow != blank %}<p class="ai-care__eyebrow-{{ ai_gen_id }}">{{ block.settings.eyebrow | escape }}</p>{% endif %}
+      <h2 class="ai-care__title-{{ ai_gen_id }}" id="ai-care-title-{{ ai_gen_id }}">{{ block.settings.heading | escape }}</h2>
+      {% if block.settings.intro != blank %}<p class="ai-care__intro-{{ ai_gen_id }}">{{ block.settings.intro | escape }}</p>{% endif %}
+    </header>
+    <div class="ai-care__grid-{{ ai_gen_id }}">
+      <article class="ai-care__card-{{ ai_gen_id }}">
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">✨</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.charms_title | escape }}</h3></div>
+        <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.charms_tip_1 | escape }}</li><li>{{ block.settings.charms_tip_2 | escape }}</li><li>{{ block.settings.charms_tip_3 | escape }}</li></ul>
+      </article>
+      <article class="ai-care__card-{{ ai_gen_id }}">
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">🔥</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.lighters_title | escape }}</h3></div>
+        <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.lighters_tip_1 | escape }}</li><li>{{ block.settings.lighters_tip_2 | escape }}</li><li>{{ block.settings.lighters_tip_3 | escape }}</li></ul>
+      </article>
+      <article class="ai-care__card-{{ ai_gen_id }}">
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">🖼️</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.art_title | escape }}</h3></div>
+        <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.art_tip_1 | escape }}</li><li>{{ block.settings.art_tip_2 | escape }}</li><li>{{ block.settings.art_tip_3 | escape }}</li></ul>
+      </article>
+      <article class="ai-care__card-{{ ai_gen_id }}">
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">💛</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.general_title | escape }}</h3></div>
+        <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.general_tip_1 | escape }}</li><li>{{ block.settings.general_tip_2 | escape }}</li><li>{{ block.settings.general_tip_3 | escape }}</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Buzzko care guide",
+  "settings": [
+    { "type": "range", "id": "desktop_width_percent", "label": "Desktop width", "min": 50, "max": 100, "step": 5, "unit": "%", "default": 100 },
+    { "type": "color", "id": "section_background", "label": "Section background", "default": "#FFF7E6" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "A little love goes a long way" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Keep your good stuff looking great" },
+    { "type": "text", "id": "intro", "label": "Intro", "default": "Simple care tips for the little things that bring a lot of joy." },
+    { "type": "header", "content": "Charms and keychains" },
+    { "type": "text", "id": "charms_title", "label": "Card heading", "default": "Charms & Keychains" },
+    { "type": "text", "id": "charms_tip_1", "label": "Tip one", "default": "Wipe gently with a soft, dry cloth." },
+    { "type": "text", "id": "charms_tip_2", "label": "Tip two", "default": "Keep away from water, perfume, and harsh chemicals." },
+    { "type": "text", "id": "charms_tip_3", "label": "Tip three", "default": "Store separately to help prevent scratches and tangles." },
+    { "type": "header", "content": "Lighters" },
+    { "type": "text", "id": "lighters_title", "label": "Card heading", "default": "Lighters" },
+    { "type": "text", "id": "lighters_tip_1", "label": "Tip one", "default": "Keep dry and wipe the exterior with a soft cloth." },
+    { "type": "text", "id": "lighters_tip_2", "label": "Tip two", "default": "Keep away from heat sources and direct sunlight." },
+    { "type": "text", "id": "lighters_tip_3", "label": "Tip three", "default": "Keep out of reach of children; follow the product instructions." },
+    { "type": "header", "content": "Posters and frames" },
+    { "type": "text", "id": "art_title", "label": "Card heading", "default": "Posters & Frames" },
+    { "type": "text", "id": "art_tip_1", "label": "Tip one", "default": "Display away from direct sunlight to help preserve colors." },
+    { "type": "text", "id": "art_tip_2", "label": "Tip two", "default": "Dust frames with a soft, dry microfiber cloth." },
+    { "type": "text", "id": "art_tip_3", "label": "Tip three", "default": "Handle prints with clean, dry hands and store them flat." },
+    { "type": "header", "content": "General tips" },
+    { "type": "text", "id": "general_title", "label": "Card heading", "default": "General Tips" },
+    { "type": "text", "id": "general_tip_1", "label": "Tip one", "default": "Give your accessories a quick check and gentle clean regularly." },
+    { "type": "text", "id": "general_tip_2", "label": "Tip two", "default": "Avoid prolonged exposure to moisture, oils, and extreme temperatures." },
+    { "type": "text", "id": "general_tip_3", "label": "Tip three", "default": "When in doubt, follow any care guidance included with your item." }
+  ],
+  "presets": [{ "name": "Buzzko care guide" }],
+  "tag": null,
+  "class": "buzzko-care-guide"
+}
+{% endschema %}

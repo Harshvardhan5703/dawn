@@ -1,0 +1,201 @@
+{% doc %}
+  @prompt
+    Create a visually rich and vibrant Track Order page section for a gift and accessories brand called Buzzko. The section should have a fun, modern aesthetic with colorful icons or emoji, a bold heading like "Where's My Order? 📦", a brief description, and a prominent order tracking input field where customers can enter their order number or tracking ID and submit. Style it with vibrant or pastel background colors, rounded elements, and good spacing. Make it feel lively and on-brand — not just a plain form on a white background.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-track-order-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 48px 24px;
+    box-sizing: border-box;
+    color: {{ block.settings.text_color }};
+    background: {{ block.settings.background_color }};
+    border-radius: 28px;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__inner {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 42px 32px;
+    text-align: center;
+    background: {{ block.settings.card_color }};
+    border-radius: 24px;
+    box-shadow: 0 12px 35px rgba(30, 26, 48, 0.10);
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 16px;
+    border-radius: 22px;
+    background: {{ block.settings.accent_color }};
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__heading {
+    margin: 0 0 12px;
+    color: {{ block.settings.text_color }};
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.12;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__description {
+    max-width: 560px;
+    margin: 0 auto 28px;
+    color: {{ block.settings.text_color }};
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__form {
+    display: flex;
+    gap: 10px;
+    max-width: 590px;
+    margin: 0 auto;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 58px;
+    padding: 14px 18px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: 14px;
+    background: #ffffff;
+    color: #202020;
+    font: inherit;
+    font-size: 16px;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__input::placeholder {
+    color: #595959;
+    opacity: 1;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__input:focus-visible,
+  .ai-track-order-{{ ai_gen_id }}__button:focus-visible,
+  .ai-track-order-{{ ai_gen_id }}__help-link:focus-visible {
+    outline: 3px solid {{ block.settings.text_color }};
+    outline-offset: 3px;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__button {
+    flex: 0 0 auto;
+    min-height: 58px;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 14px;
+    background: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__button:hover {
+    filter: brightness(0.92);
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__hint {
+    margin: 16px 0 0;
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__help-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: {{ block.settings.text_color }};
+    font-weight: 700;
+    text-underline-offset: 3px;
+  }
+
+  @media screen and (max-width: 600px) {
+    .ai-track-order-{{ ai_gen_id }} {
+      padding: 24px 14px;
+      border-radius: 20px;
+    }
+
+    .ai-track-order-{{ ai_gen_id }}__inner {
+      padding: 32px 20px;
+      border-radius: 18px;
+    }
+
+    .ai-track-order-{{ ai_gen_id }}__form {
+      flex-direction: column;
+    }
+
+    .ai-track-order-{{ ai_gen_id }}__button {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-track-order-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-track-order-{{ ai_gen_id }}__inner">
+    <div class="ai-track-order-{{ ai_gen_id }}__icon" aria-hidden="true">{{ block.settings.icon_emoji }}</div>
+    <h2 class="ai-track-order-{{ ai_gen_id }}__heading">{{ block.settings.heading | escape }}</h2>
+    <div class="ai-track-order-{{ ai_gen_id }}__description">{{ block.settings.description }}</div>
+    <form class="ai-track-order-{{ ai_gen_id }}__form" action="{{ block.settings.tracking_url }}" method="get">
+      <label class="visually-hidden" for="ai-track-input-{{ ai_gen_id }}">{{ block.settings.input_label | escape }}</label>
+      <input
+        id="ai-track-input-{{ ai_gen_id }}"
+        class="ai-track-order-{{ ai_gen_id }}__input"
+        type="text"
+        name="{{ block.settings.query_parameter | escape }}"
+        placeholder="{{ block.settings.input_placeholder | escape }}"
+        autocomplete="off"
+        required
+      >
+      <button class="ai-track-order-{{ ai_gen_id }}__button" type="submit">{{ block.settings.button_label | escape }}</button>
+    </form>
+    {% if block.settings.hint != blank %}<p class="ai-track-order-{{ ai_gen_id }}__hint">{{ block.settings.hint | escape }}</p>{% endif %}
+    {% if block.settings.help_link != blank %}<a class="ai-track-order-{{ ai_gen_id }}__help-link" href="{{ block.settings.help_link }}">{{ block.settings.help_label | escape }}</a>{% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Buzzko track order",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Where's my order?" },
+    { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>" },
+    { "type": "text", "id": "icon_emoji", "label": "Decorative emoji", "default": "📦" },
+    { "type": "text", "id": "input_label", "label": "Input label for accessibility", "default": "Order number or tracking ID" },
+    { "type": "text", "id": "input_placeholder", "label": "Input placeholder", "default": "Order number or tracking ID" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Track my order" },
+    { "type": "text", "id": "hint", "label": "Form note", "default": "Your order number is in your confirmation email." },
+    { "type": "url", "id": "help_link", "label": "Help link" },
+    { "type": "text", "id": "help_label", "label": "Help link label", "default": "Need a hand? Contact us" },
+    { "type": "header", "content": "Tracking destination" },
+    { "type": "url", "id": "tracking_url", "label": "Tracking page URL" },
+    { "type": "text", "id": "query_parameter", "label": "Tracking query parameter", "default": "order" },
+    { "type": "header", "content": "Colors and layout" },
+    { "type": "range", "id": "desktop_width_percent", "label": "Desktop width", "min": 50, "max": 100, "step": 5, "unit": "%", "default": 100 },
+    { "type": "color", "id": "background_color", "label": "Outer background", "default": "#FFE6D6" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FFF9F2" },
+    { "type": "color", "id": "accent_color", "label": "Accent background", "default": "#FFD166" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#222222" },
+    { "type": "color", "id": "input_border_color", "label": "Input border", "default": "#7A3E9D" },
+    { "type": "color", "id": "button_color", "label": "Button background", "default": "#7A3E9D" },
+    { "type": "color", "id": "button_text_color", "label": "Button text", "default": "#FFFFFF" }
+  ],
+  "presets": [
+    { "name": "Buzzko track order" }
+  ],
+  "tag": null,
+  "class": "buzzko-track-order-block"
+}
+{% endschema %}
