@@ -12,7 +12,8 @@
     "main": {
       "type": "main-page",
       "custom_css": [
-        "h1,p,.main-page-title,.page-title {display: none !important;}"
+        "h1,p,.main-page-title,.page-title {display: none !important;}",
+        "{padding-top: 60px}"
       ],
       "settings": {
         "padding_top": 0,
