@@ -1,0 +1,62 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "custom_css": [
+        "h1,p,.main-page-title,.page-title {display: none !important;}"
+      ],
+      "settings": {
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "blocks_FKx6pP": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_c9bfe39_TLpMEH": {
+          "type": "ai_gen_block_c9bfe39",
+          "settings": {
+            "desktop_width_percent": 100,
+            "eyebrow": "The Buzzko care guide",
+            "heading": "Returns, made easy ✨",
+            "intro": "<p>Something not quite right? Here’s the quick guide to getting things sorted.</p>",
+            "card_1_icon": "⏰",
+            "card_1_title": "Return window",
+            "card_1_copy": "<p>Request a return within 7 days of delivery. Keep your item unused and in its original packaging.</p>",
+            "card_2_icon": "💸",
+            "card_2_title": "Refund process",
+            "card_2_copy": "<p>After your return is received and checked, approved refunds go back to your original payment method.</p>",
+            "card_3_icon": "🚫",
+            "card_3_title": "Non-returnable items",
+            "card_3_copy": "<p>Personalised, custom-made, final-sale, and used items can’t be returned unless they arrive damaged or faulty.</p>",
+            "card_4_icon": "🔁",
+            "card_4_title": "Exchanges",
+            "card_4_copy": "<p>Want a different style? Contact us to check availability. Exchanges depend on stock and must meet the return conditions.</p>",
+            "card_5_icon": "📩",
+            "card_5_title": "How to initiate a return",
+            "card_5_copy": "<p>Message our support team with your order number and reason for return. We’ll share the next steps and return instructions.</p>"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c9bfe39_TLpMEH"
+      ],
+      "name": "Returns and refunds",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "blocks_FKx6pP"
+  ]
+}

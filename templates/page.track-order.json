@@ -1,0 +1,62 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "custom_css": [
+        "h1,p,.main-page-title,.page-title {display: none !important;}"
+      ],
+      "settings": {
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "blocks_KgKyzW": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_d4d2118_GKEjVC": {
+          "type": "ai_gen_block_d4d2118",
+          "settings": {
+            "heading": "Where's my order?",
+            "description": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>",
+            "icon_emoji": "📦",
+            "input_label": "Order number or tracking ID",
+            "input_placeholder": "Order number or tracking ID",
+            "button_label": "Track my order",
+            "hint": "Your order number is in your confirmation email.",
+            "help_link": "",
+            "help_label": "Need a hand? Contact us",
+            "tracking_url": "",
+            "query_parameter": "order",
+            "desktop_width_percent": 100,
+            "background_color": "#FFE6D6",
+            "card_color": "#FFF9F2",
+            "accent_color": "#FFD166",
+            "text_color": "#222222",
+            "input_border_color": "#7A3E9D",
+            "button_color": "#7A3E9D",
+            "button_text_color": "#FFFFFF"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_d4d2118_GKEjVC"
+      ],
+      "name": "Buzzko track order",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "blocks_KgKyzW"
+  ]
+}
