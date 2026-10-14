@@ -19,46 +19,44 @@
         "padding_bottom": 0
       }
     },
-    "blocks_fdzm9Y": {
+    "blocks_KgKyzW": {
       "type": "_blocks",
       "blocks": {
-        "ai_gen_block_7cadd9e_jgqeLN": {
-          "type": "ai_gen_block_7cadd9e",
+        "ai_gen_block_d4d2118_GKEjVC": {
+          "type": "ai_gen_block_d4d2118",
           "settings": {
+            "heading": "Where's my order?",
+            "description": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>",
+            "icon_emoji": "📦",
+            "input_label": "Order number or tracking ID",
+            "input_placeholder": "Order number or tracking ID",
+            "button_label": "Track my order",
+            "hint": "Your order number is in your confirmation email.",
+            "help_link": "",
+            "help_label": "Need a hand? Contact us",
+            "tracking_url": "",
+            "query_parameter": "order",
             "desktop_width_percent": 100,
-            "section_background": "#FFF7E6",
-            "eyebrow": "A little love goes a long way",
-            "heading": "Keep your good stuff looking great",
-            "intro": "Simple care tips for the little things that bring a lot of joy.",
-            "charms_title": "Charms & Keychains",
-            "charms_tip_1": "Wipe gently with a soft, dry cloth.",
-            "charms_tip_2": "Keep away from water, perfume, and harsh chemicals.",
-            "charms_tip_3": "Store separately to help prevent scratches and tangles.",
-            "lighters_title": "Lighters",
-            "lighters_tip_1": "Keep dry and wipe the exterior with a soft cloth.",
-            "lighters_tip_2": "Keep away from heat sources and direct sunlight.",
-            "lighters_tip_3": "Keep out of reach of children; follow the product instructions.",
-            "art_title": "Posters & Frames",
-            "art_tip_1": "Display away from direct sunlight to help preserve colors.",
-            "art_tip_2": "Dust frames with a soft, dry microfiber cloth.",
-            "art_tip_3": "Handle prints with clean, dry hands and store them flat.",
-            "general_title": "General Tips",
-            "general_tip_1": "Give your accessories a quick check and gentle clean regularly.",
-            "general_tip_2": "Avoid prolonged exposure to moisture, oils, and extreme temperatures.",
-            "general_tip_3": "When in doubt, follow any care guidance included with your item."
+            "background_color": "#FFE6D6",
+            "card_color": "#FFF9F2",
+            "accent_color": "#FFD166",
+            "text_color": "#222222",
+            "input_border_color": "#7A3E9D",
+            "button_color": "#7A3E9D",
+            "button_text_color": "#FFFFFF"
           },
           "blocks": {}
         }
       },
       "block_order": [
-        "ai_gen_block_7cadd9e_jgqeLN"
+        "ai_gen_block_d4d2118_GKEjVC"
       ],
-      "name": "Buzzko care guide",
+      "name": "Buzzko track order",
       "settings": {}
     }
   },
   "order": [
     "main",
-    "blocks_fdzm9Y"
+    "blocks_KgKyzW"
   ]
 }
