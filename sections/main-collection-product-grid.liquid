@@ -202,6 +202,43 @@
 }
 {%- endstyle -%}
 
+{%- comment -%}
+  BuzzKo: figure out which filter groups must be hidden on this collection,
+  so we can pre-hide them via CSS before they paint (no flash).
+{%- endcomment -%}
+{%- assign buzzko_category_handles = 'charms,lighters,frames,handicrafts,keychains' | split: ',' -%}
+{%- assign buzzko_is_category_page = false -%}
+{%- if buzzko_category_handles contains collection.handle -%}
+  {%- assign buzzko_is_category_page = true -%}
+{%- endif -%}
+{%- assign buzzko_is_charm_page = false -%}
+{%- if collection.handle == 'charms' -%}
+  {%- assign buzzko_is_charm_page = true -%}
+{%- endif -%}
+
+{%- assign buzzko_hidden_indices = '' -%}
+{%- for buzzko_filter in collection.filters -%}
+  {%- assign buzzko_label = buzzko_filter.label | downcase -%}
+  {%- assign buzzko_hide_this = false -%}
+
+  {%- comment -%} Categories filter — hidden on category pages {%- endcomment -%}
+  {%- if buzzko_label contains 'categor' -%}
+    {%- if buzzko_is_category_page -%}
+      {%- assign buzzko_hide_this = true -%}
+    {%- endif -%}
+
+  {%- comment -%} Charm Style filter — only shown on the charms page {%- endcomment -%}
+  {%- elsif buzzko_label contains 'charm style' -%}
+    {%- unless buzzko_is_charm_page -%}
+      {%- assign buzzko_hide_this = true -%}
+    {%- endunless -%}
+  {%- endif -%}
+
+  {%- if buzzko_hide_this -%}
+    {%- assign buzzko_hidden_indices = buzzko_hidden_indices | append: forloop.index | append: ',' -%}
+  {%- endif -%}
+{%- endfor -%}
+
 <collection-component
   view-event-payload="{{ collection | standard_event_data: 'view' | escape }}"
   data-collection-id="{{ collection.id }}"
@@ -261,6 +298,29 @@
       <div class="{% if section.settings.filter_type == 'vertical' %} facets-vertical page-width{% endif %}">
         {{ 'component-facets.css' | asset_url | stylesheet_tag }}
         <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+
+        {%- comment -%}
+          BuzzKo: pre-hide the wrong filter groups before they ever paint.
+          Dawn renders each filter group as
+            <details class="... js-filter" data-index="{{ forloop.index }}">
+          so hiding by data-index is deterministic and flash-free.
+          Because this is a stylesheet rule (not a one-time DOM mutation),
+          it also survives Dawn's AJAX filter/sort re-renders.
+        {%- endcomment -%}
+        {%- if buzzko_hidden_indices != blank -%}
+          <style>
+            {%- assign buzzko_indices = buzzko_hidden_indices | split: ',' -%}
+            {%- for buzzko_idx in buzzko_indices -%}
+              {%- if buzzko_idx != blank -%}
+                .js-filter[data-index="{{ buzzko_idx }}"],
+                .facets__disclosure[data-index="{{ buzzko_idx }}"] {
+                  display: none !important;
+                }
+              {%- endif -%}
+            {%- endfor -%}
+          </style>
+        {%- endif -%}
+
         {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
           <aside
             aria-labelledby="verticalTitle"
@@ -830,7 +890,6 @@
   });
 })();
 </script>
-
 
 {% schema %}
 {
