@@ -752,8 +752,41 @@
           class="facets-vertical page-width"
         {% endif %}
       >
-        {%- if search.filters != empty -%}
+                {%- if search.filters != empty -%}
           {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+
+            {%- comment -%}
+              BuzzKo: hide the "Charm Style" filter on the search page.
+              Match by label, then pre-hide by data-index — for BOTH the
+              desktop copy (data-index="N") and the mobile drawer copy
+              (data-index="mobile-N"). Emitted before facets render, so
+              there is zero flash.
+            {%- endcomment -%}
+            {%- assign buzzko_search_hidden = '' -%}
+            {%- for buzzko_filter in search.filters -%}
+              {%- assign buzzko_label = buzzko_filter.label | downcase -%}
+              {%- if buzzko_label contains 'charm style' -%}
+                {%- assign buzzko_search_hidden = buzzko_search_hidden | append: forloop.index | append: ',' -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if buzzko_search_hidden != blank -%}
+              <style>
+                {%- assign buzzko_search_indices = buzzko_search_hidden | split: ',' -%}
+                {%- for buzzko_idx in buzzko_search_indices -%}
+                  {%- if buzzko_idx != blank -%}
+                    .js-filter[data-index="{{ buzzko_idx }}"],
+                    .facets__disclosure[data-index="{{ buzzko_idx }}"],
+                    .js-filter[data-index="mobile-{{ buzzko_idx }}"],
+                    .facets__disclosure[data-index="mobile-{{ buzzko_idx }}"],
+                    .mobile-facets__details[data-index="mobile-{{ buzzko_idx }}"] {
+                      display: none !important;
+                    }
+                  {%- endif -%}
+                {%- endfor -%}
+              </style>
+            {%- endif -%}
+
             <aside
               aria-labelledby="verticalTitle"
               class="facets-wrapper{% unless section.settings.enable_filtering %} facets-wrapper--no-filters{% endunless %}{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
