@@ -100,15 +100,15 @@
             "text_align": "left"
           }
         },
-        "category_bnx9KM": {
+        "category_kWDKP4": {
           "type": "category",
           "settings": {
-            "collection": "frames",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_42_25_PM.png",
+            "collection": "lighters",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
             "image_alt": "",
             "title": "",
             "link": "",
-            "background_color": "#bee3f8",
+            "background_color": "#d0f4de",
             "title_font": "caveat_n7",
             "title_size": 28,
             "title_rotation": -12,
@@ -134,6 +134,23 @@
             "text_align": "left"
           }
         },
+        "category_bnx9KM": {
+          "type": "category",
+          "settings": {
+            "collection": "frames",
+            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_42_25_PM.png",
+            "image_alt": "",
+            "title": "",
+            "link": "",
+            "background_color": "#bee3f8",
+            "title_font": "caveat_n7",
+            "title_size": 28,
+            "title_rotation": -12,
+            "title_color": "#111111",
+            "text_vertical": "top",
+            "text_align": "left"
+          }
+        },
         "category_FdTVUm": {
           "type": "category",
           "settings": {
@@ -150,31 +167,14 @@
             "text_vertical": "top",
             "text_align": "left"
           }
-        },
-        "category_kWDKP4": {
-          "type": "category",
-          "settings": {
-            "collection": "lighters",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
-            "image_alt": "",
-            "title": "",
-            "link": "",
-            "background_color": "#d0f4de",
-            "title_font": "caveat_n7",
-            "title_size": 28,
-            "title_rotation": -12,
-            "title_color": "#111111",
-            "text_vertical": "top",
-            "text_align": "left"
-          }
         }
       },
       "block_order": [
         "category_NVMCiY",
-        "category_bnx9KM",
+        "category_kWDKP4",
         "category_VeKkyn",
-        "category_FdTVUm",
-        "category_kWDKP4"
+        "category_bnx9KM",
+        "category_FdTVUm"
       ],
       "name": "BuzzKo Categories",
       "settings": {
