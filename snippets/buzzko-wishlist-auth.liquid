@@ -123,7 +123,7 @@
   <shopify-account
     id="buzzko-wishlist-auth-account"
     menu="{{ settings.customer_account_menu | default: 'customer-account-main-menu' }}"
-    sign-in-url="{{ routes.account_login_url }}"
+    sign-in-url="{{ routes.account_login_url }}?return_to={{ request.path | url_encode }}"
   ></shopify-account>
 
 

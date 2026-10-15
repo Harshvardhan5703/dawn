@@ -54,7 +54,7 @@
 
         <a
           class="buzzko-wishlist__login-button buzzko-wishlist__login-button--primary"
-          href="{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}"
+          href="{{ routes.account_login_url }}?return_to={{ request.path | url_encode }}"
         >
           Log in to your account
         </a>
