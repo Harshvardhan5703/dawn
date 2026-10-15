@@ -591,6 +591,24 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+
+      /* BuzzKo: breathing room between filters and product grid */
+    #main-search-filters,
+    .facets-wrapper,
+    .facets-container,
+    .facets__wrapper {
+      margin-bottom: 24px !important;
+    }
+
+    .mobile-facets__wrapper,
+    .mobile-facets {
+      margin-bottom: 8px;
+    }
+
+    #ProductGridContainer {
+      padding-top: 8px;
+    }
 {%- endstyle -%}
 
 {% paginate search.results by 24 %}
