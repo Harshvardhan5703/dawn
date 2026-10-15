@@ -200,6 +200,204 @@
     height: 42px;
   }
 }
+
+/* ============================================================
+   BuzzKo: Soft filter UI (one consolidated block)
+   - labels: plain text, no pill, no border
+   - caret: proper gap from label (CSS + JS fallback)
+   - dropdown panel / price inputs / checkboxes / buttons: soft
+   ============================================================ */
+
+/* 1. Filter labels — plain text, no pill, no border */
+.facets__summary,
+.facets__disclosure .facets__summary {
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.8rem 0 !important;
+  background: transparent !important;
+}
+
+/* 2. Caret spacing — cover all known Dawn structures */
+.facets__summary > div,
+.facets__summary > span,
+.facets__summary > .svg-wrapper {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.facets__summary svg,
+.facets__summary .icon-caret,
+.facets__summary .svg-wrapper {
+  margin-inline-start: 10px !important;
+  margin-left: 10px !important;
+  flex-shrink: 0 !important;
+  position: static !important;
+  inset: auto !important;
+}
+
+.facets__summary > div > *:not(:first-child),
+.facets__summary span + * {
+  margin-left: 10px !important;
+}
+
+.facets__summary span:first-child,
+.facets__summary .facets__summary-label {
+  margin-inline-end: 4px !important;
+  margin-right: 4px !important;
+}
+
+/* 3. Soft round the dropdown panel */
+.facets__display {
+  border-radius: 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .08) !important;
+  overflow: hidden;
+}
+
+/* 4. Soft round the price inputs (From / To) — wrapper + input + pseudo */
+.facets__price .field,
+.facets__price .field__input,
+.facets__price input[type="number"],
+.facets__price input[type="text"] {
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  padding-left: 1.2rem !important;
+}
+
+.facets__price .field::after,
+.facets__price .field::before {
+  border-radius: 10px !important;
+}
+
+.facets__price .field__label,
+.facets__price .field__currency {
+  border-radius: 10px 0 0 10px !important;
+}
+
+/* 5. Soft round checkbox squares */
+.facet-checkbox > svg,
+.facet-checkbox .icon-checkmark,
+.facet-checkbox input[type="checkbox"] + .icon-checkmark {
+  border-radius: 6px !important;
+}
+
+/* 6. Soft round Reset link */
+.facets__reset {
+  border-radius: 6px !important;
+  padding: 0.4rem 0.8rem;
+}
+
+/* 7. Soft round Apply / Clear buttons */
+.facets__button,
+.facets__button-no-js,
+.button.facets__button {
+  border-radius: 8px !important;
+}
+
+/* 8. Active filter chips — soft pills */
+.active-facets__button,
+.active-facets__button-inner {
+  border-radius: 999px !important;
+}
+
+
+/* ============================================================
+   BuzzKo: Kill the double border on price inputs
+   Only the wrapper (.field) should draw the border.
+   The <input> itself must have NO border, NO shadow, NO bg.
+   ============================================================ */
+
+/* 1. Strip the border from the input itself */
+.facets__price .field__input,
+.facets__price input[type="number"],
+.facets__price input[type="text"] {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  border-radius: 10px !important;
+  padding-left: 1.2rem !important;
+}
+
+/* 2. If Dawn draws the wrapper border via ::after, unify it */
+.facets__price .field::after,
+.facets__price .field::before {
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+/* 3. Ensure the wrapper itself is rounded + clips the input corners */
+.facets__price .field {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+/* 4. Neutralise focus state so it doesn't draw a second ring */
+.facets__price .field__input:focus,
+.facets__price .field__input:focus-visible,
+.facets__price input:focus,
+.facets__price input:focus-visible {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.facets__price .field:focus-within::after,
+.facets__price .field:focus-within::before {
+  border: 1px solid #1A1A1A !important; /* single, clean focus ring */
+  border-radius: 10px !important;
+}
+
+/* ============================================================
+   BuzzKo: Price inputs — ONE border only, on the wrapper
+   ============================================================ */
+
+/* 1. Nuke every border/shadow/outline on the input itself */
+.facets__price input,
+.facets__price input[type="number"],
+.facets__price input[type="text"],
+.facets__price .field__input,
+.facets__price .field__input:focus,
+.facets__price .field__input:focus-visible,
+.facets__price .field__input:active {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 10px !important;
+  padding-left: 1.2rem !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* 2. Nuke every border/pseudo-border on the wrapper */
+.facets__price .field,
+.facets__price .field::before,
+.facets__price .field::after,
+.facets__price .field:focus-within::before,
+.facets__price .field:focus-within::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+/* 3. Now draw ONE clean border on the wrapper only */
+.facets__price .field {
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* 4. On focus, just darken that same single border */
+.facets__price .field:focus-within {
+  border-color: #1A1A1A !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
 {%- endstyle -%}
 
 {%- comment -%}
@@ -888,6 +1086,58 @@
         }, 1600);
       });
   });
+})();
+</script>
+
+<script>
+/* ============================================================
+   BuzzKo: Filter caret spacing fixer
+   Runs on load, after Dawn AJAX re-renders, and on theme editor
+   reloads. Directly forces an inline margin on the caret icon
+   so it cannot be overridden by theme styles.
+   ============================================================ */
+(function () {
+  function fixCarets() {
+    document.querySelectorAll('.facets__summary').forEach(function (summary) {
+      var labelSpan = summary.querySelector('span');
+      var caret = summary.querySelector('svg, .icon-caret, .svg-wrapper');
+
+      if (caret) {
+        caret.style.setProperty('margin-left', '10px', 'important');
+        caret.style.setProperty('margin-inline-start', '10px', 'important');
+        caret.style.setProperty('flex-shrink', '0', 'important');
+      }
+      if (labelSpan && labelSpan !== caret) {
+        labelSpan.style.setProperty('margin-right', '6px', 'important');
+      }
+      var inner = summary.querySelector('div, span');
+      if (inner && inner.contains(caret)) {
+        inner.style.setProperty('display', 'inline-flex', 'important');
+        inner.style.setProperty('align-items', 'center', 'important');
+        inner.style.setProperty('gap', '10px', 'important');
+      }
+    });
+  }
+
+  fixCarets();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fixCarets);
+  } else {
+    fixCarets();
+  }
+  window.addEventListener('load', fixCarets);
+  setTimeout(fixCarets, 400);
+  setTimeout(fixCarets, 1200);
+
+  if (window.MutationObserver) {
+    var scheduled = false;
+    new MutationObserver(function () {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(function () { scheduled = false; fixCarets(); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  document.addEventListener('shopify:section:load', fixCarets);
 })();
 </script>
 
