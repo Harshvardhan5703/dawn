@@ -23,7 +23,7 @@
       {% if section.settings.heading != blank %}
         {%- assign heading_clean = section.settings.heading | remove: '✦' | strip -%}
         <h2 class="buzzko-categories__heading">
-          {{ heading_clean }}<span class="buzzko-categories__sparkle">✦</span>
+          {{ heading_clean }}<span class="buzzko-categories__sparkle"></span>
         </h2>
       {% endif %}
 
