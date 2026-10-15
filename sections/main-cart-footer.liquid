@@ -40,13 +40,38 @@
     endfor
   endif
 
+  # BuzzKo fix #2 — detect any OTHER code-based discount on the cart. If one
+  # is present, we must not render the cosmetic 10% row (it isn't real on the
+  # order) and we must not try to stack BUZZKO10 at checkout.
+  assign has_any_other_code = false
+  for cart_discount in cart.cart_level_discount_applications
+    assign t = cart_discount.title | downcase
+    unless t contains normalized_discount_code
+      assign has_any_other_code = true
+      break
+    endunless
+  endfor
+
   assign initial_discount = 0
-  if offer_unlocked and offer_discount_applied == false
+  if offer_unlocked and offer_discount_applied == false and has_any_other_code == false
     assign initial_discount = cart.total_price | times: offer_percent | divided_by: 100
   endif
   # BuzzKo fix #1 — reflect the unlocked discount in the rendered total so the
   # Total line reconciles with the Discount row on first paint (before any JS).
   assign initial_discounted_total = cart.total_price | minus: initial_discount
+
+  # BuzzKo fix #3b — publish the titles of every cart-level discount so the
+  # client-side promo handler can tell whether an attempted code actually
+  # landed on the cart after the /discount/ round-trip.
+  assign applied_codes_str = ''
+  for d in cart.cart_level_discount_applications
+    assign t = d.title | downcase
+    if applied_codes_str == ''
+      assign applied_codes_str = t
+    else
+      assign applied_codes_str = applied_codes_str | append: '||' | append: t
+    endif
+  endfor
 -%}
 
 {%- style -%}
@@ -221,7 +246,7 @@
 >
   {%- if cart != empty -%}
   <div class="js-contents">
-    <div class="buzzko-summary{% if offer_discount_applied %} buzzko-has-buzzko10{% endif %}">
+    <div class="buzzko-summary{% if offer_discount_applied %} buzzko-has-buzzko10{% endif %}{% if has_any_other_code %} buzzko-has-other-code{% endif %}">
 
       <h2 class="buzzko-summary__title">Order Summary</h2>
 
@@ -234,7 +259,7 @@
         <div
           class="buzzko-summary__row"
           data-buzzko-discount-row
-          {% unless offer_unlocked and offer_discount_applied == false %}hidden{% endunless %}
+          {% unless offer_unlocked and offer_discount_applied == false and has_any_other_code == false %}hidden{% endunless %}
         >
           <span>Discount ({{ offer_percent }}%)</span>
           <span class="buzzko-summary__row-value" data-buzzko-discount-amount>
@@ -268,6 +293,13 @@
         <input type="text" class="buzzko-promo__input" placeholder="Promo code" aria-label="Promo code">
         <button type="submit" class="buzzko-promo__btn">Apply</button>
       </form>
+
+      {%- comment -%}
+        BuzzKo fix #3b — hidden data hook so the client can tell whether an
+        attempted promo code actually landed on the cart after the
+        /discount/CODE?redirect=/cart round-trip.
+      {%- endcomment -%}
+      <span hidden data-buzzko-applied-codes="{{ applied_codes_str | escape }}"></span>
 
       <label class="buzzko-gift" for="Cart-gift-{{ section.id }}">
         <input
@@ -374,6 +406,32 @@
     var DISCOUNT_CODE_UPPER = DISCOUNT_CODE.toUpperCase();
     var OFFER_PERCENT = {{ offer_percent | json }};
 
+    /* =========================================================
+       BuzzKo fix #3b — promo message helpers.
+       Renders a small inline paragraph under the Apply button,
+       reusing the same visual pattern the BUZZKO10 branch already
+       used. No stylesheet changes; only inline styles on the new
+       element, so nothing existing is touched.
+       ========================================================= */
+    function showPromoMessage(form, text, color) {
+      var msg = form.querySelector('[data-buzzko-promo-message]');
+      if (!msg) {
+        msg = document.createElement('p');
+        msg.setAttribute('data-buzzko-promo-message', '');
+        form.style.flexWrap = 'wrap';
+        msg.style.cssText =
+          'flex-basis:100%;width:100%;margin:0 0 0 4px;font-size:12px;line-height:1.4;';
+        form.appendChild(msg);
+      }
+      msg.style.color = color;
+      msg.textContent = text;
+    }
+
+    function clearPromoMessage(form) {
+      var msg = form.querySelector('[data-buzzko-promo-message]');
+      if (msg) msg.remove();
+    }
+
     /* ---- Promo code ---- */
     document.addEventListener('submit', function (event) {
       var form = event.target;
@@ -382,31 +440,81 @@
 
       var input = form.querySelector('input');
       var code = input && input.value ? input.value.trim() : '';
-      if (!code) return;
 
-      var existingMessage = form.querySelector('[data-buzzko-promo-message]');
-
-      if (code.toUpperCase() === DISCOUNT_CODE_UPPER) {
-        if (!existingMessage) {
-          existingMessage = document.createElement('p');
-          existingMessage.setAttribute('data-buzzko-promo-message', '');
-          form.style.flexWrap = 'wrap';
-          existingMessage.style.cssText =
-            'flex-basis:100%;width:100%;margin:0 0 0 4px;color:#9C285F;font-size:12px;line-height:1.4;';
-          form.appendChild(existingMessage);
+      // BuzzKo fix #1 — empty input now says so, instead of silently doing nothing.
+      if (!code) {
+        showPromoMessage(form, 'Enter a code first.', '#C24545');
+        if (input) {
+          input.setAttribute('aria-invalid', 'true');
+          input.focus();
         }
-        existingMessage.textContent =
-          'This ' + OFFER_PERCENT + '% offer is applied automatically. You do not need to enter ' + DISCOUNT_CODE_UPPER + '.';
+        return;
+      }
+
+      // BUZZKO10 is auto-applied by the offer bar; no need to route it.
+      if (code.toUpperCase() === DISCOUNT_CODE_UPPER) {
+        showPromoMessage(
+          form,
+          'This ' + OFFER_PERCENT + '% offer is applied automatically. ' +
+          'You do not need to enter ' + DISCOUNT_CODE_UPPER + '.',
+          '#9C285F'
+        );
         input.setAttribute('aria-invalid', 'true');
         return;
       }
 
-      if (existingMessage) existingMessage.remove();
+      clearPromoMessage(form);
       input.removeAttribute('aria-invalid');
+
+      // BuzzKo fix #3b — stash the attempt in sessionStorage instead of a URL
+      // param. Shopify's /discount/ endpoint strips query params from the
+      // redirect value in dev/preview (and often prod), so ?buzzko_try=CODE
+      // never survives the round-trip. sessionStorage always does.
+      try {
+        sessionStorage.setItem('buzzko_promo_attempt', code);
+      } catch (e) { /* Safari private mode etc. — degrade silently */ }
 
       window.location.href = ROOT + 'discount/' + encodeURIComponent(code) +
                              '?redirect=' + encodeURIComponent(ROOT + 'cart');
     });
+
+    /* =========================================================
+       BuzzKo fix #3b — read the last promo attempt from
+       sessionStorage after the /discount/ round-trip and report
+       the outcome. Silent on success; red message on failure.
+       Consumed immediately so a manual refresh doesn't repeat it.
+       ========================================================= */
+    (function reportFailedPromo() {
+      var tried;
+      try { tried = sessionStorage.getItem('buzzko_promo_attempt'); } catch (e) {}
+      if (!tried) return;
+
+      // Consume up-front so a refresh / back-nav doesn't replay the message.
+      try { sessionStorage.removeItem('buzzko_promo_attempt'); } catch (e) {}
+
+      var form = document.querySelector('[data-buzzko-promo]');
+      if (!form) return;
+
+      var host = document.querySelector('[data-buzzko-applied-codes]');
+      var appliedRaw = host ? (host.getAttribute('data-buzzko-applied-codes') || '') : '';
+      var applied = appliedRaw ? appliedRaw.split('||') : [];
+      var needle = tried.toLowerCase();
+      var landed = applied.some(function (t) { return t && t.indexOf(needle) !== -1; });
+
+      if (landed) return; // success — say nothing, the discount row speaks for itself
+
+      showPromoMessage(
+        form,
+        '\u201C' + tried + '\u201D isn\u2019t valid on this cart. ' +
+        'Check the spelling or try a different code.',
+        '#C24545'
+      );
+      var input = form.querySelector('input');
+      if (input) {
+        input.value = tried;
+        input.setAttribute('aria-invalid', 'true');
+      }
+    })();
 
     /* ---- Gift checkbox ---- */
     document.addEventListener('change', function (event) {
@@ -425,18 +533,22 @@
       }).catch(function () {});
     });
 
-    /* ---- Checkout: only when the offer is unlocked but the discount is
-       NOT yet on the cart, route through /discount/CODE so Shopify applies
-       it server-side, then bounce to checkout with the discount already
-       baked into the order. Guard against double-fire from rapid clicks. ---- */
+    /* ---- Checkout: only when the offer is unlocked but no code-based
+       discount has been applied yet, route through /discount/CODE so
+       Shopify applies it server-side before checkout. BuzzKo fix #2 —
+       if ANY other code is already on the cart (buzzko-has-other-code),
+       skip the redirect and let Shopify handle the existing discount. */
     document.addEventListener('click', function (event) {
       var btn = event.target.closest && event.target.closest('#checkout');
       if (!btn) return;
       if (btn.dataset.buzzkoRedirecting) return;
 
       var summary = btn.closest('.buzzko-summary');
-      if (summary && summary.classList.contains('buzzko-has-buzzko10')) {
-        /* Already applied server-side — let the form submit normally */
+      if (summary && (
+        summary.classList.contains('buzzko-has-buzzko10') ||
+        summary.classList.contains('buzzko-has-other-code')
+      )) {
+        /* A real code-based discount is already on the cart — just submit */
         return;
       }
 
@@ -492,7 +604,10 @@
 
       var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
       var summary = document.querySelector('.buzzko-summary');
-      var alreadyApplied = summary && summary.classList.contains('buzzko-has-buzzko10');
+      var alreadyApplied = summary && (
+        summary.classList.contains('buzzko-has-buzzko10') ||
+        summary.classList.contains('buzzko-has-other-code')
+      );
 
       if (data.total_price < threshold) {
         window.__buzzkoPulsedForThisCart = false;
