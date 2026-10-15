@@ -590,37 +590,41 @@
        ========================================================= */
     window.__buzzkoPulsedForThisCart = false;
 
-    document.addEventListener('cart:update', function (event) {
-      var data = event && event.detail && event.detail.cartData;
-      if (!data || typeof data.item_count !== 'number') return;
+/* BuzzKo — Dawn's pub-sub event name. Different Dawn versions have used
+   both 'cart-update' (dash, current) and 'cart:update' (colon, older/some
+   forks). Register on both so nothing silently dies across upgrades. */
+function __buzzkoOnCartUpdate(event) {
+  var data = event && event.detail && event.detail.cartData;
+  if (!data || typeof data.item_count !== 'number') return;
 
-      if (data.item_count === 0) {
-        window.location.reload();
-        return;
-      }
+  if (data.item_count === 0) {
+    window.location.reload();
+    return;
+  }
 
-      var offerEl = document.querySelector('[data-buzzko-offer]');
-      if (!offerEl) return;
+  var offerEl = document.querySelector('[data-buzzko-offer]');
+  if (!offerEl) return;
 
-      var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
-      var summary = document.querySelector('.buzzko-summary');
-      var alreadyApplied = summary && (
-        summary.classList.contains('buzzko-has-buzzko10') ||
-        summary.classList.contains('buzzko-has-other-code')
-      );
+  var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
+  var summary = document.querySelector('.buzzko-summary');
+  var alreadyApplied = summary && (
+    summary.classList.contains('buzzko-has-buzzko10') ||
+    summary.classList.contains('buzzko-has-other-code')
+  );
 
-      if (data.total_price < threshold) {
-        window.__buzzkoPulsedForThisCart = false;
-        return;
-      }
+  if (data.total_price < threshold) {
+    window.__buzzkoPulsedForThisCart = false;
+    return;
+  }
 
-      if (!alreadyApplied && !window.__buzzkoPulsedForThisCart) {
-        window.__buzzkoPulsedForThisCart = true;
-        /* Defer a tick so Dawn's section re-render has settled and the
-           new total element is in the DOM. */
-        setTimeout(pulseTotal, 0);
-      }
-    });
+  if (!alreadyApplied && !window.__buzzkoPulsedForThisCart) {
+    window.__buzzkoPulsedForThisCart = true;
+    setTimeout(pulseTotal, 0);
+  }
+}
+
+document.addEventListener('cart-update', __buzzkoOnCartUpdate);
+document.addEventListener('cart:update', __buzzkoOnCartUpdate);
 
     /* Belt & braces: if Dawn adds .is-empty to the footer wrapper
        but the summary is still in the DOM, hide it immediately (CSS
