@@ -603,6 +603,73 @@
 {%- comment -%} Money format hook so the summary can format numbers client-side {%- endcomment -%}
 <span hidden data-buzzko-money-format="{{ shop.money_format | escape }}"></span>
 
+<!-- ============================================================
+     BuzzKo perf — see notes. Must run inline (not deferred) so
+     the capture-phase click listener attaches before any user
+     interaction. Patches Dawn's enableLoading() so quantity
+     changes don't dim the whole cart.
+     ============================================================ -->
+<script>
+  (function () {
+    if (window.__buzzkoCartPerfInit) return;
+    window.__buzzkoCartPerfInit = true;
+
+    /* BuzzKo perf — mark whether the last click was a remove or a
+       quantity change. Capture phase so we set the flag before Dawn's
+       own click handlers (on <cart-remove-button> and <quantity-input>)
+       run. Defaults to "quantity change" for direct keyboard edits. */
+    window.__buzzkoIsRemoveAction = false;
+
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+
+      if (target.closest('cart-remove-button')) {
+        window.__buzzkoIsRemoveAction = true;
+      } else if (target.closest('.quantity__button')) {
+        window.__buzzkoIsRemoveAction = false;
+      }
+    }, true);
+
+    /* BuzzKo perf — wait for Dawn to define <cart-items>, then patch
+       enableLoading so quantity changes don't dim the whole cart.
+       Remove-button clicks keep Dawn's original behavior so destructive
+       actions still feel deliberate. */
+    customElements.whenDefined('cart-items').then(function () {
+      var CartItemsClass = customElements.get('cart-items');
+      if (!CartItemsClass || CartItemsClass.__buzzkoPatched) return;
+      CartItemsClass.__buzzkoPatched = true;
+
+      var origEnableLoading = CartItemsClass.prototype.enableLoading;
+
+      CartItemsClass.prototype.enableLoading = function (line) {
+        /* Remove action → Dawn's original behavior (full dim + spinner). */
+        if (window.__buzzkoIsRemoveAction) {
+          return origEnableLoading.call(this, line);
+        }
+
+        /* Quantity change → show spinner on the affected line only.
+           Deliberately skip:
+             - the .cart__items--disabled class (dims the whole list)
+             - document.activeElement.blur() (steals focus from the button)
+           so the +/- interaction stays responsive. */
+        var cartItemElements = this.querySelectorAll('#CartItem-' + line + ' .loading__spinner');
+        var cartDrawerItemElements = this.querySelectorAll('#CartDrawer-Item-' + line + ' .loading__spinner');
+
+        Array.prototype.forEach.call(cartItemElements, function (o) { o.classList.remove('hidden'); });
+        Array.prototype.forEach.call(cartDrawerItemElements, function (o) { o.classList.remove('hidden'); });
+
+        if (this.lineItemStatusElement) {
+          this.lineItemStatusElement.setAttribute('aria-hidden', false);
+        }
+      };
+
+      /* No need to patch disableLoading — it removes the class regardless,
+         which is a no-op when we never added it. */
+    });
+  })();
+</script>
+
 <cart-items
   class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% endif %}"
   view-event-payload="{{ cart | standard_event_data: 'view', context: 'page' | escape }}"
