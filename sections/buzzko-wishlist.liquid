@@ -54,14 +54,14 @@
 
         <a
           class="buzzko-wishlist__login-button buzzko-wishlist__login-button--primary"
-          href="{{ routes.account_login_url }}?return_to={{ request.path | url_encode }}"
+          href="{{ routes.storefront_login_url }}"
         >
           Log in to your account
         </a>
 
         <a
           class="buzzko-wishlist__login-button buzzko-wishlist__login-button--secondary"
-          href="{{ routes.account_register_url }}?return_url={{ request.path | url_encode }}"
+          href="{{ routes.storefront_login_url }}"
         >
           Create an account
         </a>
