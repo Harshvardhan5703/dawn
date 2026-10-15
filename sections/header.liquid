@@ -141,7 +141,7 @@
     height: 4.4rem;
   }
 
-  /* Wishlist icon: no circular border or background */
+  /* Wishlist icon: adjusted for mobile view alignment */
   .header__icon.buzzko-header-wishlist {
     position: relative;
     display: inline-flex;
@@ -150,7 +150,7 @@
     width: 4.4rem;
     height: 4.4rem;
     min-width: 4.4rem;
-    margin-right: 0.2rem;
+    margin-right: 0rem;
     overflow: visible;
     border: none !important;
     border-radius: 0 !important;
@@ -195,14 +195,15 @@
 
   @media screen and (max-width: 749px) {
     .header__icon.buzzko-header-wishlist {
-      width: 3.8rem;
-      height: 3.8rem;
-      min-width: 3.8rem;
+      width: 4.4rem;
+      height: 4.4rem;
+      min-width: 4.4rem;
+      margin-right: -0.5rem;
     }
 
     .buzzko-header-wishlist .buzzko-wishlist-count {
-      bottom: 0.65rem;
-      left: 1.9rem;
+      bottom: 1.1rem;
+      left: 2.3rem;
     }
   }
 </style>
