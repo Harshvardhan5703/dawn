@@ -2,6 +2,12 @@
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
 
+
+<!-- buzzko_dbg handle="{{ collection.handle }}" -->
+<!-- buzzko_dbg filters="{% for f in collection.filters %}{{ f.label }}|{% endfor %}" -->
+<!-- buzzko_dbg is_charm="{{ buzzko_is_charm_page }}" -->
+
+
 {% if section.settings.image_shape == 'blob' %}
   {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
 {%- endif -%}
@@ -398,6 +404,36 @@
   box-shadow: none !important;
   outline: 0 !important;
 }
+
+/* ============================================================
+   BuzzKo: Mobile — breathe between filter bar and product grid
+   ============================================================ */
+@media screen and (max-width: 749px) {
+  #main-collection-filters,
+  .facets-wrapper {
+    margin-bottom: 24px !important;
+  }
+
+  /* If the theme wraps the mobile filter bar in its own container,
+     catch that too. */
+  .facets-container,
+  .facets__wrapper {
+    margin-bottom: 24px !important;
+  }
+
+  /* And add a touch of breathing room above the grid itself in case
+     the margin above gets collapsed. */
+  #ProductGridContainer {
+    padding-top: 8px;
+  }
+
+  /* Also give the mobile filter bar a bit of bottom padding so the
+     "Filter and sort" button doesn't visually crowd the first row. */
+  .mobile-facets__wrapper,
+  .mobile-facets {
+    margin-bottom: 8px;
+  }
+}
 {%- endstyle -%}
 
 {%- comment -%}
@@ -499,11 +535,11 @@
 
         {%- comment -%}
           BuzzKo: pre-hide the wrong filter groups before they ever paint.
-          Dawn renders each filter group as
-            <details class="... js-filter" data-index="{{ forloop.index }}">
-          so hiding by data-index is deterministic and flash-free.
-          Because this is a stylesheet rule (not a one-time DOM mutation),
-          it also survives Dawn's AJAX filter/sort re-renders.
+          Dawn renders the filter list TWICE from the same facets.liquid:
+            · Desktop  → <details class="... js-filter" data-index="N">
+            · Mobile   → <details class="... js-filter" data-index="mobile-N">
+          So we must emit rules for BOTH prefixes. This is also why the
+          mobile drawer was still showing Charm Style / Categories.
         {%- endcomment -%}
         {%- if buzzko_hidden_indices != blank -%}
           <style>
@@ -511,7 +547,10 @@
             {%- for buzzko_idx in buzzko_indices -%}
               {%- if buzzko_idx != blank -%}
                 .js-filter[data-index="{{ buzzko_idx }}"],
-                .facets__disclosure[data-index="{{ buzzko_idx }}"] {
+                .facets__disclosure[data-index="{{ buzzko_idx }}"],
+                .js-filter[data-index="mobile-{{ buzzko_idx }}"],
+                .facets__disclosure[data-index="mobile-{{ buzzko_idx }}"],
+                .mobile-facets__details[data-index="mobile-{{ buzzko_idx }}"] {
                   display: none !important;
                 }
               {%- endif -%}
@@ -798,6 +837,25 @@
       min-height: 34px;
       padding: 7px 12px;
       font-size: 11px;
+    }
+
+    /* ============================================================
+       BuzzKo: mobile spacing — filter bar ↔ product grid
+       ============================================================ */
+    #main-collection-filters,
+    .facets-wrapper,
+    .facets-container,
+    .facets__wrapper {
+      margin-bottom: 24px !important;
+    }
+
+    .mobile-facets__wrapper,
+    .mobile-facets {
+      margin-bottom: 8px;
+    }
+
+    #ProductGridContainer {
+      padding-top: 8px;
     }
   }
 
