@@ -3811,10 +3811,3 @@ details-disclosure > details {
   }
 }
 
-/* Buzzko: Show full product image without cropping in product cards */
-.card__media .media img,
-.card-wrapper .media img {
-  object-fit: contain;
-  object-position: center;
- 
-}
