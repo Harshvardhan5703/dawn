@@ -283,7 +283,7 @@
       .buzzko-wishlist .buzzko-product-card__image-wrapper {
         position: relative;
         width: 100%;
-        aspect-ratio: 1.65 / 1;
+        aspect-ratio: 1 / 1;
         flex-shrink: 0;
         overflow: hidden;
         border-radius: 11px;
