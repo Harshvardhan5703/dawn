@@ -1095,6 +1095,33 @@
   }
 }
 
+
+/* 1. Stack the main price and slashed price vertically to save horizontal space */
+#ProductGridContainer .buzzko-product-card__price,
+#product-grid .buzzko-product-card__price {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  flex-shrink: 1 !important;
+}
+
+/* 2. Ensure the footer keeps elements side-by-side with a clean gap */
+#ProductGridContainer .buzzko-product-card__footer,
+#product-grid .buzzko-product-card__footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+/* 3. Prevent the ATC form/button from shrinking or wrapping */
+#ProductGridContainer .buzzko-product-card__form,
+#product-grid .buzzko-product-card__form {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+
 </style>
 
 <script>
