@@ -414,15 +414,21 @@
     margin-bottom: 24px !important;
   }
 
+  /* If the theme wraps the mobile filter bar in its own container,
+     catch that too. */
   .facets-container,
   .facets__wrapper {
     margin-bottom: 24px !important;
   }
 
+  /* And add a touch of breathing room above the grid itself in case
+     the margin above gets collapsed. */
   #ProductGridContainer {
     padding-top: 8px;
   }
 
+  /* Also give the mobile filter bar a bit of bottom padding so the
+     "Filter and sort" button doesn't visually crowd the first row. */
   .mobile-facets__wrapper,
   .mobile-facets {
     margin-bottom: 8px;
@@ -449,10 +455,13 @@
   {%- assign buzzko_label = buzzko_filter.label | downcase -%}
   {%- assign buzzko_hide_this = false -%}
 
+  {%- comment -%} Categories filter — hidden on category pages {%- endcomment -%}
   {%- if buzzko_label contains 'categor' -%}
     {%- if buzzko_is_category_page -%}
       {%- assign buzzko_hide_this = true -%}
     {%- endif -%}
+
+  {%- comment -%} Charm Style filter — only shown on the charms page {%- endcomment -%}
   {%- elsif buzzko_label contains 'charm style' -%}
     {%- unless buzzko_is_charm_page -%}
       {%- assign buzzko_hide_this = true -%}
@@ -524,6 +533,14 @@
         {{ 'component-facets.css' | asset_url | stylesheet_tag }}
         <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
 
+        {%- comment -%}
+          BuzzKo: pre-hide the wrong filter groups before they ever paint.
+          Dawn renders the filter list TWICE from the same facets.liquid:
+            · Desktop  → <details class="... js-filter" data-index="N">
+            · Mobile   → <details class="... js-filter" data-index="mobile-N">
+          So we must emit rules for BOTH prefixes. This is also why the
+          mobile drawer was still showing Charm Style / Categories.
+        {%- endcomment -%}
         {%- if buzzko_hidden_indices != blank -%}
           <style>
             {%- assign buzzko_indices = buzzko_hidden_indices | split: ',' -%}
@@ -743,6 +760,10 @@
 
   /* ============================================================
      BuzzKo: FORCE 2 products per row on mobile.
+     Dawn's `.grid` is `display:flex`, which is why the old
+     `grid-template-columns` fix silently did nothing. We must
+     switch the container to `display:grid` AND use high
+     specificity + !important to beat Dawn's rules.
      ============================================================ */
   @media screen and (max-width: 749px) {
     #ProductGridContainer #product-grid.product-grid {
@@ -750,7 +771,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       grid-auto-flow: row !important;
       column-gap: 10px !important;
-      row-gap: 12px !important; /* Tightened gap */
+      row-gap: 14px !important;
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -775,63 +796,52 @@
     }
 
     #product-grid .buzzko-product-card {
-      padding: 6px;
+      padding: 8px;
       border-width: 2px;
-      border-radius: 13px;
+      border-radius: 14px;
     }
 
     #product-grid .buzzko-product-card__image-wrapper {
-      border-radius: 8px;
+      border-radius: 9px;
     }
 
     #product-grid .buzzko-product-card__content {
-      padding: 6px 2px 2px; /* Tightened padding */
+      padding: 10px 3px 5px;
     }
 
     #product-grid .buzzko-product-card__title {
       font-size: 13px;
-      line-height: 1.2; /* Tightened line-height */
+      line-height: 1.25;
     }
 
     #product-grid .buzzko-product-card__subtitle {
       font-size: 10px;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
-    /* KEEP FOOTER SIDE-BY-SIDE (Like Search Page) */
     #product-grid .buzzko-product-card__footer {
-      flex-wrap: nowrap;
-      align-items: center;
-      padding-top: 8px;
+      flex-wrap: wrap;
+      padding-top: 12px;
       gap: 6px;
     }
 
-    #product-grid .buzzko-product-card__price {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-      min-width: 0; 
-    }
-
     #product-grid .buzzko-product-card__price-current {
-      font-size: 12px;
+      font-size: 13px;
     }
 
     #product-grid .buzzko-product-card__price-compare {
-      font-size: 10px;
+      font-size: 11px;
     }
 
-    /* Compact button */
     #product-grid .buzzko-product-card__atc {
-      min-height: auto;
-      padding: 6px 8px;
-      font-size: 10px;
-      white-space: nowrap;
-      flex-shrink: 0;
+      min-height: 34px;
+      padding: 7px 12px;
+      font-size: 11px;
     }
 
-    /* Mobile filter spacing */
+    /* ============================================================
+       BuzzKo: mobile spacing — filter bar ↔ product grid
+       ============================================================ */
     #main-collection-filters,
     .facets-wrapper,
     .facets-container,
@@ -849,7 +859,6 @@
     }
   }
 
-  /* BASE STYLES (TIGHTENED) */
   #product-grid .buzzko-product-card {
     display: flex;
     flex-direction: column;
@@ -858,7 +867,7 @@
     background: #faf8f6;
     border: 3px solid var(--card-border);
     border-radius: 18px;
-    padding: 8px; /* Reduced from 11px */
+    padding: 11px;
     color: inherit;
     transition: transform .2s ease, box-shadow .2s ease;
   }
@@ -895,7 +904,7 @@
   }
 
   #product-grid .buzzko-product-card__content {
-    padding: 10px 4px 4px; /* Reduced from 15px 6px 8px */
+    padding: 15px 6px 8px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -905,7 +914,7 @@
     margin: 0;
     color: #111;
     font-size: 15px;
-    line-height: 1.2; /* Reduced from 1.3 */
+    line-height: 1.3;
     font-weight: 800;
     letter-spacing: -.2px;
   }
@@ -916,7 +925,7 @@
   }
 
   #product-grid .buzzko-product-card__subtitle {
-    margin: 4px 0 0;
+    margin: 5px 0 0;
     color: #777;
     font-size: 12px;
     line-height: 1.35;
@@ -928,7 +937,7 @@
     justify-content: space-between;
     gap: 10px;
     margin-top: auto;
-    padding-top: 10px; /* Reduced from 17px */
+    padding-top: 17px;
   }
 
   #product-grid .buzzko-product-card__price {
@@ -960,7 +969,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 12px; /* Slightly tighter */
+    padding: 7px 14px;
     background: #FF60B9;
     color: #201e1e;
     border: 0;
@@ -990,6 +999,102 @@
   #product-grid .buzzko-product-card__atc[data-state="success"] {
     background: #B9E404;
   }
+
+
+  
+@media screen and (max-width: 749px) {
+  #ProductGridContainer #product-grid.product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    column-gap: 10px !important;
+    row-gap: 14px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+  }
+
+  #ProductGridContainer #product-grid.product-grid > .grid__item {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    grid-column: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #ProductGridContainer #product-grid.product-grid > .grid__item:only-child {
+    width: auto !important;
+    max-width: none !important;
+    grid-column: span 2 !important;
+  }
+
+  /* Match search page cards */
+  #product-grid .buzzko-product-card {
+    padding: 7px;
+    border-width: 2px;
+    border-radius: 13px;
+  }
+
+  #product-grid .buzzko-product-card__image-wrapper {
+    border-radius: 8px;
+  }
+
+  #product-grid .buzzko-product-card__content {
+    padding: 10px 3px 5px;
+  }
+
+  #product-grid .buzzko-product-card__title {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  #product-grid .buzzko-product-card__subtitle {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  #product-grid .buzzko-product-card__footer {
+    flex-wrap: wrap;
+    padding-top: 12px;
+    gap: 6px;
+  }
+
+  #product-grid .buzzko-product-card__price-current {
+    font-size: 13px;
+  }
+
+  #product-grid .buzzko-product-card__price-compare {
+    font-size: 11px;
+  }
+
+  #product-grid .buzzko-product-card__atc {
+    padding: 6px 10px;
+    font-size: 10px;
+    min-height: 34px;
+  }
+
+  /* Preserve existing filter-to-grid spacing */
+  #main-collection-filters,
+  .facets-wrapper,
+  .facets-container,
+  .facets__wrapper {
+    margin-bottom: 24px !important;
+  }
+
+  .mobile-facets__wrapper,
+  .mobile-facets {
+    margin-bottom: 8px;
+  }
+
+  #ProductGridContainer {
+    padding-top: 8px;
+  }
+}
+
 </style>
 
 <script>
