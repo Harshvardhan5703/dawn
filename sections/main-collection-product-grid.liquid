@@ -643,29 +643,32 @@
                           {%- capture form_content -%}
                             <input type="hidden" name="id" value="{{ variant.id }}">
                             
-                            <!-- VARIANT SELECTOR DATA -->
-                            {% unless product.has_only_default_variant %}
-                              <div class="buzzko-variant-popover" hidden>
-                                <div class="buzzko-variant-popover__title">Select Option ✦</div>
-                                <ul class="buzzko-variant-list">
-                                  {% for v in product.variants %}
-                                    <li>
-                                      <button type="button" class="buzzko-variant-option" data-variant-id="{{ v.id }}" {% unless v.available %}disabled{% endunless %}>
-                                        {{ v.title }} {% unless v.available %}(Sold Out){% endunless %}
-                                      </button>
-                                    </li>
-                                  {% endfor %}
-                                </ul>
-                              </div>
-                            {% endunless %}
+                            {%- capture variants_json -%}
+                              [
+                                {% for v in product.variants %}
+                                  {
+                                    "id": "{{ v.id }}",
+                                    "title": "{{ v.title | escape }}",
+                                    "price": "{{ v.price | money }}",
+                                    "available": {{ v.available }},
+                                    "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ product.featured_image | image_url: width: 600 }}{% endif %}"
+                                  }{% unless forloop.last %},{% endunless %}
+                                {% endfor %}
+                              ]
+                            {%- endcapture -%}
 
                             <button
-                              type="submit"
+                              type="{% if product.has_only_default_variant %}submit{% else %}button{% endif %}"
                               name="add"
                               class="buzzko-product-card__atc"
                               aria-label="Add to Cart"
                               {% unless product.available %}disabled{% endunless %}
-                              {% unless product.has_only_default_variant %}data-has-variants="true"{% endunless %}
+                              {% unless product.has_only_default_variant %}
+                                data-has-variants="true"
+                                data-product-title="{{ product.title | escape }}"
+                                data-product-image="{{ product.featured_image | image_url: width: 600 }}"
+                                data-variants="{{ variants_json | escape }}"
+                              {% endunless %}
                             >
                               <!-- Desktop Text -->
                               <span class="btn-text">
@@ -761,6 +764,39 @@
   </div>
 </collection-component>
 
+<!-- THE NEW VARIANT MODAL -->
+<dialog id="buzzko-variant-modal" class="buzzko-modal">
+  <div class="buzzko-modal__content">
+    <button type="button" class="buzzko-modal__close" id="buzzko-modal-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="buzzko-modal__grid">
+      <div class="buzzko-modal__img-col">
+        <div class="buzzko-modal__img-wrapper">
+          <img id="buzzko-modal-img" src="" alt="Product Image" loading="lazy">
+        </div>
+      </div>
+      <div class="buzzko-modal__info-col">
+        <h3 class="buzzko-modal__title" id="buzzko-modal-title">Product Title</h3>
+        <div class="buzzko-modal__price" id="buzzko-modal-price"></div>
+        
+        <div class="buzzko-modal__variants-label">Select Option:</div>
+        <div class="buzzko-modal__variants" id="buzzko-modal-variants">
+          <!-- Buttons injected by JS -->
+        </div>
+
+        <button type="button" class="buzzko-modal__add-btn" id="buzzko-modal-add">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
 <style>
   #ProductGridContainer {
     background: #FFFAF5;
@@ -777,7 +813,6 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    /* overflow: hidden; -- REMOVED SO POPOVER CAN ESCAPE */
     overflow: visible; 
     background: #faf8f6;
     border: 3px solid var(--card-border);
@@ -796,12 +831,10 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    /* overflow: hidden; -- REMOVED SO POPOVER CAN ESCAPE */
     border-radius: 11px;
     background: #eee;
   }
 
-  /* ADDED position: absolute and inset: 0 to keep image perfectly square */
   #product-grid .buzzko-product-card__image-link {
     position: absolute;
     inset: 0;
@@ -890,116 +923,6 @@
   /* Hide mobile icons on desktop */
   #product-grid .buzzko-product-card__atc svg {
     display: none;
-  }
-
-  /* ============================================================
-     BuzzKo: Variant Popover Menu (Glow-up)
-     ============================================================ */
-  #product-grid .buzzko-variant-popover {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    right: 0;
-    width: max-content;
-    min-width: 160px;
-    max-width: 220px;
-    background: #ffffff;
-    border: 1.5px solid rgba(255, 96, 185, 0.3);
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(255, 96, 185, 0.08);
-    padding: 12px;
-    z-index: 50;
-    animation: buzzkoPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  #product-grid .buzzko-variant-popover[hidden] {
-    display: none;
-  }
-
-  /* Little triangle pointer */
-  #product-grid .buzzko-variant-popover::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    right: 16px;
-    width: 12px;
-    height: 12px;
-    background: #ffffff;
-    border-right: 1.5px solid rgba(255, 96, 185, 0.3);
-    border-bottom: 1.5px solid rgba(255, 96, 185, 0.3);
-    transform: translateY(-7px) rotate(45deg);
-  }
-
-  @keyframes buzzkoPopIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px) scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  #product-grid .buzzko-variant-popover__title {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #1A1A1A;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    padding-left: 2px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  #product-grid .buzzko-variant-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-  }
-  
-  #product-grid .buzzko-variant-list::-webkit-scrollbar {
-    display: none; /* Safari/Chrome */
-  }
-
-  #product-grid .buzzko-variant-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    text-align: left;
-    background: #faf8f6;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #1A1A1A;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  #product-grid .buzzko-variant-option:hover:not(:disabled) {
-    background: #FF60B9;
-    border-color: #FF60B9;
-    color: #ffffff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 96, 185, 0.2);
-  }
-
-  #product-grid .buzzko-variant-option:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    /* text-decoration: line-through; -- REMOVED THIS */
   }
 
   /* ============================================================
@@ -1156,12 +1079,6 @@
       height: 16px;
     }
 
-    /* Mobile Popover position tweak */
-    #product-grid .buzzko-variant-popover {
-      bottom: calc(100% + 10px);
-      right: 0;
-    }
-
     /* Card Content Padding */
     #product-grid .buzzko-product-card__content {
       padding: 6px 2px 2px;
@@ -1254,6 +1171,219 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
+
+  /* ============================================================
+     BuzzKo: VARIANT MODAL STYLES (Matching product-info.txt)
+     ============================================================ */
+  .buzzko-modal {
+    padding: 0;
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    max-width: 850px;
+    width: 90%;
+    background: #FFFAF5;
+    overflow: hidden;
+    margin: auto;
+  }
+
+  .buzzko-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .buzzko-modal__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .buzzko-modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #111;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .buzzko-modal__close:hover {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+    transform: rotate(90deg);
+  }
+
+  .buzzko-modal__grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 750px) {
+    .buzzko-modal__grid {
+      flex-direction: row;
+      min-height: 480px;
+    }
+  }
+
+  /* IMAGE COLUMN - MATCHING PRODUCT PAGE */
+  .buzzko-modal__img-col {
+    width: 100%;
+    padding: 16px;
+    background: #FFFAF5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (min-width: 750px) {
+    .buzzko-modal__img-col {
+      width: 50%;
+      padding: 32px;
+    }
+  }
+
+  .buzzko-modal__img-wrapper {
+    width: 100%;
+    height: 220px; /* REDUCED HEIGHT FOR MOBILE */
+    border: 2px solid #F8B5D1; /* MATCHING PRODUCT PAGE */
+    border-radius: 16px;
+    padding: 10px; /* MATCHING PRODUCT PAGE */
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  @media (min-width: 750px) {
+    .buzzko-modal__img-wrapper {
+      height: 100%;
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  .buzzko-modal__img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px; /* MATCHING PRODUCT PAGE (14px - 2px border) */
+  }
+
+  /* INFO COLUMN */
+  .buzzko-modal__info-col {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 0 0 24px 24px;
+  }
+
+  @media (min-width: 750px) {
+    .buzzko-modal__info-col {
+      width: 50%;
+      padding: 40px;
+      border-radius: 0 24px 24px 0;
+    }
+  }
+
+  .buzzko-modal__title {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #111;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  .buzzko-modal__price {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 20px;
+  }
+
+  .buzzko-modal__variants-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .buzzko-modal__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  /* VARIANT BUTTONS - PASTEL STYLE */
+  .buzzko-modal-variant-btn {
+    padding: 8px 16px;
+    background: #fff;
+    border: 1.5px solid #D8D1CB;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1A1A1A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .buzzko-modal-variant-btn:hover:not(:disabled) {
+    border-color: #F8B5D1;
+  }
+
+  .buzzko-modal-variant-btn.is-active {
+    background: #F8B5D1; /* Pastel Pink */
+    border-color: #F8B5D1;
+    color: #111;
+  }
+
+  .buzzko-modal-variant-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f4f4f4;
+  }
+
+  /* ADD TO CART - BLACK PILL (MATCHING PRODUCT PAGE) */
+  .buzzko-modal__add-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 14px;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+    border-radius: 9999px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-height: 4.4rem;
+  }
+
+  .buzzko-modal__add-btn:hover:not(:disabled) {
+    background-color: #222;
+  }
+
+  .buzzko-modal__add-btn:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+  }
 </style>
 
 <script>
@@ -1321,48 +1451,150 @@
     }
   }
 
-  /* ---------- Main Handler ---------- */
+  /* ---------- MODAL LOGIC ---------- */
 
-  root.addEventListener('click', function(event) {
-    var variantOption = event.target.closest('.buzzko-variant-option');
-    if (variantOption) {
-      event.preventDefault();
-      var form = variantOption.closest('form');
-      var popover = variantOption.closest('.buzzko-variant-popover');
-      
-      // Update the hidden input with the selected variant ID
-      form.querySelector('input[name="id"]').value = variantOption.dataset.variantId;
-      
-      // Hide the popover
-      popover.hidden = true;
+  var modal = document.getElementById('buzzko-variant-modal');
+  var modalImg = document.getElementById('buzzko-modal-img');
+  var modalTitle = document.getElementById('buzzko-modal-title');
+  var modalPrice = document.getElementById('buzzko-modal-price');
+  var modalVariants = document.getElementById('buzzko-modal-variants');
+  var modalAddBtn = document.getElementById('buzzko-modal-add');
+  var modalCloseBtn = document.getElementById('buzzko-modal-close');
+  
+  var selectedVariantId = null;
 
-      // Manually trigger the form submission (which the submit listener below catches)
-      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-      return;
+  function openVariantModal(productTitle, defaultImage, variantsJson) {
+    var variants = JSON.parse(variantsJson);
+    modalTitle.textContent = productTitle;
+    modalImg.src = defaultImage || '';
+    modalVariants.innerHTML = '';
+    selectedVariantId = null;
+
+    var firstAvailableBtn = null;
+
+    variants.forEach(function(v) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'buzzko-modal-variant-btn';
+      btn.textContent = v.title;
+      
+      if (!v.available) {
+        btn.disabled = true;
+      } else if (!firstAvailableBtn) {
+        firstAvailableBtn = btn;
+      }
+
+      btn.dataset.variantId = v.id;
+      btn.dataset.image = v.image || defaultImage;
+      btn.dataset.price = v.price;
+
+      btn.addEventListener('click', function() {
+        modalVariants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function(b) {
+          b.classList.remove('is-active');
+        });
+        btn.classList.add('is-active');
+        
+        if (btn.dataset.image) {
+          modalImg.src = btn.dataset.image;
+        }
+        
+        selectedVariantId = btn.dataset.variantId;
+        modalPrice.innerHTML = btn.dataset.price;
+        
+        modalAddBtn.disabled = false;
+        modalAddBtn.textContent = 'Add to Cart';
+      });
+
+      modalVariants.appendChild(btn);
+    });
+
+    if (firstAvailableBtn) {
+      firstAvailableBtn.click();
+    } else {
+      modalPrice.innerHTML = '';
+      modalAddBtn.disabled = true;
+      modalAddBtn.textContent = 'Sold Out';
     }
 
+    if (typeof modal.showModal === 'function') {
+      modal.showModal();
+    } else {
+      modal.setAttribute('open', '');
+    }
+  }
+
+  function closeModal() {
+    if (typeof modal.close === 'function') {
+      modal.close();
+    } else {
+      modal.removeAttribute('open');
+    }
+    selectedVariantId = null;
+  }
+
+  modalCloseBtn.addEventListener('click', closeModal);
+  
+  // Close on backdrop click
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  /* ---------- MODAL ADD TO CART ---------- */
+  modalAddBtn.addEventListener('click', function() {
+    if (!selectedVariantId) return;
+
+    modalAddBtn.textContent = 'Adding...';
+    modalAddBtn.disabled = true;
+
+    var data = new FormData();
+    data.append('id', selectedVariantId);
+    data.append('quantity', 1);
+    data.append('sections', 'cart-drawer,cart-icon-bubble');
+    data.append('sections_url', window.location.pathname);
+
+    fetch(ROOT + 'cart/add.js', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: data
+    })
+    .then(function(res) {
+      return res.json().then(function(json) {
+        if (!res.ok) throw json;
+        return json;
+      });
+    })
+    .then(function(added) {
+      renderSections(added.sections);
+      return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
+        .then(function(res) { return res.json(); })
+        .then(function(cart) { updateCounts(cart); openDrawer(); });
+    })
+    .then(function() {
+      modalAddBtn.textContent = 'Added ✓';
+      setTimeout(function() {
+        closeModal();
+      }, 600);
+    })
+    .catch(function(err) {
+      console.error('[BuzzKo Modal ATC]', err);
+      modalAddBtn.textContent = 'Try Again';
+      modalAddBtn.disabled = false;
+    });
+  });
+
+  /* ---------- MAIN CARD HANDLER ---------- */
+
+  root.addEventListener('click', function(event) {
     var button = event.target.closest('.buzzko-product-card__atc');
     if (button && !button.disabled) {
       if (button.dataset.hasVariants === 'true') {
-        event.preventDefault(); // Stop form submit
-        var popover = button.closest('form').querySelector('.buzzko-variant-popover');
-        if (popover) {
-           // Close all other open popovers first
-           document.querySelectorAll('.buzzko-variant-popover').forEach(function(p) {
-             if (p !== popover) p.hidden = true;
-           });
-           popover.hidden = !popover.hidden;
-        }
+        event.preventDefault(); // Stop form submission
+        openVariantModal(
+          button.dataset.productTitle,
+          button.dataset.productImage,
+          button.dataset.variants
+        );
       }
-    }
-  });
-
-  // Close popovers when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.buzzko-product-card__form')) {
-      document.querySelectorAll('.buzzko-variant-popover').forEach(function(p) {
-        p.hidden = true;
-      });
     }
   });
 
@@ -1374,6 +1606,9 @@
 
     var button = form.querySelector('.buzzko-product-card__atc');
     if (!button || button.disabled || button.dataset.state === 'loading') return;
+
+    // If it has variants, the submit shouldn't happen directly. The click handler above prevents it.
+    if (button.dataset.hasVariants === 'true') return;
 
     state(button, 'loading');
     button.disabled = true;
@@ -1414,7 +1649,7 @@
         setTimeout(function () {
           state(button, '');
           button.disabled = false;
-        }, 1400);
+        }, 600); // Snappy feedback
       })
       .catch(function (error) {
         console.error('[BuzzKo ATC]', error);
