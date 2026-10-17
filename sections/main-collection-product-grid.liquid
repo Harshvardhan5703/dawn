@@ -1045,26 +1045,26 @@
       z-index: 10;
     }
 
-    /* Translucent Circle Button */
+    /* MORE TRANSLUCENT CIRCLE BUTTON */
     #product-grid .buzzko-product-card__atc {
       width: 36px;
       height: 36px;
       padding: 0;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.35); /* Increased transparency */
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       color: #FF60B9;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
 
     #product-grid .buzzko-product-card__atc:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.65);
     }
 
     #product-grid .buzzko-product-card__atc:disabled {
-      background: rgba(200, 200, 200, 0.7);
+      background: rgba(200, 200, 200, 0.6);
       color: #fff;
     }
 
@@ -1253,31 +1253,36 @@
     }
   }
 
+  /* STRICT 1:1 RATIO WITH NO WHITESPACE */
   .buzzko-modal__img-wrapper {
+    position: relative;
     width: 100%;
-    height: 220px; /* REDUCED HEIGHT FOR MOBILE */
-    border: 2px solid #F8B5D1; /* MATCHING PRODUCT PAGE */
+    aspect-ratio: 1 / 1;
+    border: 2px solid #F8B5D1;
     border-radius: 16px;
-    padding: 10px; /* MATCHING PRODUCT PAGE */
     background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
+    max-width: 240px; /* Reduced mobile height */
+    margin: 0 auto;
   }
 
   @media (min-width: 750px) {
     .buzzko-modal__img-wrapper {
-      height: 100%;
-      aspect-ratio: 1 / 1;
+      max-width: none;
     }
   }
 
   .buzzko-modal__img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px; /* MATCHING PRODUCT PAGE (14px - 2px border) */
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    object-fit: cover; /* FILLS FRAME, NO WHITESPACE */
+    border-radius: 12px;
+    display: block;
   }
 
   /* INFO COLUMN */
@@ -1326,37 +1331,105 @@
   .buzzko-modal__variants {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 24px;
   }
 
-  /* VARIANT BUTTONS - PASTEL STYLE */
+  /* ============================================================
+     BuzzKo: Product-grid variant buttons
+     Matched to the product-page variant pills
+     ============================================================ */
+  .buzzko-modal__variants {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
   .buzzko-modal-variant-btn {
-    padding: 8px 16px;
-    background: #fff;
-    border: 1.5px solid #D8D1CB;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1A1A1A;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 9px 18px;
+    margin: 0 0 2px;
+    background: #DDF0FA;
+    border: 1px solid #1A1A1A;
+    border-radius: 15px;
+    color: #45413F;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.04rem;
+    line-height: 1.2;
+    text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow: 2px 2px 0 rgba(26, 26, 26, 0.72);
+    transform: translate(0, 0);
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .buzzko-modal-variant-btn:hover:not(:disabled) {
-    border-color: #F8B5D1;
+    background: #C7E7F8;
+    border-color: #1A1A1A;
+    color: #1A1A1A;
+    box-shadow: 3px 3px 0 #1A1A1A;
+    transform: translate(-1px, -1px);
   }
 
-  .buzzko-modal-variant-btn.is-active {
-    background: #F8B5D1; /* Pastel Pink */
-    border-color: #F8B5D1;
+  .buzzko-modal-variant-btn.is-active,
+  .buzzko-modal-variant-btn[aria-pressed="true"] {
+    background: #F8B5D1;
+    border: 1.5px solid #1A1A1A;
     color: #111;
+    box-shadow: 4px 4px 0 #1A1A1A;
+    transform: translate(-2px, -2px);
+    font-weight: 700;
+    z-index: 2;
+  }
+
+  .buzzko-modal-variant-btn.is-active:hover:not(:disabled),
+  .buzzko-modal-variant-btn[aria-pressed="true"]:hover:not(:disabled) {
+    background: #F49BC3;
+    box-shadow: 5px 5px 0 #1A1A1A;
+    transform: translate(-2px, -2px);
+  }
+
+  .buzzko-modal-variant-btn:focus-visible {
+    outline: 2px solid #1A1A1A;
+    outline-offset: 4px;
   }
 
   .buzzko-modal-variant-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.45;
     cursor: not-allowed;
-    background: #f4f4f4;
+    background: #ECE8E5;
+    border-color: #A9A29D;
+    color: #77716C;
+    text-decoration: line-through;
+    box-shadow: none;
+    transform: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .buzzko-modal__variants {
+      gap: 9px;
+    }
+
+    .buzzko-modal-variant-btn {
+      min-height: 42px;
+      padding: 8px 14px;
+      border-radius: 13px;
+      font-size: 14px;
+    }
   }
 
   /* ADD TO CART - BLACK PILL (MATCHING PRODUCT PAGE) */
@@ -1488,19 +1561,25 @@
       btn.dataset.image = v.image || defaultImage;
       btn.dataset.price = v.price;
 
+      btn.setAttribute('aria-pressed', 'false');
+
       btn.addEventListener('click', function() {
+        if (btn.disabled) return;
+
         modalVariants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function(b) {
           b.classList.remove('is-active');
+          b.setAttribute('aria-pressed', 'false');
         });
         btn.classList.add('is-active');
-        
+        btn.setAttribute('aria-pressed', 'true');
+
         if (btn.dataset.image) {
           modalImg.src = btn.dataset.image;
         }
-        
+
         selectedVariantId = btn.dataset.variantId;
-        modalPrice.innerHTML = btn.dataset.price;
-        
+        modalPrice.textContent = btn.dataset.price;
+
         modalAddBtn.disabled = false;
         modalAddBtn.textContent = 'Add to Cart';
       });
@@ -1573,7 +1652,7 @@
       modalAddBtn.textContent = 'Added ✓';
       setTimeout(function() {
         closeModal();
-      }, 600);
+      }, 400); // Reduced to 400ms
     })
     .catch(function(err) {
       console.error('[BuzzKo Modal ATC]', err);
@@ -1649,7 +1728,7 @@
         setTimeout(function () {
           state(button, '');
           button.disabled = false;
-        }, 600); // Snappy feedback
+        }, 400); // Reduced to 400ms for snappy feedback
       })
       .catch(function (error) {
         console.error('[BuzzKo ATC]', error);
