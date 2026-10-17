@@ -777,7 +777,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; -- REMOVED SO POPOVER CAN ESCAPE */
+    overflow: visible; 
     background: #faf8f6;
     border: 3px solid var(--card-border);
     border-radius: 18px;
@@ -795,15 +796,20 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    overflow: hidden;
+    /* overflow: hidden; -- REMOVED SO POPOVER CAN ESCAPE */
     border-radius: 11px;
     background: #eee;
   }
 
+  /* ADDED position: absolute and inset: 0 to keep image perfectly square */
   #product-grid .buzzko-product-card__image-link {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    border-radius: 11px;
   }
 
   #product-grid .buzzko-product-card__image {
@@ -978,6 +984,8 @@
     color: #1A1A1A;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: normal;
+    word-break: break-word;
   }
 
   #product-grid .buzzko-variant-option:hover:not(:disabled) {
@@ -991,7 +999,7 @@
   #product-grid .buzzko-variant-option:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    text-decoration: line-through;
+    /* text-decoration: line-through; -- REMOVED THIS */
   }
 
   /* ============================================================
@@ -1095,6 +1103,10 @@
     }
 
     #product-grid .buzzko-product-card__image-wrapper {
+      border-radius: 8px;
+    }
+
+    #product-grid .buzzko-product-card__image-link {
       border-radius: 8px;
     }
 
