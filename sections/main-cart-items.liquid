@@ -883,6 +883,237 @@
   </div>
 </cart-items>
 
+<!-- ============================================================
+     BuzzKo FINAL FINAL: Optimistic UI + Queue Lock + Custom Limit Message
+     ============================================================ -->
+<script>
+  (function () {
+    if (window.__buzzkoCartQueueInit) return;
+    window.__buzzkoCartQueueInit = true;
+
+    var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+    var cartLocks = {}; 
+    var pendingQuantities = {}; 
+    var debounceTimers = {}; 
+    var errorTimers = {}; // NEW: To auto-hide the error message
+
+    // NEW: Helper function to clear error messages
+    function clearErrorMessage(lineKey) {
+      var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
+      if (currentItem) {
+        var errBox = currentItem.querySelector('.cart-item__error');
+        if (errBox) {
+          errBox.hidden = true;
+          var errText = errBox.querySelector('.cart-item__error-text');
+          if (errText) errText.textContent = '';
+        }
+      }
+      if (errorTimers[lineKey]) {
+        clearTimeout(errorTimers[lineKey]);
+        delete errorTimers[lineKey];
+      }
+    }
+
+    function updateCartServer(lineKey, desiredQuantity) {
+      if (cartLocks[lineKey]) {
+        pendingQuantities[lineKey] = desiredQuantity;
+        return;
+      }
+
+      cartLocks[lineKey] = true;
+
+      fetch(ROOT + 'cart/change.js?sections=main-cart-footer,main-cart-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ id: lineKey, quantity: desiredQuantity })
+      })
+      .then(function(res) {
+        if (!res.ok) {
+          return fetch(ROOT + 'cart.js').then(r => r.json()).then(cartData => {
+            throw { isLimitError: true, cartData: cartData };
+          });
+        }
+        return res.json();
+      })
+      .then(function(data) {
+        var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
+
+        // Hide error box on successful update
+        clearErrorMessage(lineKey);
+
+        // 1. Update the Order Summary Footer Total
+        if (data.sections && data.sections['main-cart-footer']) {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(data.sections['main-cart-footer'], 'text/html');
+          var newContent = doc.querySelector('#main-cart-footer .js-contents');
+          var currentContent = document.querySelector('#main-cart-footer .js-contents');
+          if (newContent && currentContent) {
+            currentContent.innerHTML = newContent.innerHTML;
+          }
+        }
+
+        // 2. Update the Line Item Price
+        if (data.sections && data.sections['main-cart-items']) {
+          var parser2 = new DOMParser();
+          var doc2 = parser2.parseFromString(data.sections['main-cart-items'], 'text/html');
+          var newItem = doc2.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
+
+          if (newItem && currentItem) {
+            var newPrice = newItem.querySelector('.buzzko-item__price');
+            var currentPrice = currentItem.querySelector('.buzzko-item__price');
+            if (newPrice && currentPrice) currentPrice.innerHTML = newPrice.innerHTML;
+
+            var newEach = newItem.querySelector('.buzzko-item__each');
+            var currentEach = currentItem.querySelector('.buzzko-item__each');
+            if (newEach && currentEach) {
+              currentEach.innerHTML = newEach.innerHTML;
+              currentEach.hidden = newEach.hidden;
+            }
+          }
+        }
+
+        document.dispatchEvent(new CustomEvent('cart-update', { detail: { cartData: data } }));
+      })
+      .catch(function(err) {
+        if (err.isLimitError) {
+          var currentInput = document.querySelector('.quantity__input[data-quantity-line-key="' + lineKey + '"]');
+          var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
+          var realItem = err.cartData.items.find(function(i) { return i.key === lineKey; });
+          
+          if (realItem && currentInput) {
+            // Snap input back and lock button
+            currentInput.value = realItem.quantity;
+            currentInput.setAttribute('max', realItem.quantity);
+            
+            var qtyInput = currentInput.closest('quantity-input');
+            if (qtyInput) {
+              var plusBtn = qtyInput.querySelector('[name="plus"]');
+              if (plusBtn) plusBtn.disabled = true;
+            }
+
+            // NEW: Show the custom limit message
+            if (currentItem) {
+              var errBox = currentItem.querySelector('.cart-item__error');
+              if (errBox) {
+                var errText = errBox.querySelector('.cart-item__error-text');
+                if (errText) {
+                  errText.textContent = "You can only add " + realItem.quantity + " of this item to your cart.";
+                }
+                errBox.hidden = false; // Show it!
+
+                // Auto hide after 4 seconds
+                if (errorTimers[lineKey]) clearTimeout(errorTimers[lineKey]);
+                errorTimers[lineKey] = setTimeout(function() {
+                  clearErrorMessage(lineKey);
+                }, 4000);
+              }
+            }
+          }
+        }
+      })
+      .finally(function() {
+        cartLocks[lineKey] = false;
+        
+        if (pendingQuantities[lineKey] !== undefined) {
+          var nextQty = pendingQuantities[lineKey];
+          delete pendingQuantities[lineKey];
+          
+          if (nextQty !== desiredQuantity) {
+            updateCartServer(lineKey, nextQty);
+          }
+        }
+      });
+    }
+
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.quantity__button');
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      var quantityInput = btn.closest('quantity-input');
+      if (!quantityInput) return;
+
+      var input = quantityInput.querySelector('.quantity__input');
+      if (!input) return;
+
+      var lineKey = input.getAttribute('data-quantity-line-key');
+      if (!lineKey) return;
+
+      // Clear error message immediately when they click either + or -
+      clearErrorMessage(lineKey);
+
+      var currentVal = parseInt(input.value, 10) || 0;
+      var isPlus = btn.name === 'plus';
+      var step = parseInt(input.getAttribute('step'), 10) || 1;
+      var min = parseInt(input.getAttribute('min'), 10) || 0;
+      var maxAttr = input.getAttribute('max');
+      var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
+
+      var newVal = isPlus ? currentVal + step : currentVal - step;
+      
+      if (newVal < min) newVal = min;
+      if (newVal > max) newVal = max;
+
+      if (newVal === currentVal) return; 
+
+      // Optimistic UI update
+      input.value = newVal;
+
+      var plusBtn = quantityInput.querySelector('[name="plus"]');
+      var minusBtn = quantityInput.querySelector('[name="minus"]');
+      
+      if (newVal >= max && plusBtn) plusBtn.disabled = true;
+      else if (plusBtn) plusBtn.disabled = false;
+
+      if (newVal <= min && minusBtn) minusBtn.disabled = true;
+      else if (minusBtn) minusBtn.disabled = false;
+
+      if (debounceTimers[lineKey]) clearTimeout(debounceTimers[lineKey]);
+      
+      debounceTimers[lineKey] = setTimeout(function() {
+        updateCartServer(lineKey, newVal);
+      }, 400);
+    }, true); 
+
+    document.addEventListener('change', function(e) {
+      var input = e.target.closest('.quantity__input');
+      if (!input) return;
+
+      e.stopImmediatePropagation();
+
+      var lineKey = input.getAttribute('data-quantity-line-key');
+      if (!lineKey) return;
+
+      clearErrorMessage(lineKey);
+
+      var newVal = parseInt(input.value, 10) || 0;
+      var min = parseInt(input.getAttribute('min'), 10) || 0;
+      var maxAttr = input.getAttribute('max');
+      var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
+
+      if (newVal < min) newVal = min;
+      if (newVal > max) newVal = max;
+      input.value = newVal;
+
+      var quantityInput = input.closest('quantity-input');
+      var plusBtn = quantityInput.querySelector('[name="plus"]');
+      var minusBtn = quantityInput.querySelector('[name="minus"]');
+      
+      if (newVal >= max && plusBtn) plusBtn.disabled = true;
+      else if (plusBtn) plusBtn.disabled = false;
+
+      if (newVal <= min && minusBtn) minusBtn.disabled = true;
+      else if (minusBtn) minusBtn.disabled = false;
+
+      if (debounceTimers[lineKey]) clearTimeout(debounceTimers[lineKey]);
+      debounceTimers[lineKey] = setTimeout(function() {
+        updateCartServer(lineKey, newVal);
+      }, 400);
+    }, true);
+  })();
+</script>
 {% schema %}
 {
   "name": "t:sections.main-cart-items.name",
