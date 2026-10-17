@@ -41,399 +41,355 @@
     }
   }
 
-
   /* BuzzKo Coming Soon collection state */
-#ProductGridContainer .buzzko-coming-soon {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 460px;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 24px;
-  background:
-    radial-gradient(ellipse at 15% 20%, #F8B5D1 0, transparent 24%),
-    radial-gradient(ellipse at 85% 25%, #BEE3F8 0, transparent 25%),
-    radial-gradient(ellipse at 80% 85%, #D0F4DE 0, transparent 23%),
-    radial-gradient(ellipse at 15% 85%, #FFECB3 0, transparent 22%),
-    #FFF9F6;
-}
-
-#ProductGridContainer .buzzko-coming-soon__content {
-  position: relative;
-  z-index: 2;
-  max-width: 520px;
-  padding: 5rem 2rem;
-  text-align: center;
-}
-
-#ProductGridContainer .buzzko-coming-soon__label {
-  display: inline-block;
-  margin: 0 0 1.8rem;
-  padding: 0.7rem 1.6rem;
-  border: 1px solid #1A1A1A;
-  border-radius: 999px;
-  background: #F8B5D1;
-  color: #1A1A1A;
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-}
-
-#ProductGridContainer .buzzko-coming-soon__title {
-  margin: 0;
-  color: #1A1A1A;
-  font-size: clamp(3rem, 5vw, 5.2rem);
-  line-height: 1.1;
-}
-
-#ProductGridContainer .buzzko-coming-soon__text {
-  max-width: 390px;
-  margin: 1.8rem auto 0;
-  color: #555;
-  font-size: 1.6rem;
-  line-height: 1.6;
-}
-
-#ProductGridContainer .buzzko-coming-soon__sparkle {
-  display: block;
-  margin-bottom: 0.8rem;
-  color: #1A1A1A;
-  font-size: 3rem;
-}
-
-#ProductGridContainer .buzzko-coming-soon__dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.8rem;
-  margin-top: 2.5rem;
-}
-
-#ProductGridContainer .buzzko-coming-soon__dots span {
-  width: 3.2rem;
-  height: 0.6rem;
-  border-radius: 999px;
-}
-
-#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(1) {
-  background: #F8B5D1;
-}
-
-#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(2) {
-  background: #BEE3F8;
-}
-
-#ProductGridContainer .buzzko-coming-soon__dots span:nth-child(3) {
-  background: #D0F4DE;
-}
-
-#ProductGridContainer .buzzko-coming-soon__shape {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  border: 2px solid rgba(26, 26, 26, 0.12);
-  border-radius: 30%;
-  transform: rotate(25deg);
-}
-
-#ProductGridContainer .buzzko-coming-soon__shape--pink {
-  top: 12%;
-  left: 12%;
-  width: 70px;
-  height: 70px;
-  background: #F8B5D1;
-}
-
-#ProductGridContainer .buzzko-coming-soon__shape--blue {
-  top: 17%;
-  right: 13%;
-  width: 48px;
-  height: 48px;
-  background: #BEE3F8;
-  transform: rotate(45deg);
-}
-
-#ProductGridContainer .buzzko-coming-soon__shape--yellow {
-  bottom: 13%;
-  left: 17%;
-  width: 42px;
-  height: 42px;
-  background: #FFECB3;
-  border-radius: 50%;
-}
-
-#ProductGridContainer .buzzko-coming-soon__shape--green {
-  right: 15%;
-  bottom: 12%;
-  width: 64px;
-  height: 64px;
-  background: #D0F4DE;
-  transform: rotate(15deg);
-}
-
-@media screen and (max-width: 749px) {
   #ProductGridContainer .buzzko-coming-soon {
-    min-height: 380px;
-    border-radius: 16px;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 460px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 24px;
+    background:
+      radial-gradient(ellipse at 15% 20%, #F8B5D1 0, transparent 24%),
+      radial-gradient(ellipse at 85% 25%, #BEE3F8 0, transparent 25%),
+      radial-gradient(ellipse at 80% 85%, #D0F4DE 0, transparent 23%),
+      radial-gradient(ellipse at 15% 85%, #FFECB3 0, transparent 22%),
+      #FFF9F6;
   }
 
   #ProductGridContainer .buzzko-coming-soon__content {
-    padding: 4rem 2rem;
+    position: relative;
+    z-index: 2;
+    max-width: 520px;
+    padding: 5rem 2rem;
+    text-align: center;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__label {
+    display: inline-block;
+    margin: 0 0 1.8rem;
+    padding: 0.7rem 1.6rem;
+    border: 1px solid #1A1A1A;
+    border-radius: 999px;
+    background: #F8B5D1;
+    color: #1A1A1A;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
   }
 
   #ProductGridContainer .buzzko-coming-soon__title {
-    font-size: 3.4rem;
+    margin: 0;
+    color: #1A1A1A;
+    font-size: clamp(3rem, 5vw, 5.2rem);
+    line-height: 1.1;
   }
 
   #ProductGridContainer .buzzko-coming-soon__text {
-    font-size: 1.4rem;
+    max-width: 390px;
+    margin: 1.8rem auto 0;
+    color: #555;
+    font-size: 1.6rem;
+    line-height: 1.6;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__sparkle {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: #1A1A1A;
+    font-size: 3rem;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2.5rem;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__dots span {
+    width: 3.2rem;
+    height: 0.6rem;
+    border-radius: 999px;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__dots span:nth-child(1) {
+    background: #F8B5D1;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__dots span:nth-child(2) {
+    background: #BEE3F8;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__dots span:nth-child(3) {
+    background: #D0F4DE;
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__shape {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    border: 2px solid rgba(26, 26, 26, 0.12);
+    border-radius: 30%;
+    transform: rotate(25deg);
   }
 
   #ProductGridContainer .buzzko-coming-soon__shape--pink {
-    width: 45px;
-    height: 45px;
+    top: 12%;
+    left: 12%;
+    width: 70px;
+    height: 70px;
+    background: #F8B5D1;
   }
 
   #ProductGridContainer .buzzko-coming-soon__shape--blue {
-    width: 35px;
-    height: 35px;
+    top: 17%;
+    right: 13%;
+    width: 48px;
+    height: 48px;
+    background: #BEE3F8;
+    transform: rotate(45deg);
+  }
+
+  #ProductGridContainer .buzzko-coming-soon__shape--yellow {
+    bottom: 13%;
+    left: 17%;
+    width: 42px;
+    height: 42px;
+    background: #FFECB3;
+    border-radius: 50%;
   }
 
   #ProductGridContainer .buzzko-coming-soon__shape--green {
-    width: 42px;
-    height: 42px;
-  }
-}
-
-/* ============================================================
-   BuzzKo: Soft filter UI (one consolidated block)
-   - labels: plain text, no pill, no border
-   - caret: proper gap from label (CSS + JS fallback)
-   - dropdown panel / price inputs / checkboxes / buttons: soft
-   ============================================================ */
-
-/* 1. Filter labels — plain text, no pill, no border */
-.facets__summary,
-.facets__disclosure .facets__summary {
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0.8rem 0 !important;
-  background: transparent !important;
-}
-
-/* 2. Caret spacing — cover all known Dawn structures */
-.facets__summary > div,
-.facets__summary > span,
-.facets__summary > .svg-wrapper {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-
-.facets__summary svg,
-.facets__summary .icon-caret,
-.facets__summary .svg-wrapper {
-  margin-inline-start: 10px !important;
-  margin-left: 10px !important;
-  flex-shrink: 0 !important;
-  position: static !important;
-  inset: auto !important;
-}
-
-.facets__summary > div > *:not(:first-child),
-.facets__summary span + * {
-  margin-left: 10px !important;
-}
-
-.facets__summary span:first-child,
-.facets__summary .facets__summary-label {
-  margin-inline-end: 4px !important;
-  margin-right: 4px !important;
-}
-
-/* 3. Soft round the dropdown panel */
-.facets__display {
-  border-radius: 16px !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, .08) !important;
-  overflow: hidden;
-}
-
-/* 4. Soft round the price inputs (From / To) — wrapper + input + pseudo */
-.facets__price .field,
-.facets__price .field__input,
-.facets__price input[type="number"],
-.facets__price input[type="text"] {
-  border-radius: 10px !important;
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
-  padding-left: 1.2rem !important;
-}
-
-.facets__price .field::after,
-.facets__price .field::before {
-  border-radius: 10px !important;
-}
-
-.facets__price .field__label,
-.facets__price .field__currency {
-  border-radius: 10px 0 0 10px !important;
-}
-
-/* 5. Soft round checkbox squares */
-.facet-checkbox > svg,
-.facet-checkbox .icon-checkmark,
-.facet-checkbox input[type="checkbox"] + .icon-checkmark {
-  border-radius: 6px !important;
-}
-
-/* 6. Soft round Reset link */
-.facets__reset {
-  border-radius: 6px !important;
-  padding: 0.4rem 0.8rem;
-}
-
-/* 7. Soft round Apply / Clear buttons */
-.facets__button,
-.facets__button-no-js,
-.button.facets__button {
-  border-radius: 8px !important;
-}
-
-/* 8. Active filter chips — soft pills */
-.active-facets__button,
-.active-facets__button-inner {
-  border-radius: 999px !important;
-}
-
-
-/* ============================================================
-   BuzzKo: Kill the double border on price inputs
-   Only the wrapper (.field) should draw the border.
-   The <input> itself must have NO border, NO shadow, NO bg.
-   ============================================================ */
-
-/* 1. Strip the border from the input itself */
-.facets__price .field__input,
-.facets__price input[type="number"],
-.facets__price input[type="text"] {
-  border: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-  background: transparent !important;
-  border-radius: 10px !important;
-  padding-left: 1.2rem !important;
-}
-
-/* 2. If Dawn draws the wrapper border via ::after, unify it */
-.facets__price .field::after,
-.facets__price .field::before {
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  pointer-events: none !important;
-}
-
-/* 3. Ensure the wrapper itself is rounded + clips the input corners */
-.facets__price .field {
-  border-radius: 10px !important;
-  overflow: hidden !important;
-}
-
-/* 4. Neutralise focus state so it doesn't draw a second ring */
-.facets__price .field__input:focus,
-.facets__price .field__input:focus-visible,
-.facets__price input:focus,
-.facets__price input:focus-visible {
-  border: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-.facets__price .field:focus-within::after,
-.facets__price .field:focus-within::before {
-  border: 1px solid #1A1A1A !important; /* single, clean focus ring */
-  border-radius: 10px !important;
-}
-
-/* ============================================================
-   BuzzKo: Price inputs — ONE border only, on the wrapper
-   ============================================================ */
-
-/* 1. Nuke every border/shadow/outline on the input itself */
-.facets__price input,
-.facets__price input[type="number"],
-.facets__price input[type="text"],
-.facets__price .field__input,
-.facets__price .field__input:focus,
-.facets__price .field__input:focus-visible,
-.facets__price .field__input:active {
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  border-radius: 10px !important;
-  padding-left: 1.2rem !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-}
-
-/* 2. Nuke every border/pseudo-border on the wrapper */
-.facets__price .field,
-.facets__price .field::before,
-.facets__price .field::after,
-.facets__price .field:focus-within::before,
-.facets__price .field:focus-within::after {
-  border: 0 !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-}
-
-/* 3. Now draw ONE clean border on the wrapper only */
-.facets__price .field {
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
-  background: transparent !important;
-}
-
-/* 4. On focus, just darken that same single border */
-.facets__price .field:focus-within {
-  border-color: #1A1A1A !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-}
-
-/* ============================================================
-   BuzzKo: Mobile — breathe between filter bar and product grid
-   ============================================================ */
-@media screen and (max-width: 749px) {
-  #main-collection-filters,
-  .facets-wrapper {
-    margin-bottom: 24px !important;
+    right: 15%;
+    bottom: 12%;
+    width: 64px;
+    height: 64px;
+    background: #D0F4DE;
+    transform: rotate(15deg);
   }
 
-  /* If the theme wraps the mobile filter bar in its own container,
-     catch that too. */
-  .facets-container,
-  .facets__wrapper {
-    margin-bottom: 24px !important;
+  @media screen and (max-width: 749px) {
+    #ProductGridContainer .buzzko-coming-soon {
+      min-height: 380px;
+      border-radius: 16px;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__content {
+      padding: 4rem 2rem;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__title {
+      font-size: 3.4rem;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__text {
+      font-size: 1.4rem;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__shape--pink {
+      width: 45px;
+      height: 45px;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__shape--blue {
+      width: 35px;
+      height: 35px;
+    }
+
+    #ProductGridContainer .buzzko-coming-soon__shape--green {
+      width: 42px;
+      height: 42px;
+    }
   }
 
-  /* And add a touch of breathing room above the grid itself in case
-     the margin above gets collapsed. */
-  #ProductGridContainer {
-    padding-top: 8px;
+  /* ============================================================
+     BuzzKo: Soft filter UI
+     ============================================================ */
+  .facets__summary,
+  .facets__disclosure .facets__summary {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0.8rem 0 !important;
+    background: transparent !important;
   }
 
-  /* Also give the mobile filter bar a bit of bottom padding so the
-     "Filter and sort" button doesn't visually crowd the first row. */
-  .mobile-facets__wrapper,
-  .mobile-facets {
-    margin-bottom: 8px;
+  .facets__summary > div,
+  .facets__summary > span,
+  .facets__summary > .svg-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
   }
-}
+
+  .facets__summary svg,
+  .facets__summary .icon-caret,
+  .facets__summary .svg-wrapper {
+    margin-inline-start: 10px !important;
+    margin-left: 10px !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+    inset: auto !important;
+  }
+
+  .facets__summary > div > *:not(:first-child),
+  .facets__summary span + * {
+    margin-left: 10px !important;
+  }
+
+  .facets__summary span:first-child,
+  .facets__summary .facets__summary-label {
+    margin-inline-end: 4px !important;
+    margin-right: 4px !important;
+  }
+
+  .facets__display {
+    border-radius: 16px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .08) !important;
+    overflow: hidden;
+  }
+
+  .facets__price .field,
+  .facets__price .field__input,
+  .facets__price input[type="number"],
+  .facets__price input[type="text"] {
+    border-radius: 10px !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    padding-left: 1.2rem !important;
+  }
+
+  .facets__price .field::after,
+  .facets__price .field::before {
+    border-radius: 10px !important;
+  }
+
+  .facets__price .field__label,
+  .facets__price .field__currency {
+    border-radius: 10px 0 0 10px !important;
+  }
+
+  .facet-checkbox > svg,
+  .facet-checkbox .icon-checkmark,
+  .facet-checkbox input[type="checkbox"] + .icon-checkmark {
+    border-radius: 6px !important;
+  }
+
+  .facets__reset {
+    border-radius: 6px !important;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .facets__button,
+  .facets__button-no-js,
+  .button.facets__button {
+    border-radius: 8px !important;
+  }
+
+  .active-facets__button,
+  .active-facets__button-inner {
+    border-radius: 999px !important;
+  }
+
+  .facets__price .field__input,
+  .facets__price input[type="number"],
+  .facets__price input[type="text"] {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    border-radius: 10px !important;
+    padding-left: 1.2rem !important;
+  }
+
+  .facets__price .field::after,
+  .facets__price .field::before {
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .facets__price .field {
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .facets__price .field__input:focus,
+  .facets__price .field__input:focus-visible,
+  .facets__price input:focus,
+  .facets__price input:focus-visible {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .facets__price .field:focus-within::after,
+  .facets__price .field:focus-within::before {
+    border: 1px solid #1A1A1A !important;
+    border-radius: 10px !important;
+  }
+
+  .facets__price input,
+  .facets__price input[type="number"],
+  .facets__price input[type="text"],
+  .facets__price .field__input,
+  .facets__price .field__input:focus,
+  .facets__price .field__input:focus-visible,
+  .facets__price .field__input:active {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 10px !important;
+    padding-left: 1.2rem !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .facets__price .field,
+  .facets__price .field::before,
+  .facets__price .field::after,
+  .facets__price .field:focus-within::before,
+  .facets__price .field:focus-within::after {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .facets__price .field {
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: transparent !important;
+  }
+
+  .facets__price .field:focus-within {
+    border-color: #1A1A1A !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    #main-collection-filters,
+    .facets-wrapper,
+    .facets-container,
+    .facets__wrapper {
+      margin-bottom: 24px !important;
+    }
+
+    #ProductGridContainer {
+      padding-top: 8px;
+    }
+
+    .mobile-facets__wrapper,
+    .mobile-facets {
+      margin-bottom: 8px;
+    }
+  }
 {%- endstyle -%}
 
 {%- comment -%}
@@ -455,13 +411,10 @@
   {%- assign buzzko_label = buzzko_filter.label | downcase -%}
   {%- assign buzzko_hide_this = false -%}
 
-  {%- comment -%} Categories filter — hidden on category pages {%- endcomment -%}
   {%- if buzzko_label contains 'categor' -%}
     {%- if buzzko_is_category_page -%}
       {%- assign buzzko_hide_this = true -%}
     {%- endif -%}
-
-  {%- comment -%} Charm Style filter — only shown on the charms page {%- endcomment -%}
   {%- elsif buzzko_label contains 'charm style' -%}
     {%- unless buzzko_is_charm_page -%}
       {%- assign buzzko_hide_this = true -%}
@@ -479,7 +432,6 @@
 >
   <div class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}">
     {%- paginate collection.products by section.settings.products_per_page -%}
-      {% comment %} Sort is the first tabbable element when filter type is vertical {% endcomment %}
       {%- if section.settings.enable_sorting and section.settings.filter_type == 'vertical' -%}
         <facet-filters-form class="facets facets-vertical-sort page-width small-hide">
           <form class="facets-vertical-form" id="FacetSortForm">
@@ -533,14 +485,6 @@
         {{ 'component-facets.css' | asset_url | stylesheet_tag }}
         <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
 
-        {%- comment -%}
-          BuzzKo: pre-hide the wrong filter groups before they ever paint.
-          Dawn renders the filter list TWICE from the same facets.liquid:
-            · Desktop  → <details class="... js-filter" data-index="N">
-            · Mobile   → <details class="... js-filter" data-index="mobile-N">
-          So we must emit rules for BOTH prefixes. This is also why the
-          mobile drawer was still showing Charm Style / Categories.
-        {%- endcomment -%}
         {%- if buzzko_hidden_indices != blank -%}
           <style>
             {%- assign buzzko_indices = buzzko_hidden_indices | split: ',' -%}
@@ -582,54 +526,54 @@
             data-cascade
           {% endif %}
         >
-{%- if collection.products.size == 0 -%}
-  <div
-    class="collection collection--empty page-width"
-    id="product-grid"
-    data-id="{{ section.id }}"
-  >
-    <div class="loading-overlay gradient"></div>
+          {%- if collection.products.size == 0 -%}
+            <div
+              class="collection collection--empty page-width"
+              id="product-grid"
+              data-id="{{ section.id }}"
+            >
+              <div class="loading-overlay gradient"></div>
 
-    {% if collection.all_products_count == 0 %}
-      <div class="buzzko-coming-soon">
-        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--pink"></span>
-        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--blue"></span>
-        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--yellow"></span>
-        <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--green"></span>
+              {% if collection.all_products_count == 0 %}
+                <div class="buzzko-coming-soon">
+                  <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--pink"></span>
+                  <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--blue"></span>
+                  <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--yellow"></span>
+                  <span class="buzzko-coming-soon__shape buzzko-coming-soon__shape--green"></span>
 
-        <div class="buzzko-coming-soon__content">
-          <span class="buzzko-coming-soon__sparkle">✦</span>
-          <span class="buzzko-coming-soon__label">COMING SOON</span>
+                  <div class="buzzko-coming-soon__content">
+                    <span class="buzzko-coming-soon__sparkle">✦</span>
+                    <span class="buzzko-coming-soon__label">COMING SOON</span>
 
-          <h2 class="buzzko-coming-soon__title">
-            Something cute<br>is on its way!
-          </h2>
+                    <h2 class="buzzko-coming-soon__title">
+                      Something cute<br>is on its way!
+                    </h2>
 
-          <p class="buzzko-coming-soon__text">
-            {{ collection.title | escape }} are getting ready.
-            Stay tuned for our next drop!
-          </p>
+                    <p class="buzzko-coming-soon__text">
+                      {{ collection.title | escape }} are getting ready.
+                      Stay tuned for our next drop!
+                    </p>
 
-          <div class="buzzko-coming-soon__dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    {% else %}
-      <div class="title-wrapper center">
-        <h2 class="title title--primary">
-          {{ 'sections.collection_template.empty' | t -}}
-          <br>
-          {{
-            'sections.collection_template.use_fewer_filters_html'
-            | t: link: collection.url, class: 'underlined-link link'
-          }}
-        </h2>
-      </div>
-    {% endif %}
-  </div>
+                    <div class="buzzko-coming-soon__dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="title-wrapper center">
+                  <h2 class="title title--primary">
+                    {{ 'sections.collection_template.empty' | t -}}
+                    <br>
+                    {{
+                      'sections.collection_template.use_fewer_filters_html'
+                      | t: link: collection.url, class: 'underlined-link link'
+                    }}
+                  </h2>
+                </div>
+              {% endif %}
+            </div>
           {%- else -%}
             <div
               class="collection{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
@@ -670,6 +614,14 @@
 
                       <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
                         <div class="buzzko-product-card__image-wrapper">
+                          
+                          <!-- SOLD OUT OVERLAY BADGE -->
+                          {% unless product.available %}
+                            <div class="buzzko-product-card__badge buzzko-product-card__badge--soldout">
+                              Sold Out
+                            </div>
+                          {% endunless %}
+
                           <a href="{{ product.url }}" class="buzzko-product-card__image-link" aria-label="{{ product.title | escape }}">
                             {% if product.featured_image != blank %}
                               {% assign image_alt = product.featured_image.alt | default: product.title %}
@@ -687,6 +639,77 @@
                               {{ 'product-1' | placeholder_svg_tag: 'buzzko-product-card__placeholder' }}
                             {% endif %}
                           </a>
+
+                          {%- capture form_content -%}
+                            <input type="hidden" name="id" value="{{ variant.id }}">
+                            
+                            <!-- VARIANT SELECTOR DATA -->
+                            {% unless product.has_only_default_variant %}
+                              <div class="buzzko-variant-popover" hidden>
+                                <div class="buzzko-variant-popover__title">Select Option ✦</div>
+                                <ul class="buzzko-variant-list">
+                                  {% for v in product.variants %}
+                                    <li>
+                                      <button type="button" class="buzzko-variant-option" data-variant-id="{{ v.id }}" {% unless v.available %}disabled{% endunless %}>
+                                        {{ v.title }} {% unless v.available %}(Sold Out){% endunless %}
+                                      </button>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              </div>
+                            {% endunless %}
+
+                            <button
+                              type="submit"
+                              name="add"
+                              class="buzzko-product-card__atc"
+                              aria-label="Add to Cart"
+                              {% unless product.available %}disabled{% endunless %}
+                              {% unless product.has_only_default_variant %}data-has-variants="true"{% endunless %}
+                            >
+                              <!-- Desktop Text -->
+                              <span class="btn-text">
+                                {% if product.available %}
+                                  {% if product.has_only_default_variant %}Add to Cart{% else %}Choose Option{% endif %}
+                                {% else %}
+                                  Sold Out
+                                {% endif %}
+                              </span>
+
+                              <!-- Mobile Icon -->
+                              {% if product.available %}
+                                <svg class="icon-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <circle cx="9" cy="21" r="1"></circle>
+                                  <circle cx="20" cy="21" r="1"></circle>
+                                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                                <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <line x1="12" y1="2" x2="12" y2="6"></line>
+                                  <line x1="12" y1="18" x2="12" y2="22"></line>
+                                  <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                                  <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                                  <line x1="2" y1="12" x2="6" y2="12"></line>
+                                  <line x1="18" y1="12" x2="22" y2="12"></line>
+                                  <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                                  <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                                </svg>
+                              {% else %}
+                                <!-- Sold Out Mobile Icon (Cross) -->
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                              {% endif %}
+                            </button>
+                          {%- endcapture -%}
+
+                          <!-- MOBILE FLOATING FORM -->
+                          <form action="/cart/add" method="post" class="buzzko-product-card__form buzzko-product-card__form--mobile" data-buzzko-atc>
+                            {{ form_content }}
+                          </form>
                         </div>
 
                         <div class="buzzko-product-card__content">
@@ -711,20 +734,10 @@
                                 <span class="buzzko-product-card__price-current">{{ product.price | money }}</span>
                               {% endif %}
                             </div>
-
-                            <form action="/cart/add" method="post" class="buzzko-product-card__form" data-buzzko-atc>
-                              <input type="hidden" name="id" value="{{ variant.id }}">
-                              <button
-                                type="submit"
-                                name="add"
-                                class="buzzko-product-card__atc"
-                                data-label-default="Add to Cart"
-                                data-label-loading="Adding…"
-                                data-label-success="Added ✓"
-                                {% unless variant.available %}disabled{% endunless %}
-                              >
-                                {% if variant.available %}Add to Cart{% else %}Sold Out{% endif %}
-                              </button>
+                            
+                            <!-- DESKTOP FORM -->
+                            <form action="/cart/add" method="post" class="buzzko-product-card__form buzzko-product-card__form--desktop" data-buzzko-atc>
+                              {{ form_content }}
                             </form>
                           </div>
                         </div>
@@ -748,7 +761,6 @@
   </div>
 </collection-component>
 
-
 <style>
   #ProductGridContainer {
     background: #FFFAF5;
@@ -759,106 +771,8 @@
   }
 
   /* ============================================================
-     BuzzKo: FORCE 2 products per row on mobile.
-     Dawn's `.grid` is `display:flex`, which is why the old
-     `grid-template-columns` fix silently did nothing. We must
-     switch the container to `display:grid` AND use high
-     specificity + !important to beat Dawn's rules.
+     BuzzKo: Base Card Styles
      ============================================================ */
-  @media screen and (max-width: 749px) {
-    #ProductGridContainer #product-grid.product-grid {
-      display: grid !important;
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      grid-auto-flow: row !important;
-      column-gap: 10px !important;
-      row-gap: 14px !important;
-      width: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      list-style: none !important;
-    }
-
-    #ProductGridContainer #product-grid.product-grid > .grid__item {
-      display: block !important;
-      width: auto !important;
-      max-width: none !important;
-      min-width: 0 !important;
-      flex: 0 0 auto !important;
-      grid-column: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    #ProductGridContainer #product-grid.product-grid > .grid__item:only-child {
-      width: auto !important;
-      max-width: none !important;
-      grid-column: span 2 !important;
-    }
-
-    #product-grid .buzzko-product-card {
-      padding: 8px;
-      border-width: 2px;
-      border-radius: 14px;
-    }
-
-    #product-grid .buzzko-product-card__image-wrapper {
-      border-radius: 9px;
-    }
-
-    #product-grid .buzzko-product-card__content {
-      padding: 10px 3px 5px;
-    }
-
-    #product-grid .buzzko-product-card__title {
-      font-size: 13px;
-      line-height: 1.25;
-    }
-
-    #product-grid .buzzko-product-card__subtitle {
-      font-size: 10px;
-      margin-top: 4px;
-    }
-
-    #product-grid .buzzko-product-card__footer {
-      flex-wrap: wrap;
-      padding-top: 12px;
-      gap: 6px;
-    }
-
-    #product-grid .buzzko-product-card__price-current {
-      font-size: 13px;
-    }
-
-    #product-grid .buzzko-product-card__price-compare {
-      font-size: 11px;
-    }
-
-    #product-grid .buzzko-product-card__atc {
-      min-height: 34px;
-      padding: 7px 12px;
-      font-size: 11px;
-    }
-
-    /* ============================================================
-       BuzzKo: mobile spacing — filter bar ↔ product grid
-       ============================================================ */
-    #main-collection-filters,
-    .facets-wrapper,
-    .facets-container,
-    .facets__wrapper {
-      margin-bottom: 24px !important;
-    }
-
-    .mobile-facets__wrapper,
-    .mobile-facets {
-      margin-bottom: 8px;
-    }
-
-    #ProductGridContainer {
-      padding-top: 8px;
-    }
-  }
-
   #product-grid .buzzko-product-card {
     display: flex;
     flex-direction: column;
@@ -867,7 +781,7 @@
     background: #faf8f6;
     border: 3px solid var(--card-border);
     border-radius: 18px;
-    padding: 11px;
+    padding: 8px;
     color: inherit;
     transition: transform .2s ease, box-shadow .2s ease;
   }
@@ -878,6 +792,7 @@
   }
 
   #product-grid .buzzko-product-card__image-wrapper {
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
@@ -903,73 +818,46 @@
     transform: scale(1.025);
   }
 
-  #product-grid .buzzko-product-card__content {
-    padding: 15px 6px 8px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+  /* ============================================================
+     BuzzKo: Sold Out Badge
+     ============================================================ */
+  #product-grid .buzzko-product-card__badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
   }
 
-  #product-grid .buzzko-product-card__title {
-    margin: 0;
-    color: #111;
-    font-size: 15px;
-    line-height: 1.3;
-    font-weight: 800;
-    letter-spacing: -.2px;
+  /* ============================================================
+     BuzzKo: Form visibility (Desktop / Mobile)
+     ============================================================ */
+  #product-grid .buzzko-product-card__form--mobile {
+    display: none !important;
   }
 
-  #product-grid .buzzko-product-card__title-link {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  #product-grid .buzzko-product-card__subtitle {
-    margin: 5px 0 0;
-    color: #777;
-    font-size: 12px;
-    line-height: 1.35;
-  }
-
-  #product-grid .buzzko-product-card__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: auto;
-    padding-top: 17px;
-  }
-
-  #product-grid .buzzko-product-card__price {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  #product-grid .buzzko-product-card__price-current {
-    color: #111;
-    font-size: 15px;
-    line-height: 1;
-    font-weight: 800;
-  }
-
-  #product-grid .buzzko-product-card__price-compare {
-    color: #999;
-    font-size: 12px;
-    text-decoration: line-through;
-  }
-
-  #product-grid .buzzko-product-card__form {
+  /* ============================================================
+     BuzzKo: Desktop Base Button
+     ============================================================ */
+  #product-grid .buzzko-product-card__form--desktop {
     margin: 0;
     flex-shrink: 0;
+    position: relative;
   }
 
   #product-grid .buzzko-product-card__atc {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 7px 14px;
+    padding: 6px 12px;
     background: #FF60B9;
     color: #201e1e;
     border: 0;
@@ -980,6 +868,7 @@
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
   }
 
   #product-grid .buzzko-product-card__atc:hover:not(:disabled) {
@@ -989,139 +878,370 @@
   #product-grid .buzzko-product-card__atc:disabled {
     background: #ccc;
     cursor: not-allowed;
+    color: #666;
   }
 
-  #product-grid .buzzko-product-card__atc[data-state="loading"] {
-    opacity: .7;
-    cursor: wait;
+  /* Hide mobile icons on desktop */
+  #product-grid .buzzko-product-card__atc svg {
+    display: none;
+  }
+
+  /* ============================================================
+     BuzzKo: Variant Popover Menu (Glow-up)
+     ============================================================ */
+  #product-grid .buzzko-variant-popover {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 0;
+    width: max-content;
+    min-width: 160px;
+    max-width: 220px;
+    background: #ffffff;
+    border: 1.5px solid rgba(255, 96, 185, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(255, 96, 185, 0.08);
+    padding: 12px;
+    z-index: 50;
+    animation: buzzkoPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  #product-grid .buzzko-variant-popover[hidden] {
+    display: none;
+  }
+
+  /* Little triangle pointer */
+  #product-grid .buzzko-variant-popover::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 16px;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-right: 1.5px solid rgba(255, 96, 185, 0.3);
+    border-bottom: 1.5px solid rgba(255, 96, 185, 0.3);
+    transform: translateY(-7px) rotate(45deg);
+  }
+
+  @keyframes buzzkoPopIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  #product-grid .buzzko-variant-popover__title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1A1A1A;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #product-grid .buzzko-variant-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  #product-grid .buzzko-variant-list::-webkit-scrollbar {
+    display: none; /* Safari/Chrome */
+  }
+
+  #product-grid .buzzko-variant-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    background: #faf8f6;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1A1A1A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  #product-grid .buzzko-variant-option:hover:not(:disabled) {
+    background: #FF60B9;
+    border-color: #FF60B9;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 96, 185, 0.2);
+  }
+
+  #product-grid .buzzko-variant-option:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ============================================================
+     BuzzKo: Content & Footer
+     ============================================================ */
+  #product-grid .buzzko-product-card__content {
+    padding: 8px 4px 2px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  #product-grid .buzzko-product-card__title {
+    margin: 0;
+    color: #111;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.2px;
+  }
+
+  #product-grid .buzzko-product-card__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #product-grid .buzzko-product-card__subtitle {
+    margin: 3px 0 0;
+    color: #777;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  #product-grid .buzzko-product-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  #product-grid .buzzko-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  #product-grid .buzzko-product-card__price-current {
+    color: #111;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  #product-grid .buzzko-product-card__price-compare {
+    color: #999;
+    font-size: 11px;
+    text-decoration: line-through;
+  }
+
+  /* ============================================================
+     BuzzKo: MOBILE OVERRIDES (Floating Translucent Button)
+     ============================================================ */
+  @media screen and (max-width: 749px) {
+    /* Force 2 columns */
+    #ProductGridContainer #product-grid.product-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      grid-auto-flow: row !important;
+      column-gap: 10px !important;
+      row-gap: 12px !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none !important;
+    }
+
+    #ProductGridContainer #product-grid.product-grid > .grid__item {
+      display: block !important;
+      width: auto !important;
+      max-width: none !important;
+      min-width: 0 !important;
+      flex: 0 0 auto !important;
+      grid-column: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    #ProductGridContainer #product-grid.product-grid > .grid__item:only-child {
+      width: auto !important;
+      max-width: none !important;
+      grid-column: span 2 !important;
+    }
+
+    #product-grid .buzzko-product-card {
+      padding: 6px;
+      border-width: 2px;
+      border-radius: 13px;
+    }
+
+    #product-grid .buzzko-product-card__image-wrapper {
+      border-radius: 8px;
+    }
+
+    /* Hide Desktop Form, Show Mobile Form */
+    #product-grid .buzzko-product-card__form--desktop {
+      display: none !important;
+    }
+    #product-grid .buzzko-product-card__form--mobile {
+      display: block !important;
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      z-index: 10;
+    }
+
+    /* Translucent Circle Button */
+    #product-grid .buzzko-product-card__atc {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #FF60B9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    #product-grid .buzzko-product-card__atc:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    #product-grid .buzzko-product-card__atc:disabled {
+      background: rgba(200, 200, 200, 0.7);
+      color: #fff;
+    }
+
+    /* Hide Desktop Text, Show Mobile Icons */
+    #product-grid .buzzko-product-card__atc .btn-text {
+      display: none;
+    }
+
+    #product-grid .buzzko-product-card__atc svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Mobile Popover position tweak */
+    #product-grid .buzzko-variant-popover {
+      bottom: calc(100% + 10px);
+      right: 0;
+    }
+
+    /* Card Content Padding */
+    #product-grid .buzzko-product-card__content {
+      padding: 6px 2px 2px;
+    }
+
+    #product-grid .buzzko-product-card__title {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    #product-grid .buzzko-product-card__subtitle {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    #product-grid .buzzko-product-card__footer {
+      padding-top: 6px;
+    }
+
+    #product-grid .buzzko-product-card__price-current {
+      font-size: 13px;
+    }
+
+    #product-grid .buzzko-product-card__price-compare {
+      font-size: 10px;
+    }
+
+    /* Mobile filter spacing */
+    #main-collection-filters,
+    .facets-wrapper,
+    .facets-container,
+    .facets__wrapper {
+      margin-bottom: 24px !important;
+    }
+
+    .mobile-facets__wrapper,
+    .mobile-facets {
+      margin-bottom: 8px;
+    }
+
+    #ProductGridContainer {
+      padding-top: 8px;
+    }
+  }
+
+  /* ============================================================
+     BuzzKo: Icon States (Loading / Success)
+     ============================================================ */
+  #product-grid .buzzko-product-card__atc .icon-check,
+  #product-grid .buzzko-product-card__atc .icon-spinner {
+    display: none;
+  }
+
+  #product-grid .buzzko-product-card__atc[data-state="loading"] .icon-cart {
+    display: none;
+  }
+  #product-grid .buzzko-product-card__atc[data-state="loading"] .icon-spinner {
+    display: block;
+    animation: buzzko-spin 1s linear infinite;
+  }
+  #product-grid .buzzko-product-card__atc[data-state="loading"] .btn-text::before {
+    content: "Adding...";
+  }
+  #product-grid .buzzko-product-card__atc[data-state="loading"] .btn-text {
+    font-size: 0;
+  }
+  #product-grid .buzzko-product-card__atc[data-state="loading"] .btn-text::before {
+    font-size: 11px;
   }
 
   #product-grid .buzzko-product-card__atc[data-state="success"] {
     background: #B9E404;
+    color: #111;
   }
-
-
-  
-@media screen and (max-width: 749px) {
-  #ProductGridContainer #product-grid.product-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    grid-auto-flow: row !important;
-    column-gap: 10px !important;
-    row-gap: 14px !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    list-style: none !important;
+  #product-grid .buzzko-product-card__atc[data-state="success"] .icon-cart {
+    display: none;
   }
-
-  #ProductGridContainer #product-grid.product-grid > .grid__item {
-    display: block !important;
-    width: auto !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    flex: 0 0 auto !important;
-    grid-column: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  #product-grid .buzzko-product-card__atc[data-state="success"] .icon-check {
+    display: block;
   }
-
-  #ProductGridContainer #product-grid.product-grid > .grid__item:only-child {
-    width: auto !important;
-    max-width: none !important;
-    grid-column: span 2 !important;
+  #product-grid .buzzko-product-card__atc[data-state="success"] .btn-text {
+    font-size: 0;
   }
-
-  /* Match search page cards */
-  #product-grid .buzzko-product-card {
-    padding: 7px;
-    border-width: 2px;
-    border-radius: 13px;
-  }
-
-  #product-grid .buzzko-product-card__image-wrapper {
-    border-radius: 8px;
-  }
-
-  #product-grid .buzzko-product-card__content {
-    padding: 10px 3px 5px;
-  }
-
-  #product-grid .buzzko-product-card__title {
-    font-size: 13px;
-    line-height: 1.25;
-  }
-
-  #product-grid .buzzko-product-card__subtitle {
-    font-size: 10px;
-    margin-top: 4px;
-  }
-
-  #product-grid .buzzko-product-card__footer {
-    flex-wrap: wrap;
-    padding-top: 12px;
-    gap: 6px;
-  }
-
-  #product-grid .buzzko-product-card__price-current {
-    font-size: 13px;
-  }
-
-  #product-grid .buzzko-product-card__price-compare {
+  #product-grid .buzzko-product-card__atc[data-state="success"] .btn-text::before {
+    content: "Added ✓";
     font-size: 11px;
   }
 
-  #product-grid .buzzko-product-card__atc {
-    padding: 6px 10px;
-    font-size: 10px;
-    min-height: 34px;
+  @keyframes buzzko-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
-
-  /* Preserve existing filter-to-grid spacing */
-  #main-collection-filters,
-  .facets-wrapper,
-  .facets-container,
-  .facets__wrapper {
-    margin-bottom: 24px !important;
-  }
-
-  .mobile-facets__wrapper,
-  .mobile-facets {
-    margin-bottom: 8px;
-  }
-
-  #ProductGridContainer {
-    padding-top: 8px;
-  }
-}
-
-
-/* 1. Stack the main price and slashed price vertically to save horizontal space */
-#ProductGridContainer .buzzko-product-card__price,
-#product-grid .buzzko-product-card__price {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 2px !important;
-  flex-shrink: 1 !important;
-}
-
-/* 2. Ensure the footer keeps elements side-by-side with a clean gap */
-#ProductGridContainer .buzzko-product-card__footer,
-#product-grid .buzzko-product-card__footer {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-}
-
-/* 3. Prevent the ATC form/button from shrinking or wrapping */
-#ProductGridContainer .buzzko-product-card__form,
-#product-grid .buzzko-product-card__form {
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-}
-
 </style>
 
 <script>
@@ -1130,33 +1250,23 @@
   if (!root || root.dataset.buzzkoAtcInit === 'true') return;
   root.dataset.buzzkoAtcInit = 'true';
 
-  // Respect locale/market subfolders (e.g. /en/cart/add.js)
   var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
 
   /* ---------- helpers ---------- */
 
-  function state(button, value, label) {
+  function state(button, value) {
     if (value) button.setAttribute('data-state', value);
     else button.removeAttribute('data-state');
-    if (typeof label === 'string') button.textContent = label;
   }
 
-  // Parse an HTML string and pull a specific element out of it.
   function pick(html, selector) {
     if (!html) return null;
     return new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
   }
 
-  /**
-   * Render the section HTML that /cart/add.js returns when you pass
-   * `sections=cart-drawer,cart-icon-bubble`. This is what actually creates
-   * the cart-count bubble on the very first add of a session — the bubble
-   * simply isn't in the DOM while the cart is empty.
-   */
   function renderSections(sections) {
     if (!sections) return;
 
-    // 1. Cart drawer (Dawn-style)
     var drawer = document.querySelector('cart-drawer');
     if (drawer && sections['cart-drawer']) {
       var currentInner = drawer.querySelector('.drawer__inner');
@@ -1166,7 +1276,6 @@
       }
     }
 
-    // 2. Cart count bubble — creates it on the first add of the session
     if (sections['cart-icon-bubble']) {
       var oldBubble = document.querySelector('.cart-count-bubble');
       var host =
@@ -1177,15 +1286,14 @@
         var newBubble = pick(sections['cart-icon-bubble'], '.cart-count-bubble');
         if (newBubble) {
           if (oldBubble) oldBubble.replaceWith(newBubble);
-          else host.appendChild(newBubble);   // <-- first-add case
+          else host.appendChild(newBubble);
         } else if (oldBubble) {
-          oldBubble.remove();                 // cart emptied
+          oldBubble.remove();
         }
       }
     }
   }
 
-  // Fallback: patch any count nodes already in the DOM.
   function updateCounts(cart) {
     if (!cart || typeof cart.item_count !== 'number') return;
     document.querySelectorAll('[data-cart-count], .cart-count').forEach(function (el) {
@@ -1201,7 +1309,50 @@
     }
   }
 
-  /* ---------- main handler (delegated on #ProductGridContainer) ---------- */
+  /* ---------- Main Handler ---------- */
+
+  root.addEventListener('click', function(event) {
+    var variantOption = event.target.closest('.buzzko-variant-option');
+    if (variantOption) {
+      event.preventDefault();
+      var form = variantOption.closest('form');
+      var popover = variantOption.closest('.buzzko-variant-popover');
+      
+      // Update the hidden input with the selected variant ID
+      form.querySelector('input[name="id"]').value = variantOption.dataset.variantId;
+      
+      // Hide the popover
+      popover.hidden = true;
+
+      // Manually trigger the form submission (which the submit listener below catches)
+      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      return;
+    }
+
+    var button = event.target.closest('.buzzko-product-card__atc');
+    if (button && !button.disabled) {
+      if (button.dataset.hasVariants === 'true') {
+        event.preventDefault(); // Stop form submit
+        var popover = button.closest('form').querySelector('.buzzko-variant-popover');
+        if (popover) {
+           // Close all other open popovers first
+           document.querySelectorAll('.buzzko-variant-popover').forEach(function(p) {
+             if (p !== popover) p.hidden = true;
+           });
+           popover.hidden = !popover.hidden;
+        }
+      }
+    }
+  });
+
+  // Close popovers when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.buzzko-product-card__form')) {
+      document.querySelectorAll('.buzzko-variant-popover').forEach(function(p) {
+        p.hidden = true;
+      });
+    }
+  });
 
   root.addEventListener('submit', function (event) {
     var form = event.target;
@@ -1212,8 +1363,7 @@
     var button = form.querySelector('.buzzko-product-card__atc');
     if (!button || button.disabled || button.dataset.state === 'loading') return;
 
-    var normal = button.dataset.labelDefault || 'Add to Cart';
-    state(button, 'loading', button.dataset.labelLoading || 'Adding…');
+    state(button, 'loading');
     button.disabled = true;
 
     var data = new FormData(form);
@@ -1235,11 +1385,8 @@
         });
       })
       .then(function (added) {
-        // 1) Inject server-rendered sections — creates the count bubble
-        //    on the first add of the session.
         renderSections(added.sections);
 
-        // 2) Fetch fresh cart state and patch any remaining count nodes.
         return fetch(ROOT + 'cart.js', {
           headers: { 'Accept': 'application/json' }
         })
@@ -1250,21 +1397,17 @@
           });
       })
       .then(function () {
-        state(button, 'success', button.dataset.labelSuccess || 'Added ✓');
+        state(button, 'success');
 
         setTimeout(function () {
-          state(button, '', normal);
+          state(button, '');
           button.disabled = false;
         }, 1400);
       })
       .catch(function (error) {
         console.error('[BuzzKo ATC]', error);
-        state(button, '', 'Try again');
+        state(button, '');
         button.disabled = false;
-
-        setTimeout(function () {
-          state(button, '', normal);
-        }, 1600);
       });
   });
 })();
@@ -1273,9 +1416,6 @@
 <script>
 /* ============================================================
    BuzzKo: Filter caret spacing fixer
-   Runs on load, after Dawn AJAX re-renders, and on theme editor
-   reloads. Directly forces an inline margin on the caret icon
-   so it cannot be overridden by theme styles.
    ============================================================ */
 (function () {
   function fixCarets() {
