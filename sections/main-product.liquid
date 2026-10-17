@@ -256,6 +256,39 @@
 }
 
 
+/* ===== Selected variant: offset ring (keeps pastel fill intact) ===== */
+
+/* 1. Button / pill variant picker */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:checked + label {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #050505;
+  font-weight: 600;
+  transform: translateY(-1px);
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+
+/* 2. Color swatch picker (Dawn's newer swatch-input structure) */
+#MainProduct-{{ section.id }} .swatch-input__input:checked + .swatch-input__label .swatch {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #050505;
+  transition: box-shadow .15s ease;
+}
+
+/* 2b. Fallback for older swatch markup */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:checked + label.swatch {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #050505;
+}
+
+/* 3. Give unchecked ones a whisper of the same geometry so nothing shifts */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio'] + label {
+  box-shadow: 0 0 0 0 transparent;
+}
+
+/* 4. Dropdown picker — ring on the select when it has focus */
+#MainProduct-{{ section.id }} .product-form__input--dropdown select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #050505;
+  border-color: #050505;
+}
+
 
 
   {%- endstyle -%}
