@@ -3811,3 +3811,12 @@ details-disclosure > details {
   }
 }
 
+
+
+/* Remove empty vertical space from the account modal on mobile */
+shopify-account::part(dialog) {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 90vh; /* Prevents the modal from becoming taller than the screen */
+  overflow-y: auto;
+}
