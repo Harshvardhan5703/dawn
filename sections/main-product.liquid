@@ -256,22 +256,59 @@
 }
 
 
-/* ===== Selected variant: raised / "ubhra hua" ===== */
 
-/* Base — set transition here so the lift animates smoothly in AND out */
+/* ===== Buzzko selected variant: bold, raised, hard shadow ===== */
+
+/* Base: smooth transitions in both directions */
 #MainProduct-{{ section.id }} .product-form__input input[type='radio'] + label {
   position: relative;
-  transition: transform .2s ease, filter .2s ease, font-weight .2s ease;
+  z-index: 1;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 rgba(26, 26, 26, 0.72);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    font-weight 180ms ease;
 }
 
-/* Selected — physically lift + cast floating shadow */
-#MainProduct-{{ section.id }} .product-form__input input[type='radio']:checked + label {
-  transform: translateY(-3px) scale(1.04);
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .12))
-          drop-shadow(0 2px 4px rgba(0, 0, 0, .18));
-  font-weight: 600;
-  z-index: 2;          /* so its shadow renders above neighbouring pills */
+/* Hover: subtle lift for unselected variants */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:not(:checked):not(:disabled) + label:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1A1A1A;
 }
+
+/* Selected: raised, bold, clearly differentiated */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:checked + label {
+  transform: translate(-2px, -2px) scale(1.04);
+  box-shadow: 4px 4px 0 #1A1A1A;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* Selected + hover: slightly stronger shadow */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:checked + label:hover {
+  transform: translate(-2px, -2px) scale(1.04);
+  box-shadow: 5px 5px 0 #1A1A1A;
+}
+
+/* Keyboard focus: keep it clearly visible */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:focus-visible + label {
+  outline: 2px solid #1A1A1A;
+  outline-offset: 4px;
+}
+
+/* Disabled: no lift or shadow */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:disabled + label,
+#MainProduct-{{ section.id }} .product-form__input input[type='radio'].disabled + label {
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 
 
 
