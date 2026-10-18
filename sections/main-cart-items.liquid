@@ -886,6 +886,9 @@
 <!-- ============================================================
      BuzzKo FINAL FINAL: Optimistic UI + Queue Lock + Custom Limit Message
      ============================================================ -->
+<!-- ============================================================
+     BuzzKo FINAL: Optimistic UI + Queue Lock + Mobile Fix + Header Sync
+     ============================================================ -->
 <script>
   (function () {
     if (window.__buzzkoCartQueueInit) return;
@@ -895,9 +898,30 @@
     var cartLocks = {}; 
     var pendingQuantities = {}; 
     var debounceTimers = {}; 
-    var errorTimers = {}; // NEW: To auto-hide the error message
+    var errorTimers = {}; 
 
-    // NEW: Helper function to clear error messages
+    // THE FIX: Using your exact product-card logic to update the header manually
+    function updateBubble(cartItemCount) {
+      if (typeof cartItemCount !== 'number') return;
+      var cartLink = document.getElementById('cart-icon-bubble');
+      if (!cartLink) return;
+      
+      var bubble = cartLink.querySelector('.cart-count-bubble');
+      
+      if (cartItemCount === 0) {
+        if (bubble) bubble.remove();
+        return;
+      }
+      
+      if (!bubble) {
+        bubble = document.createElement('div');
+        bubble.className = 'cart-count-bubble';
+        cartLink.appendChild(bubble);
+      }
+      
+      bubble.innerHTML = '<span aria-hidden="true">' + cartItemCount + '</span><span class="visually-hidden">' + cartItemCount + (cartItemCount === 1 ? ' item' : ' items') + ' in cart</span>';
+    }
+
     function clearErrorMessage(lineKey) {
       var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
       if (currentItem) {
@@ -922,14 +946,16 @@
 
       cartLocks[lineKey] = true;
 
+      // We no longer need to request cart-icon-bubble from the API
       fetch(ROOT + 'cart/change.js?sections=main-cart-footer,main-cart-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'same-origin', 
         body: JSON.stringify({ id: lineKey, quantity: desiredQuantity })
       })
       .then(function(res) {
         if (!res.ok) {
-          return fetch(ROOT + 'cart.js').then(r => r.json()).then(cartData => {
+          return fetch(ROOT + 'cart.js', { credentials: 'same-origin' }).then(r => r.json()).then(cartData => {
             throw { isLimitError: true, cartData: cartData };
           });
         }
@@ -938,8 +964,12 @@
       .then(function(data) {
         var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
 
-        // Hide error box on successful update
         clearErrorMessage(lineKey);
+
+        // THE FIX: Manually update the header using the response's item_count
+        if (data.item_count !== undefined) {
+          updateBubble(data.item_count);
+        }
 
         // 1. Update the Order Summary Footer Total
         if (data.sections && data.sections['main-cart-footer']) {
@@ -975,23 +1005,26 @@
         document.dispatchEvent(new CustomEvent('cart-update', { detail: { cartData: data } }));
       })
       .catch(function(err) {
-        if (err.isLimitError) {
+        if (err && err.isLimitError) {
           var currentInput = document.querySelector('.quantity__input[data-quantity-line-key="' + lineKey + '"]');
           var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
           var realItem = err.cartData.items.find(function(i) { return i.key === lineKey; });
           
           if (realItem && currentInput) {
-            // Snap input back and lock button
             currentInput.value = realItem.quantity;
             currentInput.setAttribute('max', realItem.quantity);
             
+            // Update bubble just in case
+            if (err.cartData.item_count !== undefined) {
+              updateBubble(err.cartData.item_count);
+            }
+
             var qtyInput = currentInput.closest('quantity-input');
             if (qtyInput) {
               var plusBtn = qtyInput.querySelector('[name="plus"]');
               if (plusBtn) plusBtn.disabled = true;
             }
 
-            // NEW: Show the custom limit message
             if (currentItem) {
               var errBox = currentItem.querySelector('.cart-item__error');
               if (errBox) {
@@ -999,9 +1032,8 @@
                 if (errText) {
                   errText.textContent = "You can only add " + realItem.quantity + " of this item to your cart.";
                 }
-                errBox.hidden = false; // Show it!
+                errBox.hidden = false;
 
-                // Auto hide after 4 seconds
                 if (errorTimers[lineKey]) clearTimeout(errorTimers[lineKey]);
                 errorTimers[lineKey] = setTimeout(function() {
                   clearErrorMessage(lineKey);
@@ -1009,6 +1041,9 @@
               }
             }
           }
+        } else {
+          console.error("Mobile Network Error:", err);
+          window.location.reload(); 
         }
       })
       .finally(function() {
@@ -1041,13 +1076,12 @@
       var lineKey = input.getAttribute('data-quantity-line-key');
       if (!lineKey) return;
 
-      // Clear error message immediately when they click either + or -
       clearErrorMessage(lineKey);
 
       var currentVal = parseInt(input.value, 10) || 0;
       var isPlus = btn.name === 'plus';
       var step = parseInt(input.getAttribute('step'), 10) || 1;
-      var min = parseInt(input.getAttribute('min'), 10) || 0;
+      var min = parseInt(input.getAttribute('min'), 10) || 1;
       var maxAttr = input.getAttribute('max');
       var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
 
@@ -1058,7 +1092,6 @@
 
       if (newVal === currentVal) return; 
 
-      // Optimistic UI update
       input.value = newVal;
 
       var plusBtn = quantityInput.querySelector('[name="plus"]');
@@ -1089,7 +1122,7 @@
       clearErrorMessage(lineKey);
 
       var newVal = parseInt(input.value, 10) || 0;
-      var min = parseInt(input.getAttribute('min'), 10) || 0;
+      var min = parseInt(input.getAttribute('min'), 10) || 1;
       var maxAttr = input.getAttribute('max');
       var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
 
@@ -1114,6 +1147,8 @@
     }, true);
   })();
 </script>
+
+
 {% schema %}
 {
   "name": "t:sections.main-cart-items.name",
