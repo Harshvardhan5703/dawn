@@ -743,15 +743,11 @@
 <!-- THE JAVASCRIPT -->
 <script>
 (function () {
-  // 1. Cleanup: Remove duplicate modals if this snippet is rendered multiple times
   var modals = document.querySelectorAll('#buzzko-variant-modal');
   if (modals.length > 1) {
-    for (var i = 1; i < modals.length; i++) {
-      modals[i].remove();
-    }
+    for (var i = 1; i < modals.length; i++) { modals[i].remove(); }
   }
 
-  // 2. Only init the JS once per page
   if (document.body.dataset.buzzkoAtcInit === 'true') return;
   document.body.dataset.buzzkoAtcInit = 'true';
 
@@ -762,54 +758,26 @@
     else button.removeAttribute('data-state');
   }
 
-  function pick(html, selector) {
-    if (!html) return null;
-    return new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
-  }
-
-  function renderSections(sections) {
-    if (!sections) return;
-
-    var drawer = document.querySelector('cart-drawer');
-    if (drawer && sections['cart-drawer']) {
-      var currentInner = drawer.querySelector('.drawer__inner');
-      var freshInner = pick(sections['cart-drawer'], '.drawer__inner');
-      if (currentInner && freshInner) {
-        currentInner.innerHTML = freshInner.innerHTML;
-      }
-    }
-
-    if (sections['cart-icon-bubble']) {
-      var oldBubble = document.querySelector('.cart-count-bubble');
-      var host =
-        document.getElementById('cart-icon-bubble') ||
-        (oldBubble && oldBubble.parentElement);
-
-      if (host) {
-        var newBubble = pick(sections['cart-icon-bubble'], '.cart-count-bubble');
-        if (newBubble) {
-          if (oldBubble) oldBubble.replaceWith(newBubble);
-          else host.appendChild(newBubble);
-        } else if (oldBubble) {
-          oldBubble.remove();
-        }
-      }
-    }
-  }
-
-  function updateCounts(cart) {
+  // Bulletproof bubble updater
+  function updateBubble(cart) {
     if (!cart || typeof cart.item_count !== 'number') return;
-    document.querySelectorAll('[data-cart-count], .cart-count').forEach(function (el) {
-      var next = String(cart.item_count);
-      if (el.textContent !== next) el.textContent = next;
-    });
-  }
-
-  function openDrawer() {
-    var drawer = document.querySelector('cart-drawer');
-    if (drawer && typeof drawer.open === 'function') {
-      try { drawer.open(); } catch (e) { /* noop */ }
+    var cartLink = document.getElementById('cart-icon-bubble');
+    if (!cartLink) return;
+    
+    var bubble = cartLink.querySelector('.cart-count-bubble');
+    
+    if (cart.item_count === 0) {
+      if (bubble) bubble.remove();
+      return;
     }
+    
+    if (!bubble) {
+      bubble = document.createElement('div');
+      bubble.className = 'cart-count-bubble';
+      cartLink.appendChild(bubble);
+    }
+    
+    bubble.innerHTML = '<span aria-hidden="true">' + cart.item_count + '</span><span class="visually-hidden">' + cart.item_count + (cart.item_count === 1 ? ' item' : ' items') + ' in cart</span>';
   }
 
   /* ---------- MODAL LOGIC ---------- */
@@ -820,7 +788,6 @@
   var modalVariants = document.getElementById('buzzko-modal-variants');
   var modalAddBtn = document.getElementById('buzzko-modal-add');
   var modalCloseBtn = document.getElementById('buzzko-modal-close');
-  
   var selectedVariantId = null;
 
   function openVariantModal(productTitle, defaultImage, variantsJson) {
@@ -829,83 +796,40 @@
     modalImg.src = defaultImage || '';
     modalVariants.innerHTML = '';
     selectedVariantId = null;
-
     var firstAvailableBtn = null;
 
     variants.forEach(function(v) {
       var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'buzzko-modal-variant-btn';
-      btn.textContent = v.title;
-      
-      if (!v.available) {
-        btn.disabled = true;
-      } else if (!firstAvailableBtn) {
-        firstAvailableBtn = btn;
-      }
-
-      btn.dataset.variantId = v.id;
-      btn.dataset.image = v.image || defaultImage;
-      btn.dataset.price = v.price;
+      btn.type = 'button'; btn.className = 'buzzko-modal-variant-btn'; btn.textContent = v.title;
+      if (!v.available) btn.disabled = true; else if (!firstAvailableBtn) firstAvailableBtn = btn;
+      btn.dataset.variantId = v.id; btn.dataset.image = v.image || defaultImage; btn.dataset.price = v.price;
       btn.setAttribute('aria-pressed', 'false');
 
       btn.addEventListener('click', function() {
         if (btn.disabled) return;
-
-        modalVariants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function(b) {
-          b.classList.remove('is-active');
-          b.setAttribute('aria-pressed', 'false');
-        });
-        btn.classList.add('is-active');
-        btn.setAttribute('aria-pressed', 'true');
-
-        if (btn.dataset.image) {
-          modalImg.src = btn.dataset.image;
-        }
-
-        selectedVariantId = btn.dataset.variantId;
-        modalPrice.textContent = btn.dataset.price;
-
-        modalAddBtn.disabled = false;
-        modalAddBtn.textContent = 'Add to Cart';
+        modalVariants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function(b) { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
+        btn.classList.add('is-active'); btn.setAttribute('aria-pressed', 'true');
+        if (btn.dataset.image) modalImg.src = btn.dataset.image;
+        selectedVariantId = btn.dataset.variantId; modalPrice.textContent = btn.dataset.price;
+        modalAddBtn.disabled = false; modalAddBtn.textContent = 'Add to Cart';
       });
-
       modalVariants.appendChild(btn);
     });
 
-    if (firstAvailableBtn) {
-      firstAvailableBtn.click();
-    } else {
-      modalPrice.innerHTML = '';
-      modalAddBtn.disabled = true;
-      modalAddBtn.textContent = 'Sold Out';
-    }
-
-    if (typeof modal.showModal === 'function') {
-      modal.showModal();
-    } else {
-      modal.setAttribute('open', '');
-    }
+    if (firstAvailableBtn) firstAvailableBtn.click();
+    else { modalPrice.innerHTML = ''; modalAddBtn.disabled = true; modalAddBtn.textContent = 'Sold Out'; }
+    if (typeof modal.showModal === 'function') modal.showModal(); else modal.setAttribute('open', '');
   }
 
   function closeModal() {
-    if (typeof modal.close === 'function') {
-      modal.close();
-    } else {
-      modal.removeAttribute('open');
-    }
+    if (!modal) return;
+    if (typeof modal.close === 'function') modal.close(); else modal.removeAttribute('open');
     selectedVariantId = null;
   }
 
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
-  
-  if (modal) {
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) closeModal();
-    });
-  }
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
-  /* ---------- MODAL ADD TO CART ---------- */
   if (modalAddBtn) {
     modalAddBtn.addEventListener('click', function() {
       if (!selectedVariantId) return;
@@ -914,114 +838,81 @@
       modalAddBtn.disabled = true;
 
       var data = new FormData();
-      data.append('id', selectedVariantId);
+      data.append('id', selectedVariantId); 
       data.append('quantity', 1);
-      data.append('sections', 'cart-drawer,cart-icon-bubble');
-      data.append('sections_url', window.location.pathname);
-
-      fetch(ROOT + 'cart/add.js', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        body: data
-      })
-      .then(function(res) {
-        return res.json().then(function(json) {
-          if (!res.ok) throw json;
-          return json;
-        });
-      })
-      .then(function(added) {
-        renderSections(added.sections);
+      
+      // We DO NOT request sections here. This keeps the payload tiny.
+      fetch(ROOT + 'cart/add.js', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data })
+      .then(function(res) { return res.json().then(function(json) { if (!res.ok) throw json; return json; }); })
+      .then(function() {
+        // Make one lightweight request just to get the accurate count
         return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
           .then(function(res) { return res.json(); })
-          .then(function(cart) { updateCounts(cart); openDrawer(); });
+          .then(function(cart) { updateBubble(cart); });
       })
       .then(function() {
         modalAddBtn.textContent = 'Added ✓';
+        modalAddBtn.style.background = '#B9E404';
+        
         setTimeout(function() {
           closeModal();
-        }, 400);
+          modalAddBtn.style.background = '';
+          modalAddBtn.textContent = 'Add to Cart';
+          modalAddBtn.disabled = false;
+        }, 600); // 600ms gives the pop animation time
       })
       .catch(function(err) {
-        console.error('[BuzzKo Modal ATC]', err);
-        modalAddBtn.textContent = 'Try Again';
+        console.error(err);
+        modalAddBtn.textContent = 'Try again';
         modalAddBtn.disabled = false;
       });
     });
   }
 
-  /* ---------- MAIN CARD HANDLER (Delegated) ---------- */
+  /* ---------- MAIN CARD HANDLER ---------- */
   document.body.addEventListener('click', function(event) {
     var button = event.target.closest('.buzzko-product-card__atc');
-    if (button && !button.disabled) {
-      if (button.dataset.hasVariants === 'true') {
-        event.preventDefault();
-        openVariantModal(
-          button.dataset.productTitle,
-          button.dataset.productImage,
-          button.dataset.variants
-        );
-      }
+    if (button && !button.disabled && button.dataset.hasVariants === 'true') {
+      event.preventDefault();
+      openVariantModal(button.dataset.productTitle, button.dataset.productImage, button.dataset.variants);
     }
   });
 
   document.body.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form.matches('[data-buzzko-atc]')) return;
-
     event.preventDefault();
 
     var button = form.querySelector('.buzzko-product-card__atc');
-    if (!button || button.disabled || button.dataset.state === 'loading') return;
-
-    if (button.dataset.hasVariants === 'true') return;
+    if (!button || button.disabled || button.dataset.hasVariants === 'true') return;
 
     state(button, 'loading');
     button.disabled = true;
 
     var data = new FormData(form);
-    data.append('sections', 'cart-drawer,cart-icon-bubble');
-    data.append('sections_url', window.location.pathname);
 
-    fetch(ROOT + 'cart/add.js', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      body: data
-    })
-      .then(function (res) {
-        return res.json().then(function (json) {
-          if (!res.ok) throw json;
-          return json;
+    fetch(ROOT + 'cart/add.js', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data })
+    .then(function (res) { return res.json().then(function (json) { if (!res.ok) throw json; return json; }); })
+    .then(function () {
+      // Make one lightweight request just to get the accurate count
+      return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
+        .then(function (res) { return res.json(); })
+        .then(function (cart) { 
+          updateBubble(cart);
         });
-      })
-      .then(function (added) {
-        renderSections(added.sections);
-
-        return fetch(ROOT + 'cart.js', {
-          headers: { 'Accept': 'application/json' }
-        })
-          .then(function (res) { return res.json(); })
-          .then(function (cart) {
-            updateCounts(cart);
-            openDrawer();
-          });
-      })
-      .then(function () {
-        state(button, 'success');
-
-        setTimeout(function () {
-          state(button, '');
-          button.disabled = false;
-        }, 400);
-      })
-      .catch(function (error) {
-        console.error('[BuzzKo ATC]', error);
-        state(button, '');
-        button.disabled = false;
-      });
+    })
+    .then(function () {
+      state(button, 'success');
+      setTimeout(function () { 
+        state(button, ''); 
+        button.disabled = false; 
+      }, 600); 
+    })
+    .catch(function (error) {
+      console.error(error);
+      state(button, ''); 
+      button.disabled = false;
+    });
   });
 })();
 </script>
