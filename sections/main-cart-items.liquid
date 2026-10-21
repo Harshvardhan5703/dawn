@@ -317,24 +317,33 @@
     display: block !important;
   }
 
-  /* BuzzKo Amazon-style loading shimmer — Targeted via JS */
-  .buzzko-is-loading {
-    position: relative;
-    overflow: hidden;
+  /* BuzzKo Premium Text-Clip Shimmer */
+  .buzzko-is-loading,
+  .buzzko-is-loading span,
+  .buzzko-is-loading s {
+    /* A metallic gradient: Black -> Gray -> Pink highlight -> Gray -> Black */
+    background: linear-gradient(
+      90deg, 
+      #1A1A1A 0%, 
+      #85807B 30%, 
+      #FF60B9 50%, 
+      #85807B 70%, 
+      #1A1A1A 100%
+    );
+    background-size: 200% auto;
+    
+    /* Turn the text transparent so the gradient shows through */
+    color: transparent !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    
+    /* The smooth, continuous sweep */
+    animation: buzzkoTextShimmer 1.5s linear infinite;
+    pointer-events: none;
   }
   
-  .buzzko-is-loading::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 50%, transparent 100%);
-    animation: buzzkoShimmerLoading 0.8s infinite;
-    z-index: 10;
-  }
-  
-  @keyframes buzzkoShimmerLoading {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+  @keyframes buzzkoTextShimmer {
+    to { background-position: -200% center; }
   }
 
   /* BuzzKo Flash animation — ONLY the amount text inside the price */
