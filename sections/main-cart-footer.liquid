@@ -8,8 +8,8 @@
   assign offer_percent = 10
   assign discount_code = 'BUZZKO10'
 
-  assign offer_remaining = offer_threshold | minus: cart.total_price
-  assign offer_progress = cart.total_price | times: 100.0 | divided_by: offer_threshold
+  assign offer_remaining = offer_threshold | minus: cart.items_subtotal_price
+  assign offer_progress = cart.items_subtotal_price | times: 100.0 | divided_by: offer_threshold
   if offer_progress > 100
     assign offer_progress = 100
   endif
@@ -18,7 +18,6 @@
     assign offer_unlocked = true
   endif
 
-  # --- Robust BUZZKO10 detection: check BOTH fields, allow substring ---
   assign normalized_discount_code = discount_code | downcase | strip
   assign offer_discount_applied = false
 
@@ -40,9 +39,6 @@
     endfor
   endif
 
-  # BuzzKo fix #2 — detect any OTHER code-based discount on the cart. If one
-  # is present, we must not render the cosmetic 10% row (it isn't real on the
-  # order) and we must not try to stack BUZZKO10 at checkout.
   assign has_any_other_code = false
   for cart_discount in cart.cart_level_discount_applications
     assign t = cart_discount.title | downcase
@@ -54,15 +50,14 @@
 
   assign initial_discount = 0
   if offer_unlocked and offer_discount_applied == false and has_any_other_code == false
-    assign initial_discount = cart.total_price | times: offer_percent | divided_by: 100
+    assign initial_discount = cart.items_subtotal_price | times: offer_percent | divided_by: 100
   endif
-  # BuzzKo fix #1 — reflect the unlocked discount in the rendered total so the
-  # Total line reconciles with the Discount row on first paint (before any JS).
-  assign initial_discounted_total = cart.total_price | minus: initial_discount
+  
+  assign initial_discounted_total = cart.total_price
+  if initial_discount > 0
+    assign initial_discounted_total = cart.items_subtotal_price | minus: initial_discount
+  endif
 
-  # BuzzKo fix #3b — publish the titles of every cart-level discount so the
-  # client-side promo handler can tell whether an attempted code actually
-  # landed on the cart after the /discount/ round-trip.
   assign applied_codes_str = ''
   for d in cart.cart_level_discount_applications
     assign t = d.title | downcase
@@ -222,9 +217,6 @@
   #main-cart-footer .buzzko-trust__row { display: flex; align-items: center; gap: 8px; color: #6B6663; font-size: 12px; line-height: 1.4; }
   #main-cart-footer .buzzko-trust__row svg { width: 14px; height: 14px; flex-shrink: 0; color: #1A1A1A; }
 
-  /* BuzzKo fix #6 — when the footer flips to .is-empty (last item removed),
-     hide the summary instantly so it can't stretch full-width for a beat
-     before the page reloads into the server-rendered empty state. */
   #main-cart-footer.is-empty .js-contents,
   #main-cart-footer.is-empty .buzzko-summary {
     display: none !important;
@@ -235,8 +227,6 @@
     #main-cart-footer .buzzko-total__value { font-size: 20px; }
     #main-cart-footer .cart__checkout-button { min-height: 50px; font-size: 14px; }
   }
-
-  
 {%- endstyle -%}
 
 <div
@@ -244,8 +234,8 @@
   id="main-cart-footer"
   data-id="{{ section.id }}"
 >
-  {%- if cart != empty -%}
   <div class="js-contents">
+    {%- if cart != empty -%}
     <div class="buzzko-summary{% if offer_discount_applied %} buzzko-has-buzzko10{% endif %}{% if has_any_other_code %} buzzko-has-other-code{% endif %}">
 
       <h2 class="buzzko-summary__title">Order Summary</h2>
@@ -294,11 +284,6 @@
         <button type="submit" class="buzzko-promo__btn">Apply</button>
       </form>
 
-      {%- comment -%}
-        BuzzKo fix #3b — hidden data hook so the client can tell whether an
-        attempted promo code actually landed on the cart after the
-        /discount/CODE?redirect=/cart round-trip.
-      {%- endcomment -%}
       <span hidden data-buzzko-applied-codes="{{ applied_codes_str | escape }}"></span>
 
       <label class="buzzko-gift" for="Cart-gift-{{ section.id }}">
@@ -358,7 +343,7 @@
         <p
           class="buzzko-total__value"
           data-buzzko-total
-          data-total-cents="{{ cart.total_price }}"
+          data-total-cents="{{ cart.items_subtotal_price }}"
         >{{ initial_discounted_total | money }}</p>
       </div>
 
@@ -392,8 +377,8 @@
         </div>
       </div>
     </div>
+    {%- endif -%}
   </div>
-  {%- endif -%}
 </div>
 
 <script>
@@ -406,13 +391,6 @@
     var DISCOUNT_CODE_UPPER = DISCOUNT_CODE.toUpperCase();
     var OFFER_PERCENT = {{ offer_percent | json }};
 
-    /* =========================================================
-       BuzzKo fix #3b — promo message helpers.
-       Renders a small inline paragraph under the Apply button,
-       reusing the same visual pattern the BUZZKO10 branch already
-       used. No stylesheet changes; only inline styles on the new
-       element, so nothing existing is touched.
-       ========================================================= */
     function showPromoMessage(form, text, color) {
       var msg = form.querySelector('[data-buzzko-promo-message]');
       if (!msg) {
@@ -441,7 +419,6 @@
       var input = form.querySelector('input');
       var code = input && input.value ? input.value.trim() : '';
 
-      // BuzzKo fix #1 — empty input now says so, instead of silently doing nothing.
       if (!code) {
         showPromoMessage(form, 'Enter a code first.', '#C24545');
         if (input) {
@@ -451,7 +428,6 @@
         return;
       }
 
-      // BUZZKO10 is auto-applied by the offer bar; no need to route it.
       if (code.toUpperCase() === DISCOUNT_CODE_UPPER) {
         showPromoMessage(
           form,
@@ -466,30 +442,18 @@
       clearPromoMessage(form);
       input.removeAttribute('aria-invalid');
 
-      // BuzzKo fix #3b — stash the attempt in sessionStorage instead of a URL
-      // param. Shopify's /discount/ endpoint strips query params from the
-      // redirect value in dev/preview (and often prod), so ?buzzko_try=CODE
-      // never survives the round-trip. sessionStorage always does.
       try {
         sessionStorage.setItem('buzzko_promo_attempt', code);
-      } catch (e) { /* Safari private mode etc. — degrade silently */ }
+      } catch (e) { /* Safari private mode etc. */ }
 
       window.location.href = ROOT + 'discount/' + encodeURIComponent(code) +
                              '?redirect=' + encodeURIComponent(ROOT + 'cart');
     });
 
-    /* =========================================================
-       BuzzKo fix #3b — read the last promo attempt from
-       sessionStorage after the /discount/ round-trip and report
-       the outcome. Silent on success; red message on failure.
-       Consumed immediately so a manual refresh doesn't repeat it.
-       ========================================================= */
     (function reportFailedPromo() {
       var tried;
       try { tried = sessionStorage.getItem('buzzko_promo_attempt'); } catch (e) {}
       if (!tried) return;
-
-      // Consume up-front so a refresh / back-nav doesn't replay the message.
       try { sessionStorage.removeItem('buzzko_promo_attempt'); } catch (e) {}
 
       var form = document.querySelector('[data-buzzko-promo]');
@@ -501,7 +465,7 @@
       var needle = tried.toLowerCase();
       var landed = applied.some(function (t) { return t && t.indexOf(needle) !== -1; });
 
-      if (landed) return; // success — say nothing, the discount row speaks for itself
+      if (landed) return;
 
       showPromoMessage(
         form,
@@ -533,14 +497,25 @@
       }).catch(function () {});
     });
 
-    /* ---- Checkout: only when the offer is unlocked but no code-based
-       discount has been applied yet, route through /discount/CODE so
-       Shopify applies it server-side before checkout. BuzzKo fix #2 —
-       if ANY other code is already on the cart (buzzko-has-other-code),
-       skip the redirect and let Shopify handle the existing discount. */
+    /* ---- Checkout: route through /discount/CODE when offer unlocked ---- */
     document.addEventListener('click', function (event) {
       var btn = event.target.closest && event.target.closest('#checkout');
       if (!btn) return;
+
+      // Guard: If a +/- request is currently in flight, wait for it to finish
+      var list = document.getElementById('main-cart-items');
+      if (list && list.classList.contains('cart__items--disabled')) {
+        event.preventDefault(); 
+        event.stopImmediatePropagation();
+        var t = setInterval(function () {
+          if (!list.classList.contains('cart__items--disabled')) { 
+            clearInterval(t); 
+            btn.click(); 
+          }
+        }, 80);
+        return;
+      }
+
       if (btn.dataset.buzzkoRedirecting) return;
 
       var summary = btn.closest('.buzzko-summary');
@@ -548,7 +523,6 @@
         summary.classList.contains('buzzko-has-buzzko10') ||
         summary.classList.contains('buzzko-has-other-code')
       )) {
-        /* A real code-based discount is already on the cart — just submit */
         return;
       }
 
@@ -568,93 +542,58 @@
       }
     }, true);
 
-    /* ---- Pulse the rendered total once when the offer transitions to
-       unlocked on this page (i.e. the cart was just pushed over the
-       threshold by an in-page quantity change). Uses the server-rendered
-       total already reflecting the discount from fix #1. ---- */
     function pulseTotal() {
       var totalEl = document.querySelector('[data-buzzko-total]');
       if (!totalEl) return;
       totalEl.classList.remove('is-updated');
-      void totalEl.offsetWidth; /* restart animation */
+      void totalEl.offsetWidth;
       totalEl.classList.add('is-updated');
       setTimeout(function () { totalEl.classList.remove('is-updated'); }, 700);
     }
 
-    /* =========================================================
-       cart:update — Dawn's real event (colon, not dash).
-       - Reload on empty so the server-rendered empty state is shown
-         (avoids Dawn's section swap throwing on a missing .js-contents).
-       - Pulse the total when the offer first unlocks this page-load,
-         and reset the flag if the cart drops back below threshold.
-       ========================================================= */
-    window.__buzzkoPulsedForThisCart = false;
+    function __buzzkoOnCartUpdate(event) {
+      var data = event && event.detail && event.detail.cartData;
+      if (!data || typeof data.item_count !== 'number') return;
 
-/* BuzzKo — Dawn's pub-sub event name. Different Dawn versions have used
-   both 'cart-update' (dash, current) and 'cart:update' (colon, older/some
-   forks). Register on both so nothing silently dies across upgrades. */
-function __buzzkoOnCartUpdate(event) {
-  var data = event && event.detail && event.detail.cartData;
-  if (!data || typeof data.item_count !== 'number') return;
+      // 1. Remove shimmer from footer and line items
+      document.querySelectorAll('.buzzko-is-loading').forEach(function(el) {
+        el.classList.remove('buzzko-is-loading');
+      });
 
-  if (data.item_count === 0) {
-    window.location.reload();
-    return;
-  }
+      // 2. Pulse footer total
+      pulseTotal();
 
-  var offerEl = document.querySelector('[data-buzzko-offer]');
-  if (!offerEl) return;
+      // 3. Flash line item price
+      var key = window.__buzzkoLastClickedLineKey;
+      if (key) {
+        var linePrice = document.querySelector('.buzzko-item[data-line-key="' + key + '"] .buzzko-item__price');
+        if (linePrice) {
+          var priceElements = linePrice.querySelectorAll('span, s');
+          priceElements.forEach(function(el) {
+            el.classList.remove('is-updated');
+            void el.offsetWidth; // Force browser reflow to restart animation
+            el.classList.add('is-updated');
+            setTimeout(function() { el.classList.remove('is-updated'); }, 700);
+          });
+        }
+        window.__buzzkoLastClickedLineKey = null; // Reset for next click
+      }
+    }
 
-  var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
-  var summary = document.querySelector('.buzzko-summary');
-  var alreadyApplied = summary && (
-    summary.classList.contains('buzzko-has-buzzko10') ||
-    summary.classList.contains('buzzko-has-other-code')
-  );
-
-  if (data.total_price < threshold) {
-    window.__buzzkoPulsedForThisCart = false;
-    return;
-  }
-
-  if (!alreadyApplied && !window.__buzzkoPulsedForThisCart) {
-    window.__buzzkoPulsedForThisCart = true;
-    setTimeout(pulseTotal, 0);
-  }
+    // Hook into Dawn's native Pub/Sub
+function hookPubSub() {
+  if (typeof subscribe !== 'function' || !window.PUB_SUB_EVENTS) return;
+  subscribe(PUB_SUB_EVENTS.cartUpdate, function (e) {
+    setTimeout(function () {
+      __buzzkoOnCartUpdate({ detail: { cartData: e.cartData } });
+    }, 50);
+  });
 }
-
-document.addEventListener('cart-update', __buzzkoOnCartUpdate);
-document.addEventListener('cart:update', __buzzkoOnCartUpdate);
-
-    /* Belt & braces: if Dawn adds .is-empty to the footer wrapper
-       but the summary is still in the DOM, hide it immediately (CSS
-       also covers this) and force a reload. Catches remove-button
-       clicks that bypass cart:update. */
-    (function watchEmptyFooter() {
-      function attach() {
-        var footer = document.getElementById('main-cart-footer');
-        if (!footer) { setTimeout(attach, 300); return; }
-
-        var observer = new MutationObserver(function () {
-          if (
-            footer.classList.contains('is-empty') &&
-            footer.querySelector('.buzzko-summary')
-          ) {
-            var content = footer.querySelector('.js-contents');
-            if (content) content.style.display = 'none';
-            var summary = footer.querySelector('.buzzko-summary');
-            if (summary) summary.style.display = 'none';
-            window.location.reload();
-          }
-        });
-        observer.observe(footer, { attributes: true, attributeFilter: ['class'] });
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', attach);
-      } else {
-        attach();
-      }
-    })();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', hookPubSub);
+} else {
+  hookPubSub();
+}
   })();
 </script>
 

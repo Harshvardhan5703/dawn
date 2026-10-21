@@ -36,6 +36,9 @@
     margin: 0 0 28px;
   }
 
+  /* Hide header instantly if Dawn's AJAX empties the cart */
+  cart-items.is-empty .buzzko-cart-header { display: none; }
+
   .buzzko-cart-header__title {
     margin: 0;
     color: #1A1A1A;
@@ -74,6 +77,12 @@
     gap: 14px;
   }
 
+  .buzzko-cart-list .js-contents {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
   .buzzko-item {
     display: grid;
     grid-template-columns: 96px minmax(0, 1fr) auto;
@@ -84,15 +93,19 @@
     border: 1.5px solid #EBE5DF;
     border-radius: 16px;
     transition: border-color .2s ease, box-shadow .2s ease, opacity .3s ease, transform .3s ease;
+  }
+
+  /* Only animate on first paint, not on Dawn's AJAX re-renders */
+  cart-items.buzzko-first-paint .buzzko-item {
     animation: buzzkoItemIn .5s cubic-bezier(.2, .9, .3, 1) backwards;
   }
 
-  .buzzko-item:nth-child(1) { animation-delay: .04s; }
-  .buzzko-item:nth-child(2) { animation-delay: .10s; }
-  .buzzko-item:nth-child(3) { animation-delay: .16s; }
-  .buzzko-item:nth-child(4) { animation-delay: .22s; }
-  .buzzko-item:nth-child(5) { animation-delay: .28s; }
-  .buzzko-item:nth-child(n+6) { animation-delay: .32s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(1) { animation-delay: .04s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(2) { animation-delay: .10s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(3) { animation-delay: .16s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(4) { animation-delay: .22s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(5) { animation-delay: .28s; }
+  cart-items.buzzko-first-paint .buzzko-item:nth-child(n+6) { animation-delay: .32s; }
 
   @keyframes buzzkoItemIn {
     from { opacity: 0; transform: translateY(12px); }
@@ -202,7 +215,6 @@
     gap: 12px;
   }
 
-  /* Quantity stepper — no bg hover, icon scales */
   .buzzko-item .quantity {
     display: inline-flex;
     align-items: center;
@@ -225,14 +237,6 @@
     align-items: center;
     justify-content: center;
   }
-
-  .buzzko-item .quantity__button svg,
-  .buzzko-item .quantity__button .svg-wrapper {
-    transition: none;
-    transform: none;
-  }
-
-
 
   .buzzko-item .quantity__button:disabled { opacity: .35; cursor: not-allowed; }
 
@@ -260,7 +264,6 @@
     margin: 0;
   }
 
-  /* Trash icon */
   .buzzko-item__trash {
     display: inline-flex;
     align-items: center;
@@ -307,6 +310,44 @@
     color: #C24545;
     font-size: 12px;
     font-weight: 600;
+  }
+
+  /* Let Dawn's updateLiveRegions reveal the row when it writes a message */
+  .buzzko-item__error:has(.cart-item__error-text:not(:empty)) {
+    display: block !important;
+  }
+
+  /* BuzzKo Amazon-style loading shimmer — Targeted via JS */
+  .buzzko-is-loading {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .buzzko-is-loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 50%, transparent 100%);
+    animation: buzzkoShimmerLoading 0.8s infinite;
+    z-index: 10;
+  }
+  
+  @keyframes buzzkoShimmerLoading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* BuzzKo Flash animation — ONLY the amount text inside the price */
+  @keyframes buzzkoFlashUpdate {
+    0% { transform: scale(1); color: #1A1A1A; }
+    30% { transform: scale(1.15); color: #FF60B9; }
+    100% { transform: scale(1); color: #1A1A1A; }
+  }
+  
+  .buzzko-item__price span.is-updated,
+  .buzzko-item__price s.is-updated {
+    display: inline-block;
+    animation: buzzkoFlashUpdate 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
   }
 
   @media screen and (max-width: 749px) {
@@ -414,7 +455,7 @@
 
   .buzzko-empty__cta:hover { background: #e469af; transform: translateY(-1px); }
 
-    .buzzko-item__each {
+  .buzzko-item__each {
     margin: -10px 0 0;
     color: #85807B;
     font-size: 12px;
@@ -430,11 +471,9 @@
     .buzzko-item__each { text-align: left; margin-top: -6px; }
   }
 
-    /* BuzzKo mobile hardening — additive, does not override existing layout */
+  /* BuzzKo mobile hardening */
   @media screen and (max-width: 749px) {
-    .buzzko-item__body {
-      min-width: 0;
-    }
+    .buzzko-item__body { min-width: 0; }
 
     .buzzko-item__title {
       display: block;
@@ -442,9 +481,7 @@
       word-break: break-word;
     }
 
-    .buzzko-item__trash {
-      flex-shrink: 0;
-    }
+    .buzzko-item__trash { flex-shrink: 0; }
 
     .buzzko-item__price {
       min-width: 0;
@@ -452,7 +489,6 @@
     }
   }
 
-    /* BuzzKo mobile fix — pasted last so it wins the cascade */
   @media screen and (max-width: 749px) {
     .buzzko-item__right {
       grid-column: 1 / -1 !important;
@@ -506,8 +542,6 @@
     }
   }
 
-
-    /* BuzzKo quantity stepper — slimmer, better balanced */
   @media screen and (max-width: 749px) {
     .buzzko-item .quantity {
       min-height: 30px !important;
@@ -532,14 +566,8 @@
       font-weight: 600 !important;
     }
 
-    /* Give the price column more breathing room */
-    .buzzko-item__right {
-      column-gap: 12px !important;
-    }
-
-    .buzzko-item__controls {
-      gap: 6px !important;
-    }
+    .buzzko-item__right { column-gap: 12px !important; }
+    .buzzko-item__controls { gap: 6px !important; }
 
     .buzzko-item__trash {
       width: 30px !important;
@@ -547,11 +575,8 @@
     }
   }
 
-    /* BuzzKo quantity pill — hard clamp */
   @media screen and (max-width: 749px) {
-    .buzzko-item__controls {
-      align-items: center !important;
-    }
+    .buzzko-item__controls { align-items: center !important; }
 
     .buzzko-item .quantity {
       display: inline-flex !important;
@@ -600,78 +625,10 @@
 {%- endunless -%}
 <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%} Money format hook so the summary can format numbers client-side {%- endcomment -%}
 <span hidden data-buzzko-money-format="{{ shop.money_format | escape }}"></span>
 
-<!-- ============================================================
-     BuzzKo perf — see notes. Must run inline (not deferred) so
-     the capture-phase click listener attaches before any user
-     interaction. Patches Dawn's enableLoading() so quantity
-     changes don't dim the whole cart.
-     ============================================================ -->
-<script>
-  (function () {
-    if (window.__buzzkoCartPerfInit) return;
-    window.__buzzkoCartPerfInit = true;
-
-    /* BuzzKo perf — mark whether the last click was a remove or a
-       quantity change. Capture phase so we set the flag before Dawn's
-       own click handlers (on <cart-remove-button> and <quantity-input>)
-       run. Defaults to "quantity change" for direct keyboard edits. */
-    window.__buzzkoIsRemoveAction = false;
-
-    document.addEventListener('click', function (event) {
-      var target = event.target;
-      if (!target || !target.closest) return;
-
-      if (target.closest('cart-remove-button')) {
-        window.__buzzkoIsRemoveAction = true;
-      } else if (target.closest('.quantity__button')) {
-        window.__buzzkoIsRemoveAction = false;
-      }
-    }, true);
-
-    /* BuzzKo perf — wait for Dawn to define <cart-items>, then patch
-       enableLoading so quantity changes don't dim the whole cart.
-       Remove-button clicks keep Dawn's original behavior so destructive
-       actions still feel deliberate. */
-    customElements.whenDefined('cart-items').then(function () {
-      var CartItemsClass = customElements.get('cart-items');
-      if (!CartItemsClass || CartItemsClass.__buzzkoPatched) return;
-      CartItemsClass.__buzzkoPatched = true;
-
-      var origEnableLoading = CartItemsClass.prototype.enableLoading;
-
-      CartItemsClass.prototype.enableLoading = function (line) {
-        /* Remove action → Dawn's original behavior (full dim + spinner). */
-        if (window.__buzzkoIsRemoveAction) {
-          return origEnableLoading.call(this, line);
-        }
-
-        /* Quantity change → show spinner on the affected line only.
-           Deliberately skip:
-             - the .cart__items--disabled class (dims the whole list)
-             - document.activeElement.blur() (steals focus from the button)
-           so the +/- interaction stays responsive. */
-        var cartItemElements = this.querySelectorAll('#CartItem-' + line + ' .loading__spinner');
-        var cartDrawerItemElements = this.querySelectorAll('#CartDrawer-Item-' + line + ' .loading__spinner');
-
-        Array.prototype.forEach.call(cartItemElements, function (o) { o.classList.remove('hidden'); });
-        Array.prototype.forEach.call(cartDrawerItemElements, function (o) { o.classList.remove('hidden'); });
-
-        if (this.lineItemStatusElement) {
-          this.lineItemStatusElement.setAttribute('aria-hidden', false);
-        }
-      };
-
-      /* No need to patch disableLoading — it removes the class regardless,
-         which is a no-op when we never added it. */
-    });
-  })();
-</script>
-
 <cart-items
-  class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% endif %}"
+  class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% endif %} buzzko-first-paint"
   view-event-payload="{{ cart | standard_event_data: 'view', context: 'page' | escape }}"
 >
   <div class="page-width">
@@ -686,8 +643,11 @@
           Start shopping
         </a>
       </div>
-    {%- else -%}
+      
+      <!-- Dummy .js-contents so Dawn's AJAX doesn't throw an error if it tries to find it -->
+      <div class="js-contents" hidden></div>
 
+    {%- else -%}
       <header class="buzzko-cart-header">
         <h1 class="buzzko-cart-header__title">{{ 'sections.cart.title' | t }}</h1>
         <a href="{{ routes.all_products_collection_url }}" class="buzzko-cart-header__link">
@@ -770,32 +730,32 @@
                 </div>
 
                 <div class="buzzko-item__right">
-                 <div class="buzzko-item__price">
-  {%- if item.original_line_price != item.final_line_price -%}
-    <span>{{ item.final_line_price | money }}</span>
-    <s class="buzzko-item__price-compare">{{ item.original_line_price | money }}</s>
-  {%- else -%}
-    <span>{{ item.original_line_price | money }}</span>
-    {%- if show_compare -%}
-      {%- assign compare_line = item.variant.compare_at_price | times: item.quantity -%}
-      <s
-        class="buzzko-item__price-compare"
-        data-buzzko-compare
-        data-line-key="{{ item.key }}"
-        data-compare-unit="{{ item.variant.compare_at_price }}"
-      >{{ compare_line | money }}</s>
-    {%- endif -%}
-  {%- endif -%}
-</div>
+                  <div class="buzzko-item__price">
+                    {%- if item.original_line_price != item.final_line_price -%}
+                      <span>{{ item.final_line_price | money }}</span>
+                      <s class="buzzko-item__price-compare">{{ item.original_line_price | money }}</s>
+                    {%- else -%}
+                      <span>{{ item.original_line_price | money }}</span>
+                      {%- if show_compare -%}
+                        {%- assign compare_line = item.variant.compare_at_price | times: item.quantity -%}
+                        <s
+                          class="buzzko-item__price-compare"
+                          data-buzzko-compare
+                          data-line-key="{{ item.key }}"
+                          data-compare-unit="{{ item.variant.compare_at_price }}"
+                        >{{ compare_line | money }}</s>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
 
-<div
-  class="buzzko-item__each"
-  data-buzzko-each
-  data-line-key="{{ item.key }}"
-  {% if item.quantity <= 1 %}hidden{% endif %}
->
-  {{ item.final_price | money }} each
-</div>
+                  <div
+                    class="buzzko-item__each"
+                    data-buzzko-each
+                    data-line-key="{{ item.key }}"
+                    {% if item.quantity <= 1 %}hidden{% endif %}
+                  >
+                    {{ item.final_price | money }} each
+                  </div>
 
                   <div class="buzzko-item__controls">
                     <quantity-input class="quantity cart-quantity">
@@ -872,282 +832,81 @@
             {%- endfor -%}
           </div>
         </div>
-
-        <p class="visually-hidden" id="cart-live-region-text" aria-live="polite" role="status"></p>
-        <p class="visually-hidden" id="shopping-cart-line-item-status" aria-live="polite" aria-hidden="true" role="status">
-          {{ 'accessibility.loading' | t }}
-        </p>
       </form>
     {%- endif -%}
 
+    <p class="visually-hidden" id="cart-live-region-text" aria-live="polite" role="status"></p>
+    <p class="visually-hidden" id="shopping-cart-line-item-status" aria-live="polite" aria-hidden="true" role="status">
+      {{ 'accessibility.loading' | t }}
+    </p>
   </div>
 </cart-items>
 
-<!-- ============================================================
-     BuzzKo FINAL FINAL: Optimistic UI + Queue Lock + Custom Limit Message
-     ============================================================ -->
-<!-- ============================================================
-     BuzzKo FINAL: Optimistic UI + Queue Lock + Mobile Fix + Header Sync
-     ============================================================ -->
 <script>
-  (function () {
-    if (window.__buzzkoCartQueueInit) return;
-    window.__buzzkoCartQueueInit = true;
+  // 1. Remove first-paint class so items don't re-animate on every +/- click
+  setTimeout(function() {
+    var c = document.querySelector('cart-items');
+    if (c) c.classList.remove('buzzko-first-paint');
+  }, 1200);
 
-    var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
-    var cartLocks = {}; 
-    var pendingQuantities = {}; 
-    var debounceTimers = {}; 
-    var errorTimers = {}; 
+  // 2. Track clicks: Add shimmer ONLY to the clicked item's price and footer totals
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.quantity__button, .buzzko-item__trash');
+    if (!btn) return;
+    var item = btn.closest('.buzzko-item');
+    if (item) {
+      window.__buzzkoLastClickedLineKey = item.getAttribute('data-line-key');
+      
+      // Clear any existing shimmer first (in case of rapid clicks)
+      document.querySelectorAll('.buzzko-is-loading').forEach(function(el) {
+        el.classList.remove('buzzko-is-loading');
+      });
 
-    // THE FIX: Using your exact product-card logic to update the header manually
-    function updateBubble(cartItemCount) {
-      if (typeof cartItemCount !== 'number') return;
-      var cartLink = document.getElementById('cart-icon-bubble');
-      if (!cartLink) return;
+      var price = item.querySelector('.buzzko-item__price');
+      if (price) price.classList.add('buzzko-is-loading');
       
-      var bubble = cartLink.querySelector('.cart-count-bubble');
+      var footerTotal = document.querySelector('[data-buzzko-total]');
+      if (footerTotal) footerTotal.classList.add('buzzko-is-loading');
       
-      if (cartItemCount === 0) {
-        if (bubble) bubble.remove();
-        return;
-      }
-      
-      if (!bubble) {
-        bubble = document.createElement('div');
-        bubble.className = 'cart-count-bubble';
-        cartLink.appendChild(bubble);
-      }
-      
-      bubble.innerHTML = '<span aria-hidden="true">' + cartItemCount + '</span><span class="visually-hidden">' + cartItemCount + (cartItemCount === 1 ? ' item' : ' items') + ' in cart</span>';
+      var footerSubtotal = document.querySelector('[data-buzzko-subtotal]');
+      if (footerSubtotal) footerSubtotal.classList.add('buzzko-is-loading');
+
+      // Safety: remove shimmer after 3s in case the network fails
+      setTimeout(function() {
+        document.querySelectorAll('.buzzko-is-loading').forEach(function(el) {
+          el.classList.remove('buzzko-is-loading');
+        });
+      }, 3000);
     }
+  }, true);
 
-    function clearErrorMessage(lineKey) {
-      var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
-      if (currentItem) {
-        var errBox = currentItem.querySelector('.cart-item__error');
-        if (errBox) {
-          errBox.hidden = true;
-          var errText = errBox.querySelector('.cart-item__error-text');
-          if (errText) errText.textContent = '';
-        }
-      }
-      if (errorTimers[lineKey]) {
-        clearTimeout(errorTimers[lineKey]);
-        delete errorTimers[lineKey];
-      }
-    }
-
-    function updateCartServer(lineKey, desiredQuantity) {
-      if (cartLocks[lineKey]) {
-        pendingQuantities[lineKey] = desiredQuantity;
-        return;
-      }
-
-      cartLocks[lineKey] = true;
-
-      // We no longer need to request cart-icon-bubble from the API
-      fetch(ROOT + 'cart/change.js?sections=main-cart-footer,main-cart-items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        credentials: 'same-origin', 
-        body: JSON.stringify({ id: lineKey, quantity: desiredQuantity })
-      })
-      .then(function(res) {
-        if (!res.ok) {
-          return fetch(ROOT + 'cart.js', { credentials: 'same-origin' }).then(r => r.json()).then(cartData => {
-            throw { isLimitError: true, cartData: cartData };
-          });
-        }
-        return res.json();
-      })
-      .then(function(data) {
-        var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
-
-        clearErrorMessage(lineKey);
-
-        // THE FIX: Manually update the header using the response's item_count
-        if (data.item_count !== undefined) {
-          updateBubble(data.item_count);
-        }
-
-        // 1. Update the Order Summary Footer Total
-        if (data.sections && data.sections['main-cart-footer']) {
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(data.sections['main-cart-footer'], 'text/html');
-          var newContent = doc.querySelector('#main-cart-footer .js-contents');
-          var currentContent = document.querySelector('#main-cart-footer .js-contents');
-          if (newContent && currentContent) {
-            currentContent.innerHTML = newContent.innerHTML;
-          }
-        }
-
-        // 2. Update the Line Item Price
-        if (data.sections && data.sections['main-cart-items']) {
-          var parser2 = new DOMParser();
-          var doc2 = parser2.parseFromString(data.sections['main-cart-items'], 'text/html');
-          var newItem = doc2.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
-
-          if (newItem && currentItem) {
-            var newPrice = newItem.querySelector('.buzzko-item__price');
-            var currentPrice = currentItem.querySelector('.buzzko-item__price');
-            if (newPrice && currentPrice) currentPrice.innerHTML = newPrice.innerHTML;
-
-            var newEach = newItem.querySelector('.buzzko-item__each');
-            var currentEach = currentItem.querySelector('.buzzko-item__each');
-            if (newEach && currentEach) {
-              currentEach.innerHTML = newEach.innerHTML;
-              currentEach.hidden = newEach.hidden;
-            }
-          }
-        }
-
-        document.dispatchEvent(new CustomEvent('cart-update', { detail: { cartData: data } }));
-      })
-      .catch(function(err) {
-        if (err && err.isLimitError) {
-          var currentInput = document.querySelector('.quantity__input[data-quantity-line-key="' + lineKey + '"]');
-          var currentItem = document.querySelector('.buzzko-item[data-line-key="' + lineKey + '"]');
-          var realItem = err.cartData.items.find(function(i) { return i.key === lineKey; });
+  // 3. Reload immediately when the cart hits 0
+  (function watchEmptyCart() {
+    var cartItems = document.querySelector('cart-items');
+    if (!cartItems) return;
+    
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          // ONLY reload if 'is-empty' was just ADDED.
+          // This prevents the infinite loop when 'buzzko-first-paint' is removed.
+          var wasEmpty = mutation.oldValue && mutation.oldValue.includes('is-empty');
+          var isEmpty = cartItems.classList.contains('is-empty');
           
-          if (realItem && currentInput) {
-            currentInput.value = realItem.quantity;
-            currentInput.setAttribute('max', realItem.quantity);
-            
-            // Update bubble just in case
-            if (err.cartData.item_count !== undefined) {
-              updateBubble(err.cartData.item_count);
-            }
-
-            var qtyInput = currentInput.closest('quantity-input');
-            if (qtyInput) {
-              var plusBtn = qtyInput.querySelector('[name="plus"]');
-              if (plusBtn) plusBtn.disabled = true;
-            }
-
-            if (currentItem) {
-              var errBox = currentItem.querySelector('.cart-item__error');
-              if (errBox) {
-                var errText = errBox.querySelector('.cart-item__error-text');
-                if (errText) {
-                  errText.textContent = "You can only add " + realItem.quantity + " of this item to your cart.";
-                }
-                errBox.hidden = false;
-
-                if (errorTimers[lineKey]) clearTimeout(errorTimers[lineKey]);
-                errorTimers[lineKey] = setTimeout(function() {
-                  clearErrorMessage(lineKey);
-                }, 4000);
-              }
-            }
-          }
-        } else {
-          console.error("Mobile Network Error:", err);
-          window.location.reload(); 
-        }
-      })
-      .finally(function() {
-        cartLocks[lineKey] = false;
-        
-        if (pendingQuantities[lineKey] !== undefined) {
-          var nextQty = pendingQuantities[lineKey];
-          delete pendingQuantities[lineKey];
-          
-          if (nextQty !== desiredQuantity) {
-            updateCartServer(lineKey, nextQty);
+          if (isEmpty && !wasEmpty) {
+            window.location.reload();
           }
         }
       });
-    }
-
-    document.addEventListener('click', function(e) {
-      var btn = e.target.closest('.quantity__button');
-      if (!btn) return;
-
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      var quantityInput = btn.closest('quantity-input');
-      if (!quantityInput) return;
-
-      var input = quantityInput.querySelector('.quantity__input');
-      if (!input) return;
-
-      var lineKey = input.getAttribute('data-quantity-line-key');
-      if (!lineKey) return;
-
-      clearErrorMessage(lineKey);
-
-      var currentVal = parseInt(input.value, 10) || 0;
-      var isPlus = btn.name === 'plus';
-      var step = parseInt(input.getAttribute('step'), 10) || 1;
-      var min = parseInt(input.getAttribute('min'), 10) || 1;
-      var maxAttr = input.getAttribute('max');
-      var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
-
-      var newVal = isPlus ? currentVal + step : currentVal - step;
-      
-      if (newVal < min) newVal = min;
-      if (newVal > max) newVal = max;
-
-      if (newVal === currentVal) return; 
-
-      input.value = newVal;
-
-      var plusBtn = quantityInput.querySelector('[name="plus"]');
-      var minusBtn = quantityInput.querySelector('[name="minus"]');
-      
-      if (newVal >= max && plusBtn) plusBtn.disabled = true;
-      else if (plusBtn) plusBtn.disabled = false;
-
-      if (newVal <= min && minusBtn) minusBtn.disabled = true;
-      else if (minusBtn) minusBtn.disabled = false;
-
-      if (debounceTimers[lineKey]) clearTimeout(debounceTimers[lineKey]);
-      
-      debounceTimers[lineKey] = setTimeout(function() {
-        updateCartServer(lineKey, newVal);
-      }, 400);
-    }, true); 
-
-    document.addEventListener('change', function(e) {
-      var input = e.target.closest('.quantity__input');
-      if (!input) return;
-
-      e.stopImmediatePropagation();
-
-      var lineKey = input.getAttribute('data-quantity-line-key');
-      if (!lineKey) return;
-
-      clearErrorMessage(lineKey);
-
-      var newVal = parseInt(input.value, 10) || 0;
-      var min = parseInt(input.getAttribute('min'), 10) || 1;
-      var maxAttr = input.getAttribute('max');
-      var max = maxAttr ? parseInt(maxAttr, 10) : Infinity;
-
-      if (newVal < min) newVal = min;
-      if (newVal > max) newVal = max;
-      input.value = newVal;
-
-      var quantityInput = input.closest('quantity-input');
-      var plusBtn = quantityInput.querySelector('[name="plus"]');
-      var minusBtn = quantityInput.querySelector('[name="minus"]');
-      
-      if (newVal >= max && plusBtn) plusBtn.disabled = true;
-      else if (plusBtn) plusBtn.disabled = false;
-
-      if (newVal <= min && minusBtn) minusBtn.disabled = true;
-      else if (minusBtn) minusBtn.disabled = false;
-
-      if (debounceTimers[lineKey]) clearTimeout(debounceTimers[lineKey]);
-      debounceTimers[lineKey] = setTimeout(function() {
-        updateCartServer(lineKey, newVal);
-      }, 400);
-    }, true);
+    });
+    
+    observer.observe(cartItems, { 
+      attributes: true, 
+      attributeOldValue: true, 
+      attributeFilter: ['class'] 
+    });
   })();
 </script>
-
 
 {% schema %}
 {
