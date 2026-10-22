@@ -67,6 +67,30 @@
       assign applied_codes_str = applied_codes_str | append: '||' | append: t
     endif
   endfor
+
+  for line in cart.items
+    for alloc in line.line_level_discount_allocations
+      assign t = alloc.discount_application.title | downcase
+      unless applied_codes_str contains t
+        if applied_codes_str == ''
+          assign applied_codes_str = t
+        else
+          assign applied_codes_str = applied_codes_str | append: '||' | append: t
+        endif
+      endunless
+    endfor
+  endfor
+
+  assign removable_codes_str = ''
+  for d in cart.cart_level_discount_applications
+    if d.type == 'discount_code'
+      if removable_codes_str == ''
+        assign removable_codes_str = d.title
+      else
+        assign removable_codes_str = removable_codes_str | append: '||' | append: d.title
+      endif
+    endif
+  endfor
 -%}
 
 {%- style -%}
@@ -93,6 +117,15 @@
   #main-cart-footer [data-buzzko-discount-row] .buzzko-summary__row-value { color: #008A3E; font-weight: 700; }
   #main-cart-footer [data-buzzko-discount-row][hidden] { display: none; }
   #main-cart-footer .buzzko-summary.buzzko-has-buzzko10 [data-buzzko-discount-row] { display: none !important; }
+
+  #main-cart-footer .buzzko-discount__remove {
+    display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; padding: 0;
+    border: 0; border-radius: 50%; background: rgba(26, 26, 26, 0.12); color: #1A1A1A;
+    font-size: 10px; line-height: 1; cursor: pointer; vertical-align: middle;
+    transition: background .15s ease;
+  }
+  #main-cart-footer .buzzko-discount__remove:hover { background: rgba(26, 26, 26, 0.25); }
+  #main-cart-footer .buzzko-discount__remove[disabled] { opacity: .5; cursor: wait; }
 
   #main-cart-footer .buzzko-promo { display: flex; gap: 8px; margin: 0 0 16px; }
   #main-cart-footer .buzzko-promo__input {
@@ -260,7 +293,13 @@
         {%- if cart.cart_level_discount_applications.size > 0 -%}
           {%- for discount in cart.cart_level_discount_applications -%}
             <div class="buzzko-summary__row">
-              <span>{{ discount.title | escape }}</span>
+              <span>
+                {{- discount.title | escape -}}
+                {%- assign discount_title_lc = discount.title | downcase -%}
+                {%- if discount.type == 'discount_code' and discount_title_lc != normalized_discount_code -%}
+                  <button type="button" class="buzzko-discount__remove" data-buzzko-remove-code="{{ discount.title | escape }}" aria-label="Remove code {{ discount.title | escape }}">&#10005;</button>
+                {%- endif -%}
+              </span>
               <span class="buzzko-summary__row-value">-{{ discount.total_allocated_amount | money }}</span>
             </div>
           {%- endfor -%}
@@ -284,7 +323,7 @@
         <button type="submit" class="buzzko-promo__btn">Apply</button>
       </form>
 
-      <span hidden data-buzzko-applied-codes="{{ applied_codes_str | escape }}"></span>
+      <span hidden data-buzzko-applied-codes="{{ applied_codes_str | escape }}" data-buzzko-removable-codes="{{ removable_codes_str | escape }}"></span>
 
       <label class="buzzko-gift" for="Cart-gift-{{ section.id }}">
         <input
@@ -479,6 +518,50 @@
         input.setAttribute('aria-invalid', 'true');
       }
     })();
+
+    /* ---- Remove an applied promo code ---- */
+    function codeStillApplied(cart, code) {
+      var needle = code.toLowerCase();
+      var found = (cart.cart_level_discount_applications || []).some(function (d) {
+        return d && d.title && d.title.toLowerCase() === needle;
+      });
+      if (found) return true;
+      return (cart.items || []).some(function (item) {
+        return (item.discounts || []).some(function (d) {
+          return d && d.title && d.title.toLowerCase() === needle;
+        });
+      });
+    }
+
+    document.addEventListener('click', function (event) {
+      var btn = event.target.closest && event.target.closest('[data-buzzko-remove-code]');
+      if (!btn || btn.disabled) return;
+      event.preventDefault();
+
+      var code = btn.getAttribute('data-buzzko-remove-code');
+      var host = document.querySelector('[data-buzzko-removable-codes]');
+      var raw = host ? host.getAttribute('data-buzzko-removable-codes') : '';
+      var all = raw ? raw.split('||') : [];
+      var remaining = all.filter(function (c) { return c.toLowerCase() !== code.toLowerCase(); });
+      var form = document.querySelector('[data-buzzko-promo]');
+
+      btn.disabled = true;
+
+      fetch(ROOT + 'cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ discount: remaining.join(',') })
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (cart) {
+        if (codeStillApplied(cart, code)) throw new Error('still-applied');
+        window.location.reload();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        if (form) showPromoMessage(form, 'Could not remove ' + code + '. You can change it at checkout.', '#C24545');
+      });
+    });
 
     /* ---- Gift checkbox ---- */
     document.addEventListener('change', function (event) {
