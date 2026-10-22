@@ -62,7 +62,6 @@
     text-decoration: none;
     border-bottom: 1.5px solid currentColor;
     padding-bottom: 2px;
-    transition: color .15s ease;
     white-space: nowrap;
   }
 
@@ -76,6 +75,9 @@
     flex-direction: column;
     gap: 14px;
   }
+
+  /* Dawn dims the list while a request is running; keep it fully visible so it feels instant */
+  #main-cart-items.cart__items--disabled { opacity: 1 !important; }
 
   .buzzko-cart-list .js-contents {
     display: flex;
@@ -92,24 +94,6 @@
     background: #fff;
     border: 1.5px solid #EBE5DF;
     border-radius: 16px;
-    transition: border-color .2s ease, box-shadow .2s ease, opacity .3s ease, transform .3s ease;
-  }
-
-  /* Only animate on first paint, not on Dawn's AJAX re-renders */
-  cart-items.buzzko-first-paint .buzzko-item {
-    animation: buzzkoItemIn .5s cubic-bezier(.2, .9, .3, 1) backwards;
-  }
-
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(1) { animation-delay: .04s; }
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(2) { animation-delay: .10s; }
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(3) { animation-delay: .16s; }
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(4) { animation-delay: .22s; }
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(5) { animation-delay: .28s; }
-  cart-items.buzzko-first-paint .buzzko-item:nth-child(n+6) { animation-delay: .32s; }
-
-  @keyframes buzzkoItemIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .buzzko-item:hover {
@@ -132,10 +116,7 @@
     height: 100%;
     display: block;
     object-fit: cover;
-    transition: transform .3s ease;
   }
-
-  .buzzko-item:hover .buzzko-item__media img { transform: scale(1.04); }
 
   .buzzko-item__body { min-width: 0; }
 
@@ -238,7 +219,9 @@
     justify-content: center;
   }
 
-  .buzzko-item .quantity__button:disabled { opacity: .35; cursor: not-allowed; }
+  .buzzko-item .quantity__button:disabled,
+  .buzzko-item .quantity__button.disabled { opacity: .35; cursor: not-allowed; }
+  .buzzko-item .quantity__button.disabled { pointer-events: auto !important; }
 
   .buzzko-item .quantity__button svg { width: 12px; height: 12px; }
   .buzzko-item .quantity__button .svg-wrapper { width: 12px; height: 12px; display: inline-flex; }
@@ -277,13 +260,11 @@
     color: #85807B;
     cursor: pointer;
     text-decoration: none;
-    transition: color .15s ease, background .15s ease, transform .2s ease;
   }
 
   .buzzko-item__trash svg {
     width: 16px;
     height: 16px;
-    transition: transform .25s cubic-bezier(.3, 1.4, .5, 1);
   }
 
   .buzzko-item__trash:hover {
@@ -291,7 +272,6 @@
     background: #FCEFEF;
   }
 
-  .buzzko-item__trash:hover svg { transform: rotate(-12deg); }
 
   .buzzko-item__discounts {
     list-style: none;
@@ -315,39 +295,6 @@
   /* Let Dawn's updateLiveRegions reveal the row when it writes a message */
   .buzzko-item__error:has(.cart-item__error-text:not(:empty)) {
     display: block !important;
-  }
-
-  /* BuzzKo Amazon-style loading shimmer — Targeted via JS */
-  .buzzko-is-loading {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .buzzko-is-loading::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 50%, transparent 100%);
-    animation: buzzkoShimmerLoading 0.8s infinite;
-    z-index: 10;
-  }
-  
-  @keyframes buzzkoShimmerLoading {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  /* BuzzKo Flash animation — ONLY the amount text inside the price */
-  @keyframes buzzkoFlashUpdate {
-    0% { transform: scale(1); color: #1A1A1A; }
-    30% { transform: scale(1.15); color: #FF60B9; }
-    100% { transform: scale(1); color: #1A1A1A; }
-  }
-  
-  .buzzko-item__price span.is-updated,
-  .buzzko-item__price s.is-updated {
-    display: inline-block;
-    animation: buzzkoFlashUpdate 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
   }
 
   @media screen and (max-width: 749px) {
@@ -450,7 +397,6 @@
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
-    transition: background .15s ease, transform .15s ease;
   }
 
   .buzzko-empty__cta:hover { background: #e469af; transform: translateY(-1px); }
@@ -628,7 +574,7 @@
 <span hidden data-buzzko-money-format="{{ shop.money_format | escape }}"></span>
 
 <cart-items
-  class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% endif %} buzzko-first-paint"
+  class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% endif %}"
   view-event-payload="{{ cart | standard_event_data: 'view', context: 'page' | escape }}"
 >
   <div class="page-width">
@@ -662,6 +608,11 @@
               {%- liquid
                 assign can_update_quantity = item.instructions.can_update_quantity | default: true
                 assign can_remove = item.instructions.can_remove | default: true
+                assign min_qty = item.variant.quantity_rule.min | default: 1
+                assign max_qty = item.variant.quantity_rule.max
+                if max_qty == nil and item.variant.inventory_management != blank and item.variant.inventory_policy == 'deny' and item.variant.inventory_quantity > 0
+                  assign max_qty = item.variant.inventory_quantity
+                endif
                 assign show_compare = false
                 if item.variant.compare_at_price > item.final_price
                   assign show_compare = true
@@ -672,6 +623,10 @@
                 id="CartItem-{{ item.index | plus: 1 }}"
                 data-index="{{ item.index | plus: 1 }}"
                 data-line-key="{{ item.key }}"
+                data-qty="{{ item.quantity }}"
+                data-line-cents="{{ item.final_line_price }}"
+                data-unit-final="{{ item.final_price }}"
+                data-unit-original="{{ item.original_price }}"
               >
                 <a href="{{ item.url }}" class="buzzko-item__media" aria-hidden="true" tabindex="-1">
                   {%- if item.image -%}
@@ -760,7 +715,7 @@
                   <div class="buzzko-item__controls">
                     <quantity-input class="quantity cart-quantity">
                       <button
-                        class="quantity__button"
+                        class="quantity__button{% if item.quantity <= min_qty %} disabled{% endif %}"
                         name="minus"
                         type="button"
                         {% if can_update_quantity == false %}disabled{% endif %}
@@ -777,9 +732,9 @@
                         value="{{ item.quantity }}"
                         {% # theme-check-disable %}
                         data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
-                        min="0"
+                        min="{{ min_qty }}"
                         data-min="{{ item.variant.quantity_rule.min }}"
-                        {% if item.variant.quantity_rule.max != null %}max="{{ item.variant.quantity_rule.max }}"{% endif %}
+                        {% if max_qty != nil %}max="{{ max_qty }}"{% endif %}
                         step="{{ item.variant.quantity_rule.increment }}"
                         {% # theme-check-enable %}
                         aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
@@ -788,7 +743,7 @@
                         {% if can_update_quantity == false %}disabled{% endif %}
                       >
                       <button
-                        class="quantity__button"
+                        class="quantity__button{% if max_qty != nil and item.quantity >= max_qty %} disabled{% endif %}"
                         name="plus"
                         type="button"
                         {% if can_update_quantity == false %}disabled{% endif %}
@@ -843,44 +798,384 @@
 </cart-items>
 
 <script>
-  // 1. Remove first-paint class so items don't re-animate on every +/- click
-  setTimeout(function() {
-    var c = document.querySelector('cart-items');
-    if (c) c.classList.remove('buzzko-first-paint');
-  }, 1200);
+  /* =====================================================
+     BuzzKo instant cart: the screen changes the moment a
+     button is pressed; Shopify's real answer replaces it
+     when it arrives. If Shopify refuses, we roll back.
+  ===================================================== */
+  (function () {
+    if (window.__buzzkoInstantInit) return;
+    window.__buzzkoInstantInit = true;
 
-  // 2. Track clicks: Add shimmer ONLY to the clicked item's price and footer totals
-  document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.quantity__button, .buzzko-item__trash');
-    if (!btn) return;
-    var item = btn.closest('.buzzko-item');
-    if (item) {
-      window.__buzzkoLastClickedLineKey = item.getAttribute('data-line-key');
-      
-      // Clear any existing shimmer first (in case of rapid clicks)
-      document.querySelectorAll('.buzzko-is-loading').forEach(function(el) {
-        el.classList.remove('buzzko-is-loading');
-      });
+    var undo = [];
+    var timer = null;
+    var ROOT = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+
+    /* ---- tiny helpers that remember how to undo themselves ---- */
+    function setText(el, text) {
+      if (!el || el.textContent === text) return;
+      var old = el.textContent;
+      undo.push(function () { el.textContent = old; });
+      el.textContent = text;
+    }
+    function setAttr(el, name, value) {
+      if (!el) return;
+      var had = el.hasAttribute(name), old = el.getAttribute(name);
+      undo.push(function () { if (had) el.setAttribute(name, old); else el.removeAttribute(name); });
+      el.setAttribute(name, value);
+    }
+    function setHidden(el, hidden) {
+      if (!el) return;
+      var old = el.hidden;
+      undo.push(function () { el.hidden = old; });
+      el.hidden = hidden;
+    }
+    function setStyle(el, prop, value) {
+      if (!el) return;
+      var old = el.style[prop];
+      undo.push(function () { el.style[prop] = old; });
+      el.style[prop] = value;
+    }
+    function toggleClass(el, cls, on) {
+      if (!el) return;
+      var had = el.classList.contains(cls);
+      undo.push(function () { el.classList.toggle(cls, had); });
+      el.classList.toggle(cls, on);
+    }
+
+    function rollback() {
+      clearTimeout(timer);
+      var fns = undo;
+      undo = [];
+      for (var i = fns.length - 1; i >= 0; i--) { try { fns[i](); } catch (e) {} }
+    }
+    function settle() {
+      clearTimeout(timer);
+      undo = [];
+    }
+    function armTimer() {
+      clearTimeout(timer);
+      timer = setTimeout(rollback, 8000); // no answer in 8s: put the old numbers back
+    }
+
+    /* ---- money ---- */
+    function moneyFormat() {
+      var el = document.querySelector('[data-buzzko-money-format]');
+      var f = (el && el.getAttribute('data-buzzko-money-format')) || 'Rs. {{amount}}';
+      return f.replace(/<[^>]*>/g, '');
+    }
+
+    function formatMoney(cents, format) {
+      var placeholder = /\{\{\s*(\w+)\s*\}\}/;
+      function fm(number, precision, thousands, decimal) {
+        thousands = thousands || ',';
+        decimal = decimal || '.';
+        var n = (number / 100).toFixed(precision);
+        var parts = n.split('.');
+        return parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + thousands) +
+               (parts[1] ? decimal + parts[1] : '');
+      }
+      var m = format.match(placeholder);
+      var value;
+      switch (m && m[1]) {
+        case 'amount_no_decimals': value = fm(cents, 0); break;
+        case 'amount_with_comma_separator': value = fm(cents, 2, '.', ','); break;
+        case 'amount_no_decimals_with_comma_separator': value = fm(cents, 0, '.', ','); break;
+        case 'amount_with_apostrophe_separator': value = fm(cents, 2, "'", '.'); break;
+        default: value = fm(cents, 2);
+      }
+      return format.replace(placeholder, value);
+    }
+    window.__buzzkoFormatMoney = formatMoney;
+
+    /* ---- header bag number ---- */
+    function updateBag(n) {
+      var b = document.querySelector('#cart-icon-bubble .cart-count-bubble');
+      if (!b) return;
+      setText(b.querySelector('[aria-hidden="true"]'), String(n));
+    }
+
+    /* ---- footer: subtotal, discount preview, offer bar, total ---- */
+    function applyDelta(dCents, dCount) {
+      var totalEl = document.querySelector('[data-buzzko-total]');
+      if (!totalEl) return;
+
+      var fmt = moneyFormat();
+      var offerEl = document.querySelector('[data-buzzko-offer]');
+      var subEl = document.querySelector('[data-buzzko-subtotal]');
+      var summary = totalEl.closest('.buzzko-summary');
+
+      var S = parseInt(totalEl.getAttribute('data-total-cents'), 10) || 0;
+      var F = parseInt(totalEl.getAttribute('data-total-final-cents'), 10);
+      if (isNaN(F)) F = S;
+      var newS = Math.max(0, S + dCents);
+
+      var has10 = !!summary && summary.classList.contains('buzzko-has-buzzko10');
+      var hasOther = !!summary && summary.classList.contains('buzzko-has-other-code');
+      var threshold = offerEl ? (parseInt(offerEl.getAttribute('data-threshold'), 10) || 0) : 0;
+      var pct = offerEl ? (parseInt(offerEl.getAttribute('data-percent'), 10) || 0) : 0;
+
+      var previewOn = threshold > 0 && !has10 && !hasOther && newS >= threshold;
+      var newF;
+      if (previewOn) newF = newS - Math.floor(newS * pct / 100);
+      else if ((has10 || hasOther) && S > 0) newF = Math.round(newS * F / S);
+      else newF = newS;
+
+      setAttr(totalEl, 'data-total-cents', String(newS));
+      setAttr(totalEl, 'data-total-final-cents', String(newF));
+      setText(totalEl, formatMoney(newF, fmt));
+      setText(subEl, formatMoney(newS, fmt));
+
+      var label = document.querySelector('[data-buzzko-subtotal-label]');
+      if (label) {
+        var n = Math.max(0, (parseInt(label.getAttribute('data-item-count'), 10) || 0) + dCount);
+        setAttr(label, 'data-item-count', String(n));
+        setText(label, 'Subtotal (' + n + ' ' + (n === 1 ? 'item' : 'items') + ')');
+        updateBag(n);
+      }
+
+      var row = document.querySelector('[data-buzzko-discount-row]');
+      if (row) {
+        setHidden(row, !previewOn);
+        setText(row.querySelector('[data-buzzko-discount-amount]'),
+                '-' + formatMoney(Math.floor(newS * pct / 100), fmt));
+      }
+
+      if (offerEl && threshold > 0) {
+        var unlocked = newS >= threshold;
+        setStyle(offerEl.querySelector('[data-buzzko-offer-fill]'), 'width',
+                 Math.min(100, newS * 100 / threshold) + '%');
+        toggleClass(offerEl, 'buzzko-offer--unlocked', unlocked);
+        setText(offerEl.querySelector('[data-buzzko-offer-label]'),
+                unlocked
+                  ? pct + '% off unlocked and auto applied!'
+                  : 'Add ' + formatMoney(threshold - newS, fmt) + ' more to unlock ' + pct + '% off!');
+      }
+    }
+
+    /* ---- one line item ---- */
+    function readLine(item) {
+      return {
+        qty: parseInt(item.getAttribute('data-qty'), 10) || 0,
+        cents: parseInt(item.getAttribute('data-line-cents'), 10) || 0,
+        unitFinal: parseInt(item.getAttribute('data-unit-final'), 10) || 0,
+        unitOriginal: parseInt(item.getAttribute('data-unit-original'), 10) || 0
+      };
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.cart-item__error-text').forEach(function (e) { e.textContent = ''; });
+    }
+
+    function updateLine(item, newQty) {
+      var L = readLine(item);
+      var fmt = moneyFormat();
+      var newLine = L.unitFinal * newQty;
 
       var price = item.querySelector('.buzzko-item__price');
-      if (price) price.classList.add('buzzko-is-loading');
-      
-      var footerTotal = document.querySelector('[data-buzzko-total]');
-      if (footerTotal) footerTotal.classList.add('buzzko-is-loading');
-      
-      var footerSubtotal = document.querySelector('[data-buzzko-subtotal]');
-      if (footerSubtotal) footerSubtotal.classList.add('buzzko-is-loading');
+      if (price) {
+        setText(price.querySelector('span'), formatMoney(newLine, fmt));
+        var s = price.querySelector('s');
+        if (s) {
+          var cmp = s.getAttribute('data-compare-unit');
+          var unit = cmp !== null ? (parseInt(cmp, 10) || 0) : L.unitOriginal;
+          setText(s, formatMoney(unit * newQty, fmt));
+        }
+      }
+      setHidden(item.querySelector('[data-buzzko-each]'), newQty <= 1);
+      var qIn = item.querySelector('.quantity__input');
+      if (qIn) {
+        var lo = parseInt(qIn.getAttribute('min'), 10);
+        var hi = parseInt(qIn.getAttribute('max'), 10);
+        var bMinus = item.querySelector('.quantity__button[name="minus"]');
+        var bPlus = item.querySelector('.quantity__button[name="plus"]');
+        if (bMinus && !isNaN(lo)) toggleClass(bMinus, 'disabled', newQty <= lo);
+        if (bPlus && !isNaN(hi)) toggleClass(bPlus, 'disabled', newQty >= hi);
+      }
+      setAttr(item, 'data-qty', String(newQty));
+      setAttr(item, 'data-line-cents', String(newLine));
 
-      // Safety: remove shimmer after 3s in case the network fails
-      setTimeout(function() {
-        document.querySelectorAll('.buzzko-is-loading').forEach(function(el) {
-          el.classList.remove('buzzko-is-loading');
-        });
-      }, 3000);
+      applyDelta(newLine - L.cents, newQty - L.qty);
     }
-  }, true);
 
-  // 3. Reload immediately when the cart hits 0
+    function removeLine(item) {
+      var L = readLine(item);
+      setStyle(item, 'display', 'none');
+      setAttr(item, 'data-qty', '0');
+      setAttr(item, 'data-line-cents', '0');
+      applyDelta(-L.cents, -L.qty);
+    }
+
+    /* + / − / typed quantity (Dawn already updates the number itself) */
+    document.addEventListener('change', function (e) {
+      try {
+        var input = e.target;
+        if (!input.matches || !input.matches('.buzzko-item .quantity__input')) return;
+        if (input.checkValidity && !input.checkValidity()) return;
+        var item = input.closest('.buzzko-item');
+        var q = parseInt(input.value, 10);
+        if (!item || isNaN(q) || q < 0) return;
+
+        clearErrors();
+        armTimer();
+        if (q === 0) removeLine(item); else updateLine(item, q);
+      } catch (err) {
+        rollback(); // any surprise: skip the instant update, Dawn still does the real one
+      }
+    });
+
+    /* A greyed-out + / − was pressed: say why, briefly */
+    function flashNote(item, msg) {
+      var t = item.querySelector('.cart-item__error-text');
+      if (!t) return;
+      t.__buzzkoMsg = msg; // our own note, not a Shopify error
+      t.textContent = msg;
+      clearTimeout(t.__buzzkoNote);
+      t.__buzzkoNote = setTimeout(function () { if (t.textContent === msg) t.textContent = ''; }, 2500);
+    }
+
+    document.addEventListener('click', function (e) {
+      try {
+        var btn = e.target.closest && e.target.closest('.buzzko-item .quantity__button.disabled');
+        if (!btn) return;
+        var item = btn.closest('.buzzko-item');
+        var input = item && item.querySelector('.quantity__input');
+        if (!input) return;
+        flashNote(item, btn.getAttribute('name') === 'minus'
+          ? 'Minimum quantity is ' + (input.getAttribute('min') || 1) + '. Use the bin to remove.'
+          : 'Only ' + input.getAttribute('max') + ' available.');
+      } catch (err) {}
+    });
+
+    /* trash can: hide the line at once */
+    document.addEventListener('click', function (e) {
+      try {
+        var trash = e.target.closest && e.target.closest('.buzzko-item__trash');
+        if (!trash) return;
+        var item = trash.closest('.buzzko-item');
+        if (!item || item.style.display === 'none') return;
+
+        window.__buzzkoLastClickedLineKey = item.getAttribute('data-line-key');
+        clearErrors();
+        armTimer();
+        removeLine(item);
+      } catch (err) {
+        rollback();
+      }
+    }, true);
+
+    /* ---- stock limits learned from Shopify itself ---- */
+    function limitKey(input) {
+      var id = input && input.getAttribute('data-quantity-variant-id');
+      return id ? 'buzzko_max_' + id : null;
+    }
+    function rememberLimit(input, limit) {
+      var k = limitKey(input);
+      if (!k) return;
+      try { sessionStorage.setItem(k, String(limit)); } catch (e) {}
+    }
+    function setPlusState(item, qty, max) {
+      var plus = item.querySelector('.quantity__button[name="plus"]');
+      if (plus && !isNaN(max)) plus.classList.toggle('disabled', qty >= max);
+    }
+    // Put a learned limit on every quantity box that has none, so + stops there
+    function applyLearnedLimits() {
+      document.querySelectorAll('.buzzko-item .quantity__input').forEach(function (input) {
+        if (input.hasAttribute('max')) return;
+        var k = limitKey(input), v = null;
+        if (!k) return;
+        try { v = sessionStorage.getItem(k); } catch (e) {}
+        var max = parseInt(v, 10);
+        if (isNaN(max) || max < 1) return;
+        input.setAttribute('max', String(max));
+        var item = input.closest('.buzzko-item');
+        if (item) setPlusState(item, parseInt(input.value, 10) || 0, max);
+      });
+    }
+
+    // After a stock error: ask Shopify what is really in the cart and show that,
+    // instead of snapping back to where the spamming started
+    function resync(errEl) {
+      try {
+        var item = errEl.closest('.buzzko-item');
+        if (!item) return;
+        var key = item.getAttribute('data-line-key');
+        var input = item.querySelector('.quantity__input');
+        var m = errEl.textContent.match(/\d+/);
+        var limit = m ? parseInt(m[0], 10) : NaN;
+
+        fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
+          .then(function (res) { return res.json(); })
+          .then(function (cart) {
+            var line = (cart.items || []).filter(function (i) { return i.key === key; })[0];
+            if (!line || !input) return;
+
+            if (!isNaN(limit) && limit >= line.quantity && limit > 0) {
+              input.setAttribute('max', String(limit));
+              rememberLimit(input, limit);
+            }
+            var current = parseInt(item.getAttribute('data-qty'), 10) || 0;
+            if (line.quantity !== current) updateLine(item, line.quantity);
+            undo = [];
+            input.value = line.quantity;
+            var max = parseInt(input.getAttribute('max'), 10);
+            setPlusState(item, line.quantity, max);
+          })
+          .catch(function () {});
+      } catch (err) {}
+    }
+
+    // Stock error that names a limit ("Only 50 ..."): go straight to that limit,
+    // no stop at the old number on the way, then let Shopify confirm in the background.
+    // Any other error: put the old numbers back, then show what Shopify really has.
+    function handleError(errEl) {
+      clearTimeout(timer);
+      var item = errEl.closest('.buzzko-item');
+      var m = errEl.textContent.match(/\d+/);
+      var n = m ? parseInt(m[0], 10) : NaN;
+      var shown = item ? (parseInt(item.getAttribute('data-qty'), 10) || 0) : 0;
+      var input = item && item.querySelector('.quantity__input');
+
+      if (item && input && !isNaN(n) && n > 0 && n < shown) {
+        input.setAttribute('max', String(n));
+        rememberLimit(input, n);
+        updateLine(item, n);
+        input.value = n;
+        setPlusState(item, n, n);
+      } else {
+        rollback();
+      }
+      resync(errEl);
+    }
+
+    /* Shopify said no (out of stock, limit, network): put the old numbers back */
+    function watchErrors() {
+      var host = document.querySelector('cart-items');
+      if (!host || !window.MutationObserver) return;
+      new MutationObserver(function () {
+        if (!undo.length) return;
+        var errs = host.querySelectorAll('.cart-item__error-text');
+        for (var i = 0; i < errs.length; i++) {
+          var txt = errs[i].textContent.trim();
+          if (txt && txt !== errs[i].__buzzkoMsg) { handleError(errs[i]); return; }
+        }
+      }).observe(host, { childList: true, subtree: true, characterData: true });
+    }
+
+    /* Shopify said yes: its real numbers are already on screen, forget the undo list */
+    function hook() {
+      watchErrors();
+      applyLearnedLimits();
+      if (typeof subscribe === 'function' && window.PUB_SUB_EVENTS) {
+        subscribe(PUB_SUB_EVENTS.cartUpdate, function () { settle(); applyLearnedLimits(); });
+      }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook);
+    else hook();
+  })();
+
+
+  // Reload immediately when the cart hits 0
   (function watchEmptyCart() {
     var cartItems = document.querySelector('cart-items');
     if (!cartItems) return;

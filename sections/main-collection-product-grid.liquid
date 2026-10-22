@@ -1,7 +1,7 @@
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
-
+{{ 'buzzko-product-card.css' | asset_url | stylesheet_tag }} <!-- ADDED -->
 
 <!-- buzzko_dbg handle="{{ collection.handle }}" -->
 <!-- buzzko_dbg filters="{% for f in collection.filters %}{{ f.label }}|{% endfor %}" -->
@@ -27,6 +27,9 @@
   <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
+
+<!-- ADDED: Load the JS exactly once -->
+<script src="{{ 'buzzko-product-card.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
@@ -547,9 +550,6 @@
                       style="--animation-order: {{ forloop.index }};"
                     {% endif %}
                   >
-                      {% comment %} 
-                        RENDER THE GLOBAL PRODUCT CARD SNIPPET HERE 
-                      {% endcomment %}
                       {% render 'buzzko-product-card', product: product, index: forloop.index0, card_subtitle: section.settings.card_subtitle %}
                   </li>
                   {%- assign skip_card_product_styles = true -%}
@@ -650,6 +650,38 @@
   document.addEventListener('shopify:section:load', fixCarets);
 })();
 </script>
+
+<!-- THE MODAL IS RENDERED EXACTLY ONCE HERE -->
+<dialog id="buzzko-variant-modal" class="buzzko-modal">
+  <div class="buzzko-modal__content">
+    <button type="button" class="buzzko-modal__close" id="buzzko-modal-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="buzzko-modal__grid">
+      <div class="buzzko-modal__img-col">
+        <div class="buzzko-modal__img-wrapper">
+          <img id="buzzko-modal-img" src="" alt="Product Image" loading="lazy">
+        </div>
+      </div>
+      <div class="buzzko-modal__info-col">
+        <h3 class="buzzko-modal__title" id="buzzko-modal-title">Product Title</h3>
+        <div class="buzzko-modal__price" id="buzzko-modal-price"></div>
+        
+        <div class="buzzko-modal__variants-label">Select option</div>
+        <div class="buzzko-modal__variants" id="buzzko-modal-variants">
+          <!-- Buttons injected by JS -->
+        </div>
+
+        <button type="button" class="buzzko-modal__add-btn" id="buzzko-modal-add">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
 {% schema %}
 {

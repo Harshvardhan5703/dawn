@@ -284,7 +284,7 @@
 
       <div class="buzzko-summary__rows">
         <div class="buzzko-summary__row">
-          <span>Subtotal ({{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %})</span>
+          <span data-buzzko-subtotal-label data-item-count="{{ cart.item_count }}">Subtotal ({{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %})</span>
           <span class="buzzko-summary__row-value" data-buzzko-subtotal>{{ cart.items_subtotal_price | money }}</span>
         </div>
 
@@ -397,6 +397,7 @@
           class="buzzko-total__value"
           data-buzzko-total
           data-total-cents="{{ cart.items_subtotal_price }}"
+          data-total-final-cents="{{ initial_discounted_total }}"
         >{{ initial_discounted_total | money }}</p>
       </div>
 

@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
-
+    
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
@@ -317,7 +317,7 @@
         onload="this.media='all'"
       >
     {%- endif -%}
-
+    {{ 'buzzko-product-card.css' | asset_url | stylesheet_tag }}
     <script>
       if (Shopify.designMode) {
         document.documentElement.classList.add('shopify-design-mode');
@@ -409,7 +409,38 @@
     {% render 'avada-customize' %}
     {% render 'buzzko-wishlist-auth' %}
     {% render 'buzzko-wishlist-page-customisation' %}
+  <script src="{{ 'buzzko-product-card.js' | asset_url }}" defer="defer"></script>
 
+<dialog id="buzzko-variant-modal" class="buzzko-modal">
+  <div class="buzzko-modal__content">
+    <button type="button" class="buzzko-modal__close" id="buzzko-modal-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="buzzko-modal__grid">
+      <div class="buzzko-modal__img-col">
+        <div class="buzzko-modal__img-wrapper">
+          <img id="buzzko-modal-img" src="" alt="Product Image" loading="lazy">
+        </div>
+      </div>
+      <div class="buzzko-modal__info-col">
+        <h3 class="buzzko-modal__title" id="buzzko-modal-title">Product Title</h3>
+        <div class="buzzko-modal__price" id="buzzko-modal-price"></div>
+        
+        <div class="buzzko-modal__variants-label">Select option</div>
+        <div class="buzzko-modal__variants" id="buzzko-modal-variants">
+          <!-- Buttons injected by JS -->
+        </div>
+
+        <button type="button" class="buzzko-modal__add-btn" id="buzzko-modal-add">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
    
   </body>
 </html>
