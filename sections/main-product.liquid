@@ -170,7 +170,15 @@
     #MainProduct-{{ section.id }} .product-form__submit:hover {
       background-color: #222 !important;
     }
-
+    /* BuzzKo: Kill all transitions/animations on (n in cart) */
+    #MainProduct-{{ section.id }} .quantity__rules-cart,
+    #MainProduct-{{ section.id }} .quantity__rules-cart * {
+      transition: none !important;
+      animation: none !important;
+    }
+    #MainProduct-{{ section.id }} .quantity__rules-cart .loading__spinner {
+      display: none !important;
+    }
     /* --- Buy button: transparent pill, full width --- */
     #MainProduct-{{ section.id }} .shopify-payment-button__button,
     #MainProduct-{{ section.id }} .shopify-payment-button__button--unbranded {
