@@ -162,7 +162,7 @@
         <h3 class="buzzko-modal__title" id="buzzko-modal-title">Product Title</h3>
         <div class="buzzko-modal__price" id="buzzko-modal-price"></div>
         
-        <div class="buzzko-modal__variants-label">Select Option:</div>
+        <div class="buzzko-modal__variants-label">Select option</div>
         <div class="buzzko-modal__variants" id="buzzko-modal-variants">
           <!-- Buttons injected by JS -->
         </div>
@@ -650,13 +650,21 @@
     margin-bottom: 20px;
   }
 
+  .buzzko-modal {
+    font-family: var(--font-body-family, inherit);
+  }
+
+  .buzzko-modal__price {
+    font-family: var(--font-body-family, inherit);
+  }
+
   .buzzko-modal__variants-label {
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #888;
-    letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    font-family: var(--font-body-family, inherit);
+    font-size: 15px;
+    font-weight: 500;
+    color: #45413F;
+    letter-spacing: 0.04rem;
+    margin-bottom: 12px;
   }
 
   .buzzko-modal__variants {
@@ -672,21 +680,22 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 46px;
-    padding: 9px 18px;
+    min-height: 42px;
+    padding: 8px 16px;
     margin: 0 0 2px;
-    background: #DDF0FA;
-    border: 1px solid #1A1A1A;
+    background: #BFE3FA;
+    border: 1.5px solid #1A1A1A;
     border-radius: 15px;
-    color: #45413F;
+    color: #1A1A1A;
     font: inherit;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.04rem;
+    font-family: var(--font-body-family, inherit);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.06rem;
     line-height: 1.2;
     text-align: center;
     cursor: pointer;
-    box-shadow: 2px 2px 0 rgba(26, 26, 26, 0.72);
+    box-shadow: 2px 2px 0 #1A1A1A;
     transform: translate(0, 0);
     transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     -webkit-tap-highlight-color: transparent;
@@ -740,7 +749,7 @@
     }
 
     .buzzko-modal-variant-btn {
-      min-height: 42px;
+      min-height: 40px;
       padding: 8px 14px;
       border-radius: 13px;
       font-size: 14px;
@@ -755,8 +764,10 @@
     color: #fff;
     border: 1px solid #000;
     border-radius: 9999px;
+    font-family: var(--font-body-family, inherit);
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 700;
+    letter-spacing: 0.06rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
     min-height: 4.4rem;
