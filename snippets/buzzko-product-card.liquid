@@ -475,6 +475,39 @@
     to { transform: rotate(360deg); }
   }
 
+  /* All screens: text only while adding / after adding (no spinner, no extra tick icon) */
+  .buzzko-product-card__atc[data-state="loading"] svg,
+  .buzzko-product-card__atc[data-state="success"] svg {
+    display: none !important;
+  }
+
+  /* Mobile: show "Adding..." / "Added ✓" text pill */
+  @media screen and (max-width: 749px) {
+    .buzzko-product-card__atc[data-state="loading"],
+    .buzzko-product-card__atc[data-state="success"] {
+      width: auto;
+      min-width: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .buzzko-product-card__atc[data-state="loading"] {
+      background: #ccc;
+      color: #666;
+      border-color: transparent;
+    }
+    .buzzko-product-card__atc[data-state="loading"] .btn-text,
+    .buzzko-product-card__atc[data-state="success"] .btn-text {
+      display: inline-block;
+    }
+    .buzzko-product-card__atc[data-state="loading"] svg,
+    .buzzko-product-card__atc[data-state="success"] svg {
+      display: none;
+    }
+  }
+
   /* MODAL STYLES */
   .buzzko-modal {
     padding: 0;
@@ -763,21 +796,101 @@
     if (!cart || typeof cart.item_count !== 'number') return;
     var cartLink = document.getElementById('cart-icon-bubble');
     if (!cartLink) return;
-    
+
     var bubble = cartLink.querySelector('.cart-count-bubble');
-    
+
     if (cart.item_count === 0) {
       if (bubble) bubble.remove();
       return;
     }
-    
+
     if (!bubble) {
       bubble = document.createElement('div');
       bubble.className = 'cart-count-bubble';
       cartLink.appendChild(bubble);
     }
-    
+
     bubble.innerHTML = '<span aria-hidden="true">' + cart.item_count + '</span><span class="visually-hidden">' + cart.item_count + (cart.item_count === 1 ? ' item' : ' items') + ' in cart</span>';
+  }
+
+  /* ---------- ADD TO CART: ONE REQUEST ---------- */
+
+  // Number currently shown on the header bag (0 if no bubble, null if it can't be read).
+  function readBubbleCount() {
+    var link = document.getElementById('cart-icon-bubble');
+    if (!link) return null;
+    var bubble = link.querySelector('.cart-count-bubble');
+    if (!bubble) return 0;
+    var shown = bubble.querySelector('[aria-hidden="true"]');
+    var n = shown ? parseInt(shown.textContent, 10) : NaN;
+    return isNaN(n) ? null : n;
+  }
+
+  // Pulls the item count out of the cart-icon-bubble section HTML that add.js returns.
+  function countFromSection(html) {
+    if (!html) return null;
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var shown = doc.querySelector('.cart-count-bubble [aria-hidden="true"]');
+    var n = shown ? parseInt(shown.textContent, 10) : NaN;
+    if (!isNaN(n)) return n;
+    // At 100+ items the visible number can be missing; use the screen-reader text instead.
+    var sr = doc.querySelector('.cart-count-bubble .visually-hidden');
+    var m = sr && sr.textContent.match(/\d+/);
+    return m ? parseInt(m[0], 10) : null;
+  }
+
+  // Adds to cart and asks Shopify to render the header bubble in the SAME response,
+  // so no second cart.js request is needed. If the count can't be read from that
+  // response, it falls back to cart.js (the old behaviour), so it never gets worse.
+  function addToCart(formData) {
+    formData.set('sections', 'cart-icon-bubble');
+    formData.set('sections_url', window.location.pathname);
+
+    return fetch(ROOT + 'cart/add.js', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    })
+    .then(function (res) {
+      return res.json().then(function (json) {
+        if (!res.ok) throw json;
+        return json;
+      });
+    })
+    .then(function (json) {
+      var count = countFromSection(json.sections && json.sections['cart-icon-bubble']);
+      if (count !== null) return count;
+      return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
+        .then(function (res) { return res.json(); })
+        .then(function (cart) { return cart.item_count; });
+    });
+  }
+
+  var requestSeq = 0;
+  var appliedSeq = 0;
+
+  // Shows the new count immediately, then replaces it with the server's number.
+  // If the add fails (sold out, stock limit, network), the bump is taken back.
+  function addWithBubble(formData) {
+    var before = readBubbleCount();
+    var bumped = before !== null;
+    if (bumped) updateBubble({ item_count: before + 1 });
+
+    var mySeq = ++requestSeq;
+
+    return addToCart(formData).then(function (count) {
+      // Ignore a slower, older response if a newer one already landed
+      if (mySeq > appliedSeq) {
+        appliedSeq = mySeq;
+        updateBubble({ item_count: count });
+      }
+    }).catch(function (err) {
+      if (bumped) {
+        var now = readBubbleCount();
+        if (now !== null && now > 0) updateBubble({ item_count: now - 1 });
+      }
+      throw err;
+    });
   }
 
   /* ---------- MODAL LOGIC ---------- */
@@ -838,22 +951,14 @@
       modalAddBtn.disabled = true;
 
       var data = new FormData();
-      data.append('id', selectedVariantId); 
+      data.append('id', selectedVariantId);
       data.append('quantity', 1);
-      
-      // We DO NOT request sections here. This keeps the payload tiny.
-      fetch(ROOT + 'cart/add.js', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data })
-      .then(function(res) { return res.json().then(function(json) { if (!res.ok) throw json; return json; }); })
-      .then(function() {
-        // Make one lightweight request just to get the accurate count
-        return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
-          .then(function(res) { return res.json(); })
-          .then(function(cart) { updateBubble(cart); });
-      })
+
+      addWithBubble(data)
       .then(function() {
         modalAddBtn.textContent = 'Added ✓';
         modalAddBtn.style.background = '#B9E404';
-        
+
         setTimeout(function() {
           closeModal();
           modalAddBtn.style.background = '';
@@ -889,28 +994,17 @@
     state(button, 'loading');
     button.disabled = true;
 
-    var data = new FormData(form);
-
-    fetch(ROOT + 'cart/add.js', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data })
-    .then(function (res) { return res.json().then(function (json) { if (!res.ok) throw json; return json; }); })
-    .then(function () {
-      // Make one lightweight request just to get the accurate count
-      return fetch(ROOT + 'cart.js', { headers: { 'Accept': 'application/json' } })
-        .then(function (res) { return res.json(); })
-        .then(function (cart) { 
-          updateBubble(cart);
-        });
-    })
+    addWithBubble(new FormData(form))
     .then(function () {
       state(button, 'success');
-      setTimeout(function () { 
-        state(button, ''); 
-        button.disabled = false; 
-      }, 600); 
+      setTimeout(function () {
+        state(button, '');
+        button.disabled = false;
+      }, 600);
     })
     .catch(function (error) {
       console.error(error);
-      state(button, ''); 
+      state(button, '');
       button.disabled = false;
     });
   });
