@@ -1,6 +1,18 @@
+
 {% doc %}
-  First Visit Flyer Popup for Buzzko
-  Single portrait flyer with hero-style CTA and close button.
+  Buzzko First Visit Flyer Popup
+
+  Desktop: Landscape flyer (1600 x 1200)
+  Mobile: Portrait flyer (900 x 1200)
+
+  Features:
+  - Separate desktop and mobile images
+  - Desktop image is the default
+  - No image stretching or cropping
+  - Hero-style CTA at bottom-left
+  - Close button at top-right
+  - First-visit-only display using localStorage
+  - Editable Shopify theme settings
 {% enddoc %}
 
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
@@ -12,7 +24,7 @@
   }
 
   .ai-welcome-popup-{{ ai_gen_id }}[hidden] {
-    display: none;
+    display: none !important;
   }
 
   /* OVERLAY */
@@ -28,19 +40,21 @@
     background: rgba(0, 0, 0, 0.68);
   }
 
-  /* COMPACT FLYER PANEL */
+  /* DESKTOP PANEL */
 
   .ai-welcome-popup-{{ ai_gen_id }}__panel {
     position: relative;
-    width: min(440px, 100%);
+    width: 100%;
+    max-width: 720px;
     max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
     overflow: hidden;
     border-radius: 18px;
     background: #fffaf5;
     box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.18);
   }
 
-  /* IMAGE */
+  /* FLYER IMAGE */
 
   .ai-welcome-popup-{{ ai_gen_id }}__media {
     position: relative;
@@ -49,16 +63,22 @@
     background: #fdf3f5;
   }
 
+  .ai-welcome-popup-{{ ai_gen_id }}__picture {
+    display: block;
+    width: 100%;
+  }
+
   .ai-welcome-popup-{{ ai_gen_id }}__image {
     display: block;
     width: 100%;
     height: auto;
     max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
     object-fit: contain;
     object-position: center;
   }
 
-  /* HERO-STYLE CTA: BOTTOM LEFT */
+  /* CTA POSITION: BOTTOM LEFT */
 
   .ai-welcome-popup-{{ ai_gen_id }}__cta {
     position: absolute;
@@ -69,6 +89,8 @@
     pointer-events: none;
   }
 
+  /* HERO-STYLE BUTTON */
+
   .ai-welcome-popup-{{ ai_gen_id }}__button {
     pointer-events: auto;
     position: relative;
@@ -78,19 +100,21 @@
     align-items: center;
     justify-content: center;
     min-height: 40px;
-    max-width: calc(100vw - 120px);
+    max-width: 100%;
     padding: 0 20px;
     border: 0;
     border-radius: 999px;
     text-decoration: none;
+    text-align: center;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: -0.005em;
     line-height: 1.2;
-    text-align: center;
     color: var(--btn-text, #111);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-    transition: transform 180ms ease, box-shadow 180ms ease;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .ai-welcome-popup-{{ ai_gen_id }}__button::before {
@@ -101,7 +125,9 @@
     border-radius: inherit;
     background: var(--btn-bg, #ff5ca8);
     opacity: 0.82;
-    transition: opacity 180ms ease, background 180ms ease;
+    transition:
+      opacity 180ms ease,
+      background 180ms ease;
   }
 
   .ai-welcome-popup-{{ ai_gen_id }}__button:hover {
@@ -118,7 +144,7 @@
     transform: translateY(0);
   }
 
-  /* CLOSE BUTTON: TOP RIGHT */
+  /* CLOSE BUTTON */
 
   .ai-welcome-popup-{{ ai_gen_id }}__close {
     position: absolute;
@@ -138,7 +164,9 @@
     line-height: 1;
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-    transition: transform 180ms ease, background 180ms ease;
+    transition:
+      transform 180ms ease,
+      background 180ms ease;
   }
 
   .ai-welcome-popup-{{ ai_gen_id }}__close:hover {
@@ -171,6 +199,7 @@
     .ai-welcome-popup-{{ ai_gen_id }}__image {
       max-height: calc(100vh - 32px);
       max-height: calc(100dvh - 32px);
+      object-fit: contain;
     }
 
     .ai-welcome-popup-{{ ai_gen_id }}__cta {
@@ -196,12 +225,18 @@
   /* SHORT VIEWPORTS */
 
   @media screen and (max-height: 500px) {
+    .ai-welcome-popup-{{ ai_gen_id }}__overlay {
+      padding: 12px;
+    }
+
     .ai-welcome-popup-{{ ai_gen_id }}__panel {
       max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
     }
 
     .ai-welcome-popup-{{ ai_gen_id }}__image {
       max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
     }
   }
 {% endstyle %}
@@ -213,6 +248,7 @@
   hidden
 >
   <div class="ai-welcome-popup-{{ ai_gen_id }}__overlay">
+
     <section
       class="ai-welcome-popup-{{ ai_gen_id }}__panel"
       role="dialog"
@@ -220,25 +256,58 @@
       aria-label="Special offer"
       tabindex="-1"
     >
+
+      <!-- CLOSE BUTTON -->
+
       <button
         class="ai-welcome-popup-{{ ai_gen_id }}__close"
         type="button"
         aria-label="Close popup"
       >×</button>
 
+      <!-- RESPONSIVE FLYER -->
+
       {% if block.settings.image != blank %}
+
         <div class="ai-welcome-popup-{{ ai_gen_id }}__media">
-          <img
-            class="ai-welcome-popup-{{ ai_gen_id }}__image"
-            src="{{ block.settings.image | image_url: width: 1200 }}"
-            alt="{{ block.settings.image.alt | escape }}"
-            width="{{ block.settings.image.width }}"
-            height="{{ block.settings.image.height }}"
-            loading="eager"
-          >
+
+          <picture class="ai-welcome-popup-{{ ai_gen_id }}__picture">
+
+            {% if block.settings.mobile_image != blank %}
+              <source
+                media="(max-width: 749px)"
+                srcset="
+                  {{ block.settings.mobile_image | image_url: width: 600 }} 600w,
+                  {{ block.settings.mobile_image | image_url: width: 900 }} 900w,
+                  {{ block.settings.mobile_image | image_url: width: 1200 }} 1200w
+                "
+                sizes="(max-width: 749px) calc(100vw - 32px), 440px"
+              >
+            {% endif %}
+
+            <img
+              class="ai-welcome-popup-{{ ai_gen_id }}__image"
+              src="{{ block.settings.image | image_url: width: 1600 }}"
+              srcset="
+                {{ block.settings.image | image_url: width: 720 }} 720w,
+                {{ block.settings.image | image_url: width: 1080 }} 1080w,
+                {{ block.settings.image | image_url: width: 1600 }} 1600w
+              "
+              sizes="(max-width: 749px) calc(100vw - 32px), 720px"
+              alt="{{ block.settings.image.alt | escape }}"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              loading="eager"
+            >
+
+          </picture>
+
+          <!-- CTA BUTTON -->
 
           {% if block.settings.button_label != blank %}
+
             <div class="ai-welcome-popup-{{ ai_gen_id }}__cta">
+
               <a
                 href="{{ block.settings.button_link | default: routes.all_products_collection_url }}"
                 class="ai-welcome-popup-{{ ai_gen_id }}__button"
@@ -250,10 +319,15 @@
               >
                 {{ block.settings.button_label | escape }}
               </a>
+
             </div>
+
           {% endif %}
+
         </div>
+
       {% endif %}
+
     </section>
   </div>
 </first-visit-popup-{{ ai_gen_id }}>
@@ -270,9 +344,11 @@
         this.initialized = true;
 
         this.dialog = this.querySelector('[role="dialog"]');
+
         this.closeButton = this.querySelector(
           '.ai-welcome-popup-{{ ai_gen_id }}__close'
         );
+
         this.storageKey = this.dataset.storageKey;
 
         const isEditor = Boolean(
@@ -293,11 +369,11 @@
             try {
               localStorage.setItem(this.storageKey, 'seen');
             } catch (error) {}
-
-            requestAnimationFrame(() => {
-              this.closeButton?.focus();
-            });
           }
+
+          requestAnimationFrame(() => {
+            this.closeButton?.focus();
+          });
         }
 
         this.closeButton?.addEventListener('click', () => {
@@ -309,9 +385,25 @@
             this.closePopup();
           }
 
-          if (event.key === 'Tab') {
-            event.preventDefault();
-            this.closeButton?.focus();
+          if (event.key === 'Tab' && !this.hidden) {
+            const focusable = Array.from(
+              this.dialog.querySelectorAll(
+                'button:not([disabled]), a[href]'
+              )
+            );
+
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
           }
         });
       }
@@ -334,13 +426,19 @@
   "settings": [
     {
       "type": "header",
-      "content": "Flyer image"
+      "content": "Flyer images"
     },
     {
       "type": "image_picker",
       "id": "image",
-      "label": "Popup flyer",
-      "info": "Recommended: 900 x 1200 px portrait image."
+      "label": "Desktop flyer",
+      "info": "Recommended: 1600 x 1200 px (4:3 landscape)."
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile flyer",
+      "info": "Recommended: 900 x 1200 px (3:4 portrait). Leave empty to use the desktop image."
     },
     {
       "type": "header",
