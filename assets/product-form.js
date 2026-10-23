@@ -78,6 +78,7 @@ if (!customElements.get('product-form')) {
         // --- BuzzKo: TRUE Optimistic UI Start ---
         const formData = new FormData(this.form);
         const quantity = parseInt(formData.get('quantity')) || 1;
+        const submittedVariantId = formData.get('id'); // <-- Capture variant ID to prevent bad resets
         const beforeCount = this.readBubbleCount();
         const bumped = beforeCount !== null;
 
@@ -85,6 +86,7 @@ if (!customElements.get('product-form')) {
 
         this.submitButton.setAttribute('data-buzzko-loading', 'true');
         this.submitButtonText.textContent = 'Added ✓';
+        
         this.submitButton.style.setProperty('transition', 'none', 'important');
         this.submitButton.style.setProperty('background-color', '#B9E404', 'important');
         this.submitButton.style.setProperty('border-color', '#B9E404', 'important');
@@ -93,7 +95,6 @@ if (!customElements.get('product-form')) {
         this.submitButton.style.setProperty('pointer-events', 'none', 'important');
         this.submitButtonText.style.setProperty('color', '#111', 'important');
 
-        // 3. Update (n in cart) with bulletproof MutationObserver
         const container = this.closest('product-info') || document;
         const qtyInput = container.querySelector('.quantity__input');
         const rulesCart = container.querySelector('.quantity__rules-cart');
@@ -117,14 +118,9 @@ if (!customElements.get('product-form')) {
             targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, newQty);
           }
 
-          // Backup: snap the text back within the same microtask if Dawn touches it
           observer = new MutationObserver(() => {
-            if (rulesCart.classList.contains('hidden')) {
-              rulesCart.classList.remove('hidden');
-            }
-            if (spinner && !spinner.classList.contains('hidden')) {
-              spinner.classList.add('hidden');
-            }
+            if (rulesCart.classList.contains('hidden')) rulesCart.classList.remove('hidden');
+            if (spinner && !spinner.classList.contains('hidden')) spinner.classList.add('hidden');
             if (targetSpan && !targetSpan.innerHTML.includes(String(newQty))) {
               targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, newQty);
             }
@@ -146,17 +142,12 @@ if (!customElements.get('product-form')) {
         config.headers['X-Requested-With'] = 'XMLHttpRequest';
         delete config.headers['Content-Type'];
 
-        if (this.cart) {
-          formData.append('sections', this.cart.getSectionsToRender().map((section) => section.id));
-          formData.append('sections_url', window.location.pathname);
-          this.cart.setActiveElement(document.activeElement);
-        } else {
-          formData.append('sections', 'cart-icon-bubble');
-          formData.append('sections_url', window.location.pathname);
-        }
+        // --- BuzzKo Optimization: Ask ONLY for the bubble, not the heavy cart sections ---
+        formData.append('sections', 'cart-icon-bubble');
+        formData.append('sections_url', window.location.pathname);
         config.body = formData;
 
-        const variantId = formData.get('id');
+        const variantId = submittedVariantId;
         const linesUpdateDeferred = this.createCartLinesUpdateEvent(variantId, quantity);
 
         fetch(`${routes.cart_add_url}`, config)
@@ -242,7 +233,15 @@ if (!customElements.get('product-form')) {
 
             if (!this.error) {
               this.submitButton.removeAttribute('data-buzzko-loading');
+              
+              // --- BuzzKo Optimization: Faster unlock & Safer reset ---
               setTimeout(() => {
+                // If the user changed the variant while waiting, do NOT overwrite the UI
+                const currentVariantInput = this.form.querySelector('[name=id]');
+                if (currentVariantInput && currentVariantInput.value !== submittedVariantId) {
+                  return; 
+                }
+
                 this.submitButton.style.removeProperty('transition');
                 this.submitButton.style.removeProperty('background-color');
                 this.submitButton.style.removeProperty('border-color');
@@ -251,7 +250,7 @@ if (!customElements.get('product-form')) {
                 this.submitButton.style.removeProperty('pointer-events');
                 this.submitButtonText.style.removeProperty('color');
                 this.submitButtonText.textContent = window.variantStrings.addToCart;
-              }, 2000);
+              }, 700); // Unlock after 700ms instead of 2 seconds
             }
 
             CartPerformance.measureFromEvent("add:user-action", evt);
