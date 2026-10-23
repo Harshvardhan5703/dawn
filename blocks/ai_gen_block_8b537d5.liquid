@@ -1,7 +1,6 @@
-
 {% doc %}
-  First Visit Popup for Buzzko
-  Image-only popup with hero-style CTA and close button.
+  First Visit Flyer Popup for Buzzko
+  Single portrait flyer with hero-style CTA and close button.
 {% enddoc %}
 
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
@@ -16,6 +15,8 @@
     display: none;
   }
 
+  /* OVERLAY */
+
   .ai-welcome-popup-{{ ai_gen_id }}__overlay {
     position: fixed;
     inset: 0;
@@ -27,10 +28,11 @@
     background: rgba(0, 0, 0, 0.68);
   }
 
+  /* COMPACT FLYER PANEL */
+
   .ai-welcome-popup-{{ ai_gen_id }}__panel {
     position: relative;
-    width: 100%;
-    max-width: 1000px;
+    width: min(440px, 100%);
     max-height: calc(100vh - 40px);
     overflow: hidden;
     border-radius: 18px;
@@ -43,22 +45,16 @@
   .ai-welcome-popup-{{ ai_gen_id }}__media {
     position: relative;
     width: 100%;
-    aspect-ratio: 2.4 / 1;
     overflow: hidden;
     background: #fdf3f5;
-  }
-
-  .ai-welcome-popup-{{ ai_gen_id }}__media picture {
-    display: block;
-    width: 100%;
-    height: 100%;
   }
 
   .ai-welcome-popup-{{ ai_gen_id }}__image {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    max-height: calc(100vh - 40px);
+    object-fit: contain;
     object-position: center;
   }
 
@@ -156,6 +152,8 @@
     outline-offset: 3px;
   }
 
+  /* MOBILE */
+
   @media screen and (max-width: 749px) {
     .ai-welcome-popup-{{ ai_gen_id }}__overlay {
       padding: 16px;
@@ -163,14 +161,16 @@
 
     .ai-welcome-popup-{{ ai_gen_id }}__panel {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
       max-height: calc(100vh - 32px);
-      border-radius: 20px;
+      max-height: calc(100dvh - 32px);
+      border-radius: 16px;
       box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.18);
     }
 
-    .ai-welcome-popup-{{ ai_gen_id }}__media {
-      aspect-ratio: 4 / 5;
+    .ai-welcome-popup-{{ ai_gen_id }}__image {
+      max-height: calc(100vh - 32px);
+      max-height: calc(100dvh - 32px);
     }
 
     .ai-welcome-popup-{{ ai_gen_id }}__cta {
@@ -190,6 +190,18 @@
       width: 38px;
       height: 38px;
       font-size: 25px;
+    }
+  }
+
+  /* SHORT VIEWPORTS */
+
+  @media screen and (max-height: 500px) {
+    .ai-welcome-popup-{{ ai_gen_id }}__panel {
+      max-height: calc(100vh - 24px);
+    }
+
+    .ai-welcome-popup-{{ ai_gen_id }}__image {
+      max-height: calc(100vh - 24px);
     }
   }
 {% endstyle %}
@@ -216,24 +228,14 @@
 
       {% if block.settings.image != blank %}
         <div class="ai-welcome-popup-{{ ai_gen_id }}__media">
-          <picture>
-            {% if block.settings.mobile_image != blank %}
-              <source
-                media="(max-width: 749px)"
-                srcset="{{ block.settings.mobile_image | image_url: width: 1200 }}"
-              >
-            {% endif %}
-
-            <img
-              class="ai-welcome-popup-{{ ai_gen_id }}__image"
-              src="{{ block.settings.image | image_url: width: 2000 }}"
-              alt="{{ block.settings.image.alt | escape }}"
-              width="{{ block.settings.image.width }}"
-              height="{{ block.settings.image.height }}"
-              loading="eager"
-              fetchpriority="high"
-            >
-          </picture>
+          <img
+            class="ai-welcome-popup-{{ ai_gen_id }}__image"
+            src="{{ block.settings.image | image_url: width: 1200 }}"
+            alt="{{ block.settings.image.alt | escape }}"
+            width="{{ block.settings.image.width }}"
+            height="{{ block.settings.image.height }}"
+            loading="eager"
+          >
 
           {% if block.settings.button_label != blank %}
             <div class="ai-welcome-popup-{{ ai_gen_id }}__cta">
@@ -291,11 +293,11 @@
             try {
               localStorage.setItem(this.storageKey, 'seen');
             } catch (error) {}
-          }
 
-          requestAnimationFrame(() => {
-            this.closeButton?.focus();
-          });
+            requestAnimationFrame(() => {
+              this.closeButton?.focus();
+            });
+          }
         }
 
         this.closeButton?.addEventListener('click', () => {
@@ -332,19 +334,13 @@
   "settings": [
     {
       "type": "header",
-      "content": "Images"
+      "content": "Flyer image"
     },
     {
       "type": "image_picker",
       "id": "image",
-      "label": "Desktop image",
-      "info": "Recommended: 2400 x 1000 px (2.4:1)"
-    },
-    {
-      "type": "image_picker",
-      "id": "mobile_image",
-      "label": "Mobile image (optional)",
-      "info": "Recommended: 1080 x 1350 px (4:5). Leave empty to use the desktop image."
+      "label": "Popup flyer",
+      "info": "Recommended: 900 x 1200 px portrait image."
     },
     {
       "type": "header",
@@ -355,7 +351,7 @@
       "id": "button_label",
       "label": "Button label",
       "default": "Shop New Collection",
-      "info": "Leave empty to hide the button"
+      "info": "Leave empty to hide the button."
     },
     {
       "type": "url",
