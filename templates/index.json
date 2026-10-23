@@ -397,6 +397,7 @@
           "type": "ai_gen_block_8b537d5",
           "settings": {
             "image": "shopify://shop_images/flyer.jpg",
+            "mobile_image": "shopify://shop_images/flyer.jpg",
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
             "button_color": "#ff5ca8",
