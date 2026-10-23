@@ -989,8 +989,17 @@
         var hi = parseInt(qIn.getAttribute('max'), 10);
         var bMinus = item.querySelector('.quantity__button[name="minus"]');
         var bPlus = item.querySelector('.quantity__button[name="plus"]');
+        
         if (bMinus && !isNaN(lo)) toggleClass(bMinus, 'disabled', newQty <= lo);
-        if (bPlus && !isNaN(hi)) toggleClass(bPlus, 'disabled', newQty >= hi);
+        
+        if (bPlus && !isNaN(hi)) {
+          var justHitMax = newQty >= hi && L.qty < hi;
+          toggleClass(bPlus, 'disabled', newQty >= hi);
+          
+          if (justHitMax) {
+            flashNote(item, 'Only ' + hi + ' available.');
+          }
+        }
       }
       setAttr(item, 'data-qty', String(newQty));
       setAttr(item, 'data-line-cents', String(newLine));
@@ -1034,18 +1043,41 @@
       t.__buzzkoNote = setTimeout(function () { if (t.textContent === msg) t.textContent = ''; }, 2500);
     }
 
+    /* =====================================================
+       Capture-phase click: if the count is ALREADY at min/max,
+       warn and stop the click from reaching the button.
+       This runs BEFORE Dawn's handler, so we see the true qty.
+    ===================================================== */
     document.addEventListener('click', function (e) {
       try {
-        var btn = e.target.closest && e.target.closest('.buzzko-item .quantity__button.disabled');
+        var btn = e.target.closest && e.target.closest('.buzzko-item .quantity__button');
         if (!btn) return;
         var item = btn.closest('.buzzko-item');
         var input = item && item.querySelector('.quantity__input');
         if (!input) return;
-        flashNote(item, btn.getAttribute('name') === 'minus'
-          ? 'Minimum quantity is ' + (input.getAttribute('min') || 1) + '. Use the bin to remove.'
-          : 'Only ' + input.getAttribute('max') + ' available.');
+
+        var isPlus = btn.getAttribute('name') === 'plus';
+        var currentQty = parseInt(input.value, 10) || 0;
+        var minQty = parseInt(input.getAttribute('min'), 10);
+        var maxQty = parseInt(input.getAttribute('max'), 10);
+
+        if (!isPlus) {
+          if (!isNaN(minQty) && currentQty <= minQty) {
+            e.preventDefault();
+            e.stopPropagation();
+            flashNote(item, 'Minimum quantity is ' + minQty + '. Use the bin to remove.');
+            return;
+          }
+        } else {
+          if (!isNaN(maxQty) && currentQty >= maxQty) {
+            e.preventDefault();
+            e.stopPropagation();
+            flashNote(item, 'Only ' + maxQty + ' available.');
+            return;
+          }
+        }
       } catch (err) {}
-    });
+    }, true); // capture phase!
 
     /* trash can: hide the line at once */
     document.addEventListener('click', function (e) {
@@ -1078,7 +1110,6 @@
       var plus = item.querySelector('.quantity__button[name="plus"]');
       if (plus && !isNaN(max)) plus.classList.toggle('disabled', qty >= max);
     }
-    // Put a learned limit on every quantity box that has none, so + stops there
     function applyLearnedLimits() {
       document.querySelectorAll('.buzzko-item .quantity__input').forEach(function (input) {
         if (input.hasAttribute('max')) return;
@@ -1093,8 +1124,6 @@
       });
     }
 
-    // After a stock error: ask Shopify what is really in the cart and show that,
-    // instead of snapping back to where the spamming started
     function resync(errEl) {
       try {
         var item = errEl.closest('.buzzko-item');
@@ -1125,9 +1154,6 @@
       } catch (err) {}
     }
 
-    // Stock error that names a limit ("Only 50 ..."): go straight to that limit,
-    // no stop at the old number on the way, then let Shopify confirm in the background.
-    // Any other error: put the old numbers back, then show what Shopify really has.
     function handleError(errEl) {
       clearTimeout(timer);
       var item = errEl.closest('.buzzko-item');
@@ -1148,7 +1174,6 @@
       resync(errEl);
     }
 
-    /* Shopify said no (out of stock, limit, network): put the old numbers back */
     function watchErrors() {
       var host = document.querySelector('cart-items');
       if (!host || !window.MutationObserver) return;
@@ -1162,7 +1187,6 @@
       }).observe(host, { childList: true, subtree: true, characterData: true });
     }
 
-    /* Shopify said yes: its real numbers are already on screen, forget the undo list */
     function hook() {
       watchErrors();
       applyLearnedLimits();
@@ -1179,26 +1203,23 @@
   (function watchEmptyCart() {
     var cartItems = document.querySelector('cart-items');
     if (!cartItems) return;
-    
+
     var observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
         if (mutation.attributeName === 'class') {
-          // ONLY reload if 'is-empty' was just ADDED.
-          // This prevents the infinite loop when 'buzzko-first-paint' is removed.
           var wasEmpty = mutation.oldValue && mutation.oldValue.includes('is-empty');
           var isEmpty = cartItems.classList.contains('is-empty');
-          
           if (isEmpty && !wasEmpty) {
             window.location.reload();
           }
         }
       });
     });
-    
-    observer.observe(cartItems, { 
-      attributes: true, 
-      attributeOldValue: true, 
-      attributeFilter: ['class'] 
+
+    observer.observe(cartItems, {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: ['class']
     });
   })();
 </script>
