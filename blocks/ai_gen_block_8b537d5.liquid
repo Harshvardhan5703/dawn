@@ -1,9 +1,9 @@
+
 {% doc %}
-  @prompt
-    Create a first-time visitor popup/flyer that appears on top of the page when a new visitor lands on the website. The popup should: display only once per visitor using cookies or localStorage (no repeat on return visits), have no auto-close behavior, include only an X (close) button to dismiss it, and contain fully editable theme settings for: a headline/title, body text or description, an optional image, a button with editable label and link (for coupons, promotions, or ads), and background and text color options. The popup should be centered on screen with a semi-transparent overlay behind it. It should be mobile-friendly and visually prominent.
-    
-    It should follow the design principles of the website funky but simple
+  First Visit Popup for Buzzko
+  Image-only popup with hero-style CTA and close button.
 {% enddoc %}
+
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -29,170 +29,300 @@
 
   .ai-welcome-popup-{{ ai_gen_id }}__panel {
     position: relative;
-    display: grid;
-    grid-template-columns: 1fr;
-    width: {{ block.settings.desktop_width_percent }}%;
-    max-width: 620px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-    padding: 38px;
-    color: {{ block.settings.text_color }};
-    background: {{ block.settings.background_color }};
-    border: 2px solid {{ block.settings.text_color }};
-    border-radius: 18px;
-    box-shadow: 8px 8px 0 {{ block.settings.text_color }};
-  }
-
-  .ai-welcome-popup-{{ ai_gen_id }}__close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    color: {{ block.settings.text_color }};
-    background: transparent;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    font-size: 26px;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .ai-welcome-popup-{{ ai_gen_id }}__close:focus-visible,
-  .ai-welcome-popup-{{ ai_gen_id }}__button:focus-visible {
-    outline: 3px solid {{ block.settings.text_color }};
-    outline-offset: 4px;
-  }
-
-  .ai-welcome-popup-{{ ai_gen_id }}__image {
-    display: block;
     width: 100%;
-    max-height: 240px;
-    margin: 0 0 22px;
-    border-radius: 10px;
-    object-fit: cover;
+    max-width: 1000px;
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+    border-radius: 18px;
+    background: #fffaf5;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.18);
   }
 
-  .ai-welcome-popup-{{ ai_gen_id }}__placeholder {
+  /* IMAGE */
+
+  .ai-welcome-popup-{{ ai_gen_id }}__media {
     position: relative;
     width: 100%;
-    height: 190px;
-    margin: 0 0 22px;
+    aspect-ratio: 2.4 / 1;
     overflow: hidden;
-    border-radius: 10px;
-    background: #f3f3f3;
+    background: #fdf3f5;
   }
 
-  .ai-welcome-popup-{{ ai_gen_id }}__placeholder svg {
+  .ai-welcome-popup-{{ ai_gen_id }}__media picture {
     display: block;
     width: 100%;
     height: 100%;
   }
 
-  .ai-welcome-popup-{{ ai_gen_id }}__heading {
-    max-width: 14ch;
-    margin: 0 0 12px;
-    color: {{ block.settings.text_color }};
-    font-family: var(--font-heading-family);
-    font-size: clamp(30px, 6vw, 48px);
-    line-height: 1.05;
-    overflow-wrap: anywhere;
+  .ai-welcome-popup-{{ ai_gen_id }}__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
-  .ai-welcome-popup-{{ ai_gen_id }}__body {
-    margin: 0 0 24px;
-    color: {{ block.settings.text_color }};
-    font-size: 17px;
-    line-height: 1.55;
-  }
+  /* HERO-STYLE CTA: BOTTOM LEFT */
 
-  .ai-welcome-popup-{{ ai_gen_id }}__body > *:first-child { margin-top: 0; }
-  .ai-welcome-popup-{{ ai_gen_id }}__body > *:last-child { margin-bottom: 0; }
+  .ai-welcome-popup-{{ ai_gen_id }}__cta {
+    position: absolute;
+    z-index: 2;
+    left: 28px;
+    bottom: 28px;
+    display: flex;
+    pointer-events: none;
+  }
 
   .ai-welcome-popup-{{ ai_gen_id }}__button {
+    pointer-events: auto;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: fit-content;
-    max-width: 100%;
-    padding: 14px 22px;
-    color: {{ block.settings.background_color }};
-    background: {{ block.settings.text_color }};
-    border: 2px solid {{ block.settings.text_color }};
+    min-height: 40px;
+    max-width: calc(100vw - 120px);
+    padding: 0 20px;
+    border: 0;
     border-radius: 999px;
-    font-weight: 700;
-    text-align: center;
     text-decoration: none;
-    overflow-wrap: anywhere;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--btn-text, #111);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--btn-bg, #ff5ca8);
+    opacity: 0.82;
+    transition: opacity 180ms ease, background 180ms ease;
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__button:hover::before {
+    opacity: 1;
+    background: var(--btn-hover, #e94a96);
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__button:active {
+    transform: translateY(0);
+  }
+
+  /* CLOSE BUTTON: TOP RIGHT */
+
+  .ai-welcome-popup-{{ ai_gen_id }}__close {
+    position: absolute;
+    z-index: 5;
+    top: 14px;
+    right: 14px;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: #111;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 50%;
+    font-size: 27px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transition: transform 180ms ease, background 180ms ease;
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__close:hover {
+    transform: rotate(90deg);
+    background: #fff;
+  }
+
+  .ai-welcome-popup-{{ ai_gen_id }}__button:focus-visible,
+  .ai-welcome-popup-{{ ai_gen_id }}__close:focus-visible {
+    outline: 3px solid #ff5ca8;
+    outline-offset: 3px;
   }
 
   @media screen and (max-width: 749px) {
-    .ai-welcome-popup-{{ ai_gen_id }}__overlay { padding: 16px; }
+    .ai-welcome-popup-{{ ai_gen_id }}__overlay {
+      padding: 16px;
+    }
+
     .ai-welcome-popup-{{ ai_gen_id }}__panel {
       width: 100%;
+      max-width: 480px;
       max-height: calc(100vh - 32px);
-      padding: 58px 24px 26px;
-      border-radius: 14px;
-      box-shadow: 5px 5px 0 {{ block.settings.text_color }};
+      border-radius: 20px;
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.18);
     }
-    .ai-welcome-popup-{{ ai_gen_id }}__image { max-height: 180px; }
-    .ai-welcome-popup-{{ ai_gen_id }}__heading { font-size: 34px; }
+
+    .ai-welcome-popup-{{ ai_gen_id }}__media {
+      aspect-ratio: 4 / 5;
+    }
+
+    .ai-welcome-popup-{{ ai_gen_id }}__cta {
+      left: 16px;
+      bottom: 16px;
+    }
+
+    .ai-welcome-popup-{{ ai_gen_id }}__button {
+      min-height: 38px;
+      padding: 0 18px;
+      font-size: 12px;
+    }
+
+    .ai-welcome-popup-{{ ai_gen_id }}__close {
+      top: 10px;
+      right: 10px;
+      width: 38px;
+      height: 38px;
+      font-size: 25px;
+    }
   }
 {% endstyle %}
 
-<first-visit-popup-{{ ai_gen_id }} class="ai-welcome-popup-{{ ai_gen_id }}" data-storage-key="ai-welcome-popup-{{ ai_gen_id }}" {{ block.shopify_attributes }} hidden>
+<first-visit-popup-{{ ai_gen_id }}
+  class="ai-welcome-popup-{{ ai_gen_id }}"
+  data-storage-key="ai-welcome-popup-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+  hidden
+>
   <div class="ai-welcome-popup-{{ ai_gen_id }}__overlay">
-    <section class="ai-welcome-popup-{{ ai_gen_id }}__panel" role="dialog" aria-modal="true" aria-labelledby="ai-welcome-title-{{ ai_gen_id }}" aria-describedby="ai-welcome-description-{{ ai_gen_id }}" tabindex="-1">
-      <button class="ai-welcome-popup-{{ ai_gen_id }}__close" type="button" aria-label="Close popup">×</button>
+    <section
+      class="ai-welcome-popup-{{ ai_gen_id }}__panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Special offer"
+      tabindex="-1"
+    >
+      <button
+        class="ai-welcome-popup-{{ ai_gen_id }}__close"
+        type="button"
+        aria-label="Close popup"
+      >×</button>
+
       {% if block.settings.image != blank %}
-        <img class="ai-welcome-popup-{{ ai_gen_id }}__image" src="{{ block.settings.image | image_url: width: 1200 }}" alt="{{ block.settings.image.alt | escape }}" width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}" loading="eager">
-      {% endif %}
-      {% if block.settings.headline != blank %}<h2 class="ai-welcome-popup-{{ ai_gen_id }}__heading" id="ai-welcome-title-{{ ai_gen_id }}">{{ block.settings.headline | escape }}</h2>{% endif %}
-      <div class="ai-welcome-popup-{{ ai_gen_id }}__body" id="ai-welcome-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
-      {% if block.settings.button_label != blank and block.settings.button_link != blank %}
-        <a class="ai-welcome-popup-{{ ai_gen_id }}__button" href="{{ block.settings.button_link }}">{{ block.settings.button_label | escape }}</a>
+        <div class="ai-welcome-popup-{{ ai_gen_id }}__media">
+          <picture>
+            {% if block.settings.mobile_image != blank %}
+              <source
+                media="(max-width: 749px)"
+                srcset="{{ block.settings.mobile_image | image_url: width: 1200 }}"
+              >
+            {% endif %}
+
+            <img
+              class="ai-welcome-popup-{{ ai_gen_id }}__image"
+              src="{{ block.settings.image | image_url: width: 2000 }}"
+              alt="{{ block.settings.image.alt | escape }}"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              loading="eager"
+              fetchpriority="high"
+            >
+          </picture>
+
+          {% if block.settings.button_label != blank %}
+            <div class="ai-welcome-popup-{{ ai_gen_id }}__cta">
+              <a
+                href="{{ block.settings.button_link | default: routes.all_products_collection_url }}"
+                class="ai-welcome-popup-{{ ai_gen_id }}__button"
+                style="
+                  --btn-bg: {{ block.settings.button_color }};
+                  --btn-text: {{ block.settings.button_text_color }};
+                  --btn-hover: {{ block.settings.button_hover_color }};
+                "
+              >
+                {{ block.settings.button_label | escape }}
+              </a>
+            </div>
+          {% endif %}
+        </div>
       {% endif %}
     </section>
   </div>
 </first-visit-popup-{{ ai_gen_id }}>
 
 <script>
-  (function() {
-    var tagName = 'first-visit-popup-{{ ai_gen_id }}';
+  (() => {
+    const tagName = 'first-visit-popup-{{ ai_gen_id }}';
+
     if (customElements.get(tagName)) return;
+
     class FirstVisitPopup{{ ai_gen_id }} extends HTMLElement {
       connectedCallback() {
+        if (this.initialized) return;
+        this.initialized = true;
+
         this.dialog = this.querySelector('[role="dialog"]');
-        this.closeButton = this.querySelector('button');
+        this.closeButton = this.querySelector(
+          '.ai-welcome-popup-{{ ai_gen_id }}__close'
+        );
         this.storageKey = this.dataset.storageKey;
-        var isEditor = window.Shopify && window.Shopify.designMode;
-        var alreadySeen = false;
-        try { alreadySeen = localStorage.getItem(this.storageKey) === 'seen'; } catch (error) {}
+
+        const isEditor = Boolean(
+          window.Shopify && window.Shopify.designMode
+        );
+
+        let alreadySeen = false;
+
+        try {
+          alreadySeen =
+            localStorage.getItem(this.storageKey) === 'seen';
+        } catch (error) {}
+
         if (isEditor || !alreadySeen) {
           this.hidden = false;
+
           if (!isEditor) {
-            try { localStorage.setItem(this.storageKey, 'seen'); } catch (error) {}
+            try {
+              localStorage.setItem(this.storageKey, 'seen');
+            } catch (error) {}
           }
-          this.closeButton.focus();
+
+          requestAnimationFrame(() => {
+            this.closeButton?.focus();
+          });
         }
-        this.closeButton.addEventListener('click', this.closePopup.bind(this));
-        this.addEventListener('keydown', this.handleKeydown.bind(this));
+
+        this.closeButton?.addEventListener('click', () => {
+          this.closePopup();
+        });
+
+        this.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            this.closePopup();
+          }
+
+          if (event.key === 'Tab') {
+            event.preventDefault();
+            this.closeButton?.focus();
+          }
+        });
       }
+
       closePopup() {
         this.hidden = true;
       }
-      handleKeydown(event) {
-        if (event.key === 'Escape') this.closePopup();
-        if (event.key === 'Tab') {
-          event.preventDefault();
-          this.closeButton.focus();
-        }
-      }
     }
-    customElements.define(tagName, FirstVisitPopup{{ ai_gen_id }});
+
+    customElements.define(
+      tagName,
+      FirstVisitPopup{{ ai_gen_id }}
+    );
   })();
 </script>
 
@@ -200,19 +330,61 @@
 {
   "name": "First visit popup",
   "settings": [
-    { "type": "header", "content": "Content" },
-    { "type": "text", "id": "headline", "label": "Headline", "default": "Hey, you made it!" },
-    { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Take a look around and find your next favorite thing.</p>" },
-    { "type": "image_picker", "id": "image", "label": "Image" },
-    { "type": "text", "id": "button_label", "label": "Button label", "default": "Explore the collection" },
-    { "type": "url", "id": "button_link", "label": "Button link" },
-    { "type": "header", "content": "Style" },
-    { "type": "range", "id": "desktop_width_percent", "label": "Desktop width", "min": 50, "max": 100, "step": 5, "unit": "%", "default": 90 },
-    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFF9EF" },
-    { "type": "color", "id": "text_color", "label": "Text", "default": "#171717" }
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Desktop image",
+      "info": "Recommended: 2400 x 1000 px (2.4:1)"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image (optional)",
+      "info": "Recommended: 1080 x 1350 px (4:5). Leave empty to use the desktop image."
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop New Collection",
+      "info": "Leave empty to hide the button"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button background",
+      "default": "#ff5ca8"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button background on hover",
+      "default": "#e94a96"
+    }
   ],
   "presets": [
-    { "name": "First visit popup" }
+    {
+      "name": "First visit popup"
+    }
   ],
   "tag": null,
   "class": "first-visit-popup"
