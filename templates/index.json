@@ -396,14 +396,13 @@
         "ai_gen_block_8b537d5_HeRzgK": {
           "type": "ai_gen_block_8b537d5",
           "settings": {
-            "headline": "Hey, you made it!",
-            "description": "<p>Take a look around and find your next favorite thing.</p>",
             "image": "shopify://shop_images/ChatGPT_Image_Sep_26_2026_01_50_50_PM.png",
+            "mobile_image": "shopify://shop_images/flyer.jpg",
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
-            "desktop_width_percent": 90,
-            "background_color": "#fff9ef",
-            "text_color": "#171717"
+            "button_color": "#ff5ca8",
+            "button_text_color": "#111111",
+            "button_hover_color": "#e94a96"
           },
           "blocks": {}
         }
