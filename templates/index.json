@@ -396,8 +396,7 @@
         "ai_gen_block_8b537d5_HeRzgK": {
           "type": "ai_gen_block_8b537d5",
           "settings": {
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_26_2026_01_50_50_PM.png",
-            "mobile_image": "shopify://shop_images/flyer.jpg",
+            "image": "shopify://shop_images/flyer.jpg",
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
             "button_color": "#ff5ca8",
