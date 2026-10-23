@@ -1056,6 +1056,9 @@
         var input = item && item.querySelector('.quantity__input');
         if (!input) return;
 
+        // Remember which line was clicked so the footer can flash the price
+        window.__buzzkoLastClickedLineKey = item.getAttribute('data-line-key');
+
         var isPlus = btn.getAttribute('name') === 'plus';
         var currentQty = parseInt(input.value, 10) || 0;
         var minQty = parseInt(input.getAttribute('min'), 10);
@@ -1143,12 +1146,58 @@
               input.setAttribute('max', String(limit));
               rememberLimit(input, limit);
             }
-            var current = parseInt(item.getAttribute('data-qty'), 10) || 0;
-            if (line.quantity !== current) updateLine(item, line.quantity);
-            undo = [];
+
+            // 1. Force the exact line price from the server
+            var fmt = moneyFormat();
+            var price = item.querySelector('.buzzko-item__price');
+            if (price) {
+              setText(price.querySelector('span'), formatMoney(line.final_line_price, fmt));
+              var s = price.querySelector('s');
+              if (s) {
+                setText(s, formatMoney(line.original_line_price, fmt));
+              }
+            }
+            setHidden(item.querySelector('[data-buzzko-each]'), line.quantity <= 1);
+
+            // 2. Force the qty and data attributes
+            setAttr(item, 'data-qty', String(line.quantity));
+            setAttr(item, 'data-line-cents', String(line.final_line_price));
             input.value = line.quantity;
             var max = parseInt(input.getAttribute('max'), 10);
             setPlusState(item, line.quantity, max);
+
+            // 3. Force the footer totals to the server's truth
+            var totalEl = document.querySelector('[data-buzzko-total]');
+            var subEl = document.querySelector('[data-buzzko-subtotal]');
+            var offerEl = document.querySelector('[data-buzzko-offer]');
+            if (totalEl && subEl) {
+              var S = cart.items_subtotal_price;
+              var F = cart.total_price;
+              setAttr(totalEl, 'data-total-cents', String(S));
+              setAttr(totalEl, 'data-total-final-cents', String(F));
+              setText(totalEl, formatMoney(F, fmt));
+              setText(subEl, formatMoney(S, fmt));
+
+              var label = document.querySelector('[data-buzzko-subtotal-label]');
+              if (label) {
+                var count = cart.item_count;
+                setAttr(label, 'data-item-count', String(count));
+                setText(label, 'Subtotal (' + count + ' ' + (count === 1 ? 'item' : 'items') + ')');
+                updateBag(count);
+              }
+
+              if (offerEl) {
+                var threshold = parseInt(offerEl.getAttribute('data-threshold'), 10) || 0;
+                var pct = parseInt(offerEl.getAttribute('data-percent'), 10) || 0;
+                var unlocked = S >= threshold;
+                setStyle(offerEl.querySelector('[data-buzzko-offer-fill]'), 'width', Math.min(100, S * 100 / threshold) + '%');
+                toggleClass(offerEl, 'buzzko-offer--unlocked', unlocked);
+                setText(offerEl.querySelector('[data-buzzko-offer-label]'), unlocked ? pct + '% off unlocked and auto applied!' : 'Add ' + formatMoney(threshold - S, fmt) + ' more to unlock ' + pct + '% off!');
+              }
+            }
+
+            // Clear undo history so we don't roll back to spam states later
+            undo = [];
           })
           .catch(function () {});
       } catch (err) {}
@@ -1162,10 +1211,27 @@
       var shown = item ? (parseInt(item.getAttribute('data-qty'), 10) || 0) : 0;
       var input = item && item.querySelector('.quantity__input');
 
+      // Clear undo history immediately so we don't roll back to intermediate spam states
+      undo = [];
+
       if (item && input && !isNaN(n) && n > 0 && n < shown) {
         input.setAttribute('max', String(n));
         rememberLimit(input, n);
-        updateLine(item, n);
+        
+        // Jump straight to the limit
+        var L = readLine(item);
+        var fmt = moneyFormat();
+        var newLine = L.unitFinal * n;
+        
+        var price = item.querySelector('.buzzko-item__price');
+        if (price) setText(price.querySelector('span'), formatMoney(newLine, fmt));
+        setHidden(item.querySelector('[data-buzzko-each]'), n <= 1);
+        
+        setAttr(item, 'data-qty', String(n));
+        setAttr(item, 'data-line-cents', String(newLine));
+        
+        applyDelta(newLine - L.cents, n - L.qty);
+        
         input.value = n;
         setPlusState(item, n, n);
       } else {
