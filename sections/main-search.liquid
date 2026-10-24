@@ -661,7 +661,11 @@
         {%- endif -%}
 
         <div class="product-grid-container" id="ProductGridContainer">
-          {%- if search.results.size == 0 and search.filters != empty or buzzko_short_search -%}
+                    {%- assign buzzko_show_empty_grid = buzzko_short_search -%}
+          {%- if search.results.size == 0 and search.filters != empty -%}
+            {%- assign buzzko_show_empty_grid = true -%}
+          {%- endif -%}
+          {%- if buzzko_show_empty_grid -%}
             <div
               class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
               id="product-grid"
