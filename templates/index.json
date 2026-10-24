@@ -15,7 +15,7 @@
         "slide_DrwhGW": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/WhatsApp_Image_2026-10-17_at_00.47.43.jpg",
+            "image": "shopify://shop_images/slider1desktop.jpg",
             "image_mobile": "shopify://shop_images/1slider.jpg",
             "alt_text": ""
           }
@@ -23,7 +23,7 @@
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/IMG20260309142908.jpg",
+            "image": "shopify://shop_images/slider2.jpg",
             "image_mobile": "shopify://shop_images/2slider.jpg",
             "alt_text": ""
           }
@@ -31,7 +31,7 @@
         "slide_E3RHdz": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/IMG20260309142801.jpg",
+            "image": "shopify://shop_images/slider3.jpg",
             "image_mobile": "shopify://shop_images/3slider.jpg",
             "alt_text": ""
           }
