@@ -367,15 +367,13 @@ if (!customElements.get('product-form')) {
 }
 
 /* =====================================================
-   BuzzKo: Force-unlock buttons on variant change (LOOP FIX)
+   BuzzKo: Force-sync button states using Liquid JSON
 ===================================================== */
 (function () {
-  let isSyncing = false; // <-- THE LOOP GUARD
+  let isSyncing = false;
 
   function syncButtonState(productInfo) {
     if (!productInfo || isSyncing) return;
-    
-    // Lock the gate
     isSyncing = true;
 
     try {
@@ -385,9 +383,54 @@ if (!customElements.get('product-form')) {
 
       if (!hiddenInput) return;
       
-      const isSoldOut = hiddenInput.hasAttribute('disabled');
+      const currentVariantId = hiddenInput.value;
+      let isSoldOut = false;
 
-      if (!isSoldOut) {
+      // Check the JSON we just output in Liquid (The ultimate source of truth)
+      const sectionId = productInfo.dataset.section;
+      const jsonScript = document.getElementById('BuzzkoVariantData-' + sectionId);
+      
+      if (jsonScript) {
+        try {
+          const data = JSON.parse(jsonScript.textContent);
+          const variant = data.variants.find(v => String(v.id) === String(currentVariantId));
+          if (variant && variant.available === false) {
+            isSoldOut = true;
+          }
+        } catch(e) { console.error('BuzzKo JSON parse error', e); }
+      } else {
+        // Fallback
+        if (hiddenInput.hasAttribute('disabled')) isSoldOut = true;
+      }
+
+      if (isSoldOut) {
+        // FORCE DISABLE Add to Cart
+        if (submitBtn) {
+          submitBtn.setAttribute('disabled', 'disabled');
+          submitBtn.setAttribute('aria-disabled', 'true');
+          submitBtn.classList.remove('loading');
+          submitBtn.style.setProperty('opacity', '0.5', 'important');
+          submitBtn.style.setProperty('pointer-events', 'none', 'important');
+          submitBtn.style.removeProperty('background-color');
+          submitBtn.style.removeProperty('border-color');
+          submitBtn.style.removeProperty('color');
+          
+          const span = submitBtn.querySelector('span');
+          if (span) {
+            span.textContent = window.variantStrings ? window.variantStrings.soldOut : 'Sold out';
+            span.style.removeProperty('color');
+          }
+        }
+        // FORCE DISABLE Buy button
+        buyBtns.forEach(btn => {
+          btn.setAttribute('disabled', 'disabled');
+          btn.setAttribute('aria-disabled', 'true');
+          btn.classList.add('shopify-payment-button__button--disabled');
+          btn.style.setProperty('pointer-events', 'none', 'important');
+          btn.style.setProperty('opacity', '0.5', 'important');
+        });
+      } else {
+        // FORCE ENABLE Add to Cart
         if (submitBtn) {
           submitBtn.removeAttribute('disabled');
           submitBtn.removeAttribute('aria-disabled');
@@ -397,7 +440,7 @@ if (!customElements.get('product-form')) {
           submitBtn.removeAttribute('data-buzzko-loading');
 
           const span = submitBtn.querySelector('span');
-          if (span && (span.textContent.includes('Added') || span.textContent.includes('Try again'))) {
+          if (span && (span.textContent.includes('Added') || span.textContent.includes('Try again') || span.textContent.toLowerCase().includes('sold out'))) {
             span.textContent = window.variantStrings ? window.variantStrings.addToCart : 'Add to cart';
             submitBtn.style.removeProperty('background-color');
             submitBtn.style.removeProperty('border-color');
@@ -405,7 +448,7 @@ if (!customElements.get('product-form')) {
             span.style.removeProperty('color');
           }
         }
-
+        // FORCE ENABLE Buy button
         buyBtns.forEach(btn => {
           btn.removeAttribute('disabled');
           btn.removeAttribute('aria-disabled');
@@ -415,14 +458,22 @@ if (!customElements.get('product-form')) {
         });
       }
     } finally {
-      // Unlock the gate AFTER the browser has finished processing the DOM changes
-      // A setTimeout of 0 pushes this to the next tick, preventing the observer from catching our own changes.
-      setTimeout(() => {
-        isSyncing = false;
-      }, 0);
+      setTimeout(() => { isSyncing = false; }, 50);
     }
   }
 
+  // 1. Run on initial page load (fixes Screenshot 2)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      const productInfo = document.querySelector('product-info');
+      if (productInfo) syncButtonState(productInfo);
+    });
+  } else {
+    const productInfo = document.querySelector('product-info');
+    if (productInfo) syncButtonState(productInfo);
+  }
+
+  // 2. Run when user clicks a variant
   document.addEventListener('change', function (e) {
     if (e.target.matches('.product-form__input input[type="radio"], .product-form__input select')) {
       const productInfo = e.target.closest('product-info');
@@ -439,10 +490,12 @@ if (!customElements.get('product-form')) {
         submitBtn.style.removeProperty('pointer-events');
       }
 
-      setTimeout(() => syncButtonState(productInfo), 50);
+      // Give Dawn 100ms to update the hidden input, then force sync
+      setTimeout(() => syncButtonState(productInfo), 100);
     }
   });
 
+  // 3. Watch for Dawn's native updates to the hidden input
   customElements.whenDefined('product-info').then(() => {
     const productInfo = document.querySelector('product-info');
     if (!productInfo) return;
@@ -451,7 +504,6 @@ if (!customElements.get('product-form')) {
     if (!hiddenInput) return;
 
     const observer = new MutationObserver(() => {
-      // The guard inside syncButtonState prevents the loop here
       syncButtonState(productInfo);
     });
 
