@@ -15,10 +15,10 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
     width: min(1400px, calc(100% - 64px));
     margin: 0 auto;
-    padding: 32px 0 40px;
+    padding: 40px 0 60px; /* Added a bit more top/bottom padding */
     display: grid;
-    grid-template-columns: 1fr 1.2fr; /* Adjusted ratio slightly */
-    gap: 40px;
+    grid-template-columns: 1fr 1.5fr; 
+    gap: 50px; /* Increased gap between left and right */
     align-items: center;
   }
 
@@ -27,16 +27,21 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
+    gap: 12px; /* Reduced gap between images */
   }
 
-  /* Fixed constraints for the text images */
+  /* Constrain the text images heavily so they fit well */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
     width: 100%;
-    max-width: 450px; /* Prevents them from getting too huge */
+    max-width: 320px; /* THIS IS THE MAIN FIX for huge images */
     height: auto;
     display: block;
     object-fit: contain;
+  }
+
+  /* Add some specific margin below the second image to separate the button */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img:nth-child(2) {
+    margin-bottom: 16px;
   }
 
   /* BUTTON */
@@ -45,7 +50,7 @@
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 0 32px;
+    padding: 0 36px;
     border-radius: 999px;
     text-decoration: none;
     font-size: 16px;
@@ -73,9 +78,8 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
     position: relative;
     width: 100%;
-    /* Changed from 2.4/1 to 1.5/1 to make it taller and squarish */
-    aspect-ratio: 1.5 / 1; 
-    max-height: 600px; /* Safeguard for ultra-wide screens */
+    aspect-ratio: 2.2 / 1; /* Slightly wider than before */
+    max-height: 480px; /* Capping the height so it fits on screen better */
     background-color: #fdf3f5;
     overflow: hidden;
   }
@@ -104,6 +108,7 @@
     height: 100%;
     display: block;
     object-fit: cover;
+    object-position: center;
   }
 
   /* CONTROLS (Arrows & Dots) */
@@ -188,7 +193,7 @@
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
       width: min(100% - 40px, 700px);
-      padding: 24px 0 36px;
+      padding: 30px 0 40px;
       grid-template-columns: 1fr;
       gap: 30px;
     }
@@ -198,16 +203,22 @@
     }
     
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
-      max-width: 400px; /* Slightly smaller on tablet */
+      max-width: 280px;
+      margin: 0 auto;
+    }
+    
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img:nth-child(2) {
+      margin-bottom: 10px;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
-      aspect-ratio: 4 / 3; /* Squarish for tablet */
+      aspect-ratio: 16 / 9;
+      max-height: none;
       border-radius: 24px;
     }
   }
 
-  /* MOBILE - EXACTLY AS ORIGINAL + SWIPE & DOTS OVER IMAGE */
+  /* MOBILE - NO CHANGES */
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
       width: calc(100% - 28px);
@@ -215,23 +226,19 @@
       gap: 0;
     }
 
-    /* Hide left side entirely on mobile */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
       display: none;
     }
 
-    /* Original mobile slider dimensions */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
       aspect-ratio: 4 / 5;
       border-radius: 20px;
     }
 
-    /* Hide arrows on mobile */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
       display: none;
     }
 
-    /* Move dots over the image */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
       bottom: 16px;
     }
@@ -241,14 +248,14 @@
 <section id="BuzzkoHero-{{ section.id }}" class="buzzko-hero">
   <div class="buzzko-hero__container">
     
-    <!-- LEFT SIDE STATIC CONTENT (Desktop only) -->
+    <!-- LEFT SIDE STATIC CONTENT -->
     <div class="buzzko-hero__left">
       {% if section.settings.left_image_1 != blank %}
-        {{ section.settings.left_image_1 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 1' }}
+        {{ section.settings.left_image_1 | image_url: width: 600 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 1' }}
       {% endif %}
       
       {% if section.settings.left_image_2 != blank %}
-        {{ section.settings.left_image_2 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 2' }}
+        {{ section.settings.left_image_2 | image_url: width: 600 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 2' }}
       {% endif %}
 
       {% if section.settings.button_label != blank %}
@@ -266,7 +273,7 @@
       {% endif %}
     </div>
 
-    <!-- RIGHT SIDE SLIDER (Full width on mobile) -->
+    <!-- RIGHT SIDE SLIDER -->
     <div
       class="buzzko-hero__slideshow"
       data-buzzko-slideshow
@@ -509,7 +516,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Desktop slide image",
-          "info": "Recommended: 1600 x 1066px (1.5:1)"
+          "info": "Recommended: 2400 x 1000px (2.4:1)"
         },
         {
           "type": "image_picker",
