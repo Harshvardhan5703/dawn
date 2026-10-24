@@ -11,15 +11,14 @@
     overflow: hidden;
   }
 
-  /* DESKTOP LAYOUT */
+  /* DESKTOP SPLIT LAYOUT */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
     width: min(1400px, calc(100% - 64px));
     margin: 0 auto;
     padding: 40px 0 60px; 
     display: grid;
-    /* Left side gets 1 part, Right side gets 1.4 parts */
-    grid-template-columns: 1fr 1.4fr; 
-    gap: 60px; /* Spacing between left and right */
+    grid-template-columns: 1fr 1.4fr; /* Left side smaller, Right side larger */
+    gap: 60px; 
     align-items: center;
   }
 
@@ -29,13 +28,13 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 32px; /* Uniform gap between Image 1, Image 2, and Button */
+    gap: 32px; /* Gap between the combined image and the button */
   }
 
-  /* Constrain the text images */
+  /* Constrain the single combined image */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
     width: 100%;
-    max-width: 360px; /* Adjusted size */
+    max-width: 450px; /* Keeps it from getting too huge */
     height: auto;
     display: block;
     object-fit: contain;
@@ -64,20 +63,19 @@
     background: var(--btn-hover, #e94a96);
   }
 
-  /* SLIDESHOW */
+  /* RIGHT SIDE SLIDESHOW */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slideshow {
     position: relative;
     width: 100%;
     border-radius: var(--buzzko-radius);
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Soft shadow for premium look */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
     position: relative;
     width: 100%;
-    /* Changed to 1.5/1 to make it less rectangular and more squarish */
-    aspect-ratio: 1.5 / 1; 
+    aspect-ratio: 1.5 / 1; /* Squarish rectangle */
     max-height: 520px; 
     background-color: #fdf3f5;
     overflow: hidden;
@@ -126,7 +124,7 @@
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.6);
     color: #111;
     cursor: pointer;
     pointer-events: auto;
@@ -139,7 +137,7 @@
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control:hover {
-    background: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.9);
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control--prev {
@@ -203,7 +201,7 @@
     }
     
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
-      max-width: 300px;
+      max-width: 400px;
       margin: 0 auto;
     }
 
@@ -214,7 +212,7 @@
     }
   }
 
-  /* MOBILE - NO CHANGES */
+  /* MOBILE */
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
       width: calc(100% - 28px);
@@ -222,6 +220,7 @@
       gap: 0;
     }
 
+    /* Hide left side entirely on mobile */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
       display: none;
     }
@@ -244,14 +243,10 @@
 <section id="BuzzkoHero-{{ section.id }}" class="buzzko-hero">
   <div class="buzzko-hero__container">
     
-    <!-- LEFT SIDE STATIC CONTENT -->
+    <!-- LEFT SIDE (Single Combined Image + Button) -->
     <div class="buzzko-hero__left">
-      {% if section.settings.left_image_1 != blank %}
-        {{ section.settings.left_image_1 | image_url: width: 600 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 1' }}
-      {% endif %}
-      
-      {% if section.settings.left_image_2 != blank %}
-        {{ section.settings.left_image_2 | image_url: width: 600 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 2' }}
+      {% if section.settings.left_image != blank %}
+        {{ section.settings.left_image | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Hero Left Image' }}
       {% endif %}
 
       {% if section.settings.button_label != blank %}
@@ -391,7 +386,7 @@
       });
     });
 
-    /* MOBILE SWIPE FUNCTIONALITY */
+    /* MOBILE SWIPE */
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -439,13 +434,9 @@
     },
     {
       "type": "image_picker",
-      "id": "left_image_1",
-      "label": "Left Image 1 (e.g. 'NOW OPEN')"
-    },
-    {
-      "type": "image_picker",
-      "id": "left_image_2",
-      "label": "Left Image 2 (e.g. 'Cute Essentials')"
+      "id": "left_image",
+      "label": "Combined Left Image",
+      "info": "Upload a single image with both 'NOW OPEN' and 'Cute Essentials'"
     },
     {
       "type": "text",
