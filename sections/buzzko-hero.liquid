@@ -115,6 +115,7 @@
     z-index: 2;
   }
 
+  /* UPDATED ARROWS TO TRANSLUCENT BLACK */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
     position: absolute;
     top: 50%;
@@ -123,8 +124,8 @@
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    color: #111;
+    background: rgba(0, 0, 0, 0.4); /* Shade of black */
+    color: #ffffff; /* White icon */
     cursor: pointer;
     pointer-events: auto;
     display: flex;
@@ -136,7 +137,7 @@
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.7); /* Darker on hover */
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control--prev {
@@ -157,19 +158,20 @@
     pointer-events: auto;
   }
 
+  /* UPDATED DOTS TO TRANSLUCENT BLACK */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot {
     width: 10px;
     height: 10px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.3); /* Inactive shade of black */
     cursor: pointer;
     transition: background 180ms ease, width 180ms ease;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot.is-active {
-    background: #ffffff;
+    background: #111111; /* Solid black when active */
     width: 24px;
     border-radius: 999px;
   }
@@ -185,17 +187,17 @@
     color: #666;
   }
 
-  /* TABLET - FIXED LAYOUT */
+  /* TABLET */
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
-      display: block; /* Forces full width for slider */
+      display: block; 
       width: calc(100% - 40px);
       max-width: 900px; 
       padding: 20px 0 40px;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
-      display: none; /* Hides left side */
+      display: none; 
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
@@ -205,10 +207,10 @@
     }
   }
 
-  /* MOBILE - FIXED LAYOUT */
+  /* MOBILE */
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
-      display: block; /* Forces full width for slider */
+      display: block; 
       width: calc(100% - 28px);
       padding: 16px 0 32px;
     }
