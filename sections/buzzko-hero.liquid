@@ -185,17 +185,17 @@
     color: #666;
   }
 
-  /* TABLET (Hides Left Side) */
+  /* TABLET - FIXED LAYOUT */
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+      display: block; /* Forces full width for slider */
       width: calc(100% - 40px);
-      max-width: 900px; /* Makes the slider wider on tablet */
+      max-width: 900px; 
       padding: 20px 0 40px;
     }
 
-    /* THIS HIDES THE LEFT SIDE ON TABLET */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
-      display: none;
+      display: none; /* Hides left side */
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
@@ -205,12 +205,12 @@
     }
   }
 
-  /* MOBILE */
+  /* MOBILE - FIXED LAYOUT */
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+      display: block; /* Forces full width for slider */
       width: calc(100% - 28px);
       padding: 16px 0 32px;
-      gap: 0;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
