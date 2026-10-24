@@ -25,23 +25,20 @@ customElements.whenDefined('product-info').then(() => {
 
 
 if (!customElements.get('product-form')) {
-  let requestSequence = 0; // Global counter to prevent timeout race conditions
+  let requestSequence = 0;
 
   customElements.define(
     'product-form',
     class ProductForm extends HTMLElement {
       constructor() {
         super();
-
         this.form = this.querySelector('form');
         this.variantIdInput.disabled = false;
         this.form.addEventListener('submit', this.onSubmitHandler.bind(this));
         this.cart = document.querySelector('cart-notification') || document.querySelector('cart-drawer');
         this.submitButton = this.querySelector('[type="submit"]');
         this.submitButtonText = this.submitButton.querySelector('span');
-
         if (document.querySelector('cart-drawer')) this.submitButton.setAttribute('aria-haspopup', 'dialog');
-
         this.hideErrors = this.dataset.hideErrors === 'true';
       }
 
@@ -59,10 +56,7 @@ if (!customElements.get('product-form')) {
         const link = document.getElementById('cart-icon-bubble');
         if (!link) return;
         let bubble = link.querySelector('.cart-count-bubble');
-        if (count === 0) {
-          if (bubble) bubble.remove();
-          return;
-        }
+        if (count === 0) { if (bubble) bubble.remove(); return; }
         if (!bubble) {
           bubble = document.createElement('div');
           bubble.className = 'cart-count-bubble';
@@ -74,10 +68,8 @@ if (!customElements.get('product-form')) {
       onSubmitHandler(evt) {
         evt.preventDefault();
         if (this.submitButton.getAttribute('data-buzzko-loading') === 'true') return;
-
         this.handleErrorMessage();
 
-        // --- BuzzKo: TRUE Optimistic UI Start ---
         const mySeq = ++requestSequence; 
         const formData = new FormData(this.form);
         const quantity = parseInt(formData.get('quantity')) || 1;
@@ -85,13 +77,10 @@ if (!customElements.get('product-form')) {
         const beforeCount = this.readBubbleCount();
         const bumped = beforeCount !== null;
 
-        // 1. Instantly bump the header bubble
         if (bumped) this.updateBubble(beforeCount + quantity);
 
-        // 2. Instantly turn button green
         this.submitButton.setAttribute('data-buzzko-loading', 'true');
         this.submitButtonText.textContent = 'Added ✓';
-        
         this.submitButton.style.setProperty('transition', 'none', 'important');
         this.submitButton.style.setProperty('background-color', '#B9E404', 'important');
         this.submitButton.style.setProperty('border-color', '#B9E404', 'important');
@@ -100,7 +89,6 @@ if (!customElements.get('product-form')) {
         this.submitButton.style.setProperty('pointer-events', 'none', 'important');
         this.submitButtonText.style.setProperty('color', '#111', 'important');
 
-        // 3. Instantly update (n in cart)
         const container = this.closest('product-info') || document;
         const qtyInput = container.querySelector('.quantity__input');
         const rulesCart = container.querySelector('.quantity__rules-cart');
@@ -109,9 +97,7 @@ if (!customElements.get('product-form')) {
         let targetSpan = null;
         let observer = null;
 
-        if (qtyInput) {
-          currentCartQty = parseInt(qtyInput.getAttribute('data-cart-quantity'), 10) || 0;
-        }
+        if (qtyInput) currentCartQty = parseInt(qtyInput.getAttribute('data-cart-quantity'), 10) || 0;
         const newQty = currentCartQty + quantity;
 
         if (rulesCart) {
@@ -119,9 +105,7 @@ if (!customElements.get('product-form')) {
           const spinner = rulesCart.querySelector('.loading__spinner');
           if (spinner) spinner.classList.add('hidden');
           targetSpan = rulesCart.querySelector('span:last-child');
-          if (targetSpan) {
-            targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, newQty);
-          }
+          if (targetSpan) targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, newQty);
 
           observer = new MutationObserver(() => {
             if (rulesCart.classList.contains('hidden')) rulesCart.classList.remove('hidden');
@@ -131,24 +115,30 @@ if (!customElements.get('product-form')) {
             }
           });
           observer.observe(rulesCart, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-            attributes: true,
-            attributeFilter: ['class']
+            childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class']
           });
-
           setTimeout(() => { if (observer) observer.disconnect(); }, 3000);
         }
         if (qtyInput) qtyInput.setAttribute('data-cart-quantity', newQty);
-        // --- BuzzKo: TRUE Optimistic UI End ---
+
+        // Update the JSON so variant switching stays accurate
+        const sectionId = container.dataset.section;
+        const jsonScript = document.getElementById('BuzzkoVariantData-' + sectionId);
+        if (jsonScript) {
+          try {
+            const data = JSON.parse(jsonScript.textContent);
+            const variant = data.variants.find(v => String(v.id) === String(submittedVariantId));
+            if (variant) {
+              variant.cart_qty = newQty;
+              jsonScript.textContent = JSON.stringify(data);
+            }
+          } catch(e) {}
+        }
 
         const config = fetchConfig('javascript');
         config.headers['X-Requested-With'] = 'XMLHttpRequest';
         delete config.headers['Content-Type'];
 
-        // --- BuzzKo: BRINGING THE DRAWER BACK ---
-        // We ask for the cart sections again so the drawer can open with fresh data
         if (this.cart) {
           formData.append('sections', this.cart.getSectionsToRender().map((section) => section.id));
           formData.append('sections_url', window.location.pathname);
@@ -167,13 +157,10 @@ if (!customElements.get('product-form')) {
           .then((response) => {
             if (response.status) {
               this.error = true;
-              // Rollback
               if (bumped) this.updateBubble(beforeCount);
               if (rulesCart) {
                 if (currentCartQty === 0) rulesCart.classList.add('hidden');
-                if (targetSpan && currentCartQty > 0) {
-                  targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, currentCartQty);
-                }
+                if (targetSpan && currentCartQty > 0) targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, currentCartQty);
               }
               if (qtyInput) qtyInput.setAttribute('data-cart-quantity', currentCartQty);
 
@@ -184,19 +171,12 @@ if (!customElements.get('product-form')) {
               this.submitButtonText.style.setProperty('color', '#fff', 'important');
 
               publish(PUB_SUB_EVENTS.cartError, {
-                source: 'product-form',
-                productVariantId: variantId,
-                errors: response.errors || response.description,
-                message: response.message,
+                source: 'product-form', productVariantId: variantId,
+                errors: response.errors || response.description, message: response.message,
               });
               this.handleErrorMessage(response.description);
               this.dispatchCartErrorEvent(response.description || response.message, 'INVALID');
               linesUpdateDeferred?.reject(new Error(response.description || response.message));
-
-              const soldOutMessage = this.submitButton.querySelector('.sold-out-message');
-              if (!soldOutMessage) return;
-              this.submitButtonText.classList.add('hidden');
-              soldOutMessage.classList.remove('hidden');
               return;
             } else if (!this.cart) {
               this.resolveCartLinesUpdate(linesUpdateDeferred);
@@ -210,43 +190,27 @@ if (!customElements.get('product-form')) {
             const startMarker = CartPerformance.createStartingMarker('add:wait-for-subscribers');
             if (!this.error)
               publish(PUB_SUB_EVENTS.cartUpdate, {
-                source: 'product-form',
-                productVariantId: variantId,
-                cartData: response,
-              }).then(() => {
-                CartPerformance.measureFromMarker('add:wait-for-subscribers', startMarker);
-              });
+                source: 'product-form', productVariantId: variantId, cartData: response,
+              }).then(() => { CartPerformance.measureFromMarker('add:wait-for-subscribers', startMarker); });
 
-            // --- BuzzKo: Open the Drawer / Notification ---
             const quickAddModal = this.closest('quick-add-modal');
             if (quickAddModal) {
-              document.body.addEventListener(
-                'modalClosed',
-                () => {
-                  setTimeout(() => {
-                    CartPerformance.measure("add:paint-updated-sections", () => {
-                      this.cart.renderContents(response);
-                    });
-                  });
-                },
-                { once: true }
-              );
+              document.body.addEventListener('modalClosed', () => {
+                setTimeout(() => {
+                  CartPerformance.measure("add:paint-updated-sections", () => { this.cart.renderContents(response); });
+                });
+              }, { once: true });
               quickAddModal.hide(true);
             } else {
-              CartPerformance.measure("add:paint-updated-sections", () => {
-                this.cart.renderContents(response);
-              });
+              CartPerformance.measure("add:paint-updated-sections", () => { this.cart.renderContents(response); });
             }
           })
           .catch((e) => {
             this.error = true;
-            // Rollback
             if (bumped) this.updateBubble(beforeCount);
             if (rulesCart) {
               if (currentCartQty === 0) rulesCart.classList.add('hidden');
-              if (targetSpan && currentCartQty > 0) {
-                targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, currentCartQty);
-              }
+              if (targetSpan && currentCartQty > 0) targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, currentCartQty);
             }
             if (qtyInput) qtyInput.setAttribute('data-cart-quantity', currentCartQty);
 
@@ -256,26 +220,19 @@ if (!customElements.get('product-form')) {
             this.submitButton.style.setProperty('color', '#fff', 'important');
             this.submitButtonText.style.setProperty('color', '#fff', 'important');
 
-            console.error(e);
             this.dispatchCartErrorEvent(e.message || 'Network error', 'SERVICE_UNAVAILABLE');
             linesUpdateDeferred?.reject(e);
           })
           .finally(() => {
             if (this.cart && this.cart.classList.contains('is-empty')) this.cart.classList.remove('is-empty');
-            
-            // Guarantee the button unlocks immediately after request finishes
             this.submitButton.removeAttribute('data-buzzko-loading');
             this.submitButton.style.removeProperty('pointer-events');
-            
-            // Hide Dawn's spinner just in case
             const dawnSpinner = this.querySelector('.loading__spinner');
             if (dawnSpinner) dawnSpinner.classList.add('hidden');
             this.submitButton.classList.remove('loading');
 
             setTimeout(() => {
-              // If a newer request has started, ignore this reset
               if (mySeq !== requestSequence) return;
-
               const currentVariantInput = this.form.querySelector('[name=id]');
               if (currentVariantInput && currentVariantInput.value !== submittedVariantId) {
                  this.submitButton.style.removeProperty('transition');
@@ -286,8 +243,6 @@ if (!customElements.get('product-form')) {
                  this.submitButtonText.style.removeProperty('color');
                  return;
               }
-
-              // Reset to normal Add to Cart
               this.submitButton.style.removeProperty('transition');
               this.submitButton.style.removeProperty('background-color');
               this.submitButton.style.removeProperty('border-color');
@@ -308,9 +263,7 @@ if (!customElements.get('product-form')) {
         if (!this.errorMessageWrapper) return;
         this.errorMessage = this.errorMessage || this.errorMessageWrapper.querySelector('.product-form__error-message');
         this.errorMessageWrapper.toggleAttribute('hidden', !errorMessage);
-        if (errorMessage) {
-          this.errorMessage.textContent = errorMessage;
-        }
+        if (errorMessage) this.errorMessage.textContent = errorMessage;
       }
 
       toggleSubmitButton(disable = true, text) {
@@ -327,14 +280,11 @@ if (!customElements.get('product-form')) {
         const { CartLinesUpdateEvent } = window.StandardEvents || {};
         if (!CartLinesUpdateEvent) return null;
         const deferred = CartLinesUpdateEvent.createPromise();
-        this.dispatchEvent(
-          new CartLinesUpdateEvent({
-            action: 'add',
-            context: 'product',
-            lines: [{ merchandiseId: variantId, quantity }],
-            promise: deferred.promise,
-          })
-        );
+        this.dispatchEvent(new CartLinesUpdateEvent({
+          action: 'add', context: 'product',
+          lines: [{ merchandiseId: variantId, quantity }],
+          promise: deferred.promise,
+        }));
         return deferred;
       }
 
@@ -367,7 +317,7 @@ if (!customElements.get('product-form')) {
 }
 
 /* =====================================================
-   BuzzKo: Force-sync button states using Liquid JSON
+   BuzzKo: Variant button states + cart quantity (JSON only, no fetch)
 ===================================================== */
 (function () {
   let isSyncing = false;
@@ -375,36 +325,49 @@ if (!customElements.get('product-form')) {
   function syncButtonState(productInfo) {
     if (!productInfo || isSyncing) return;
     isSyncing = true;
-
     try {
       const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
       const submitBtn = productInfo.querySelector('.product-form__submit');
       const buyBtns = productInfo.querySelectorAll('.shopify-payment-button__button');
-
       if (!hiddenInput) return;
       
       const currentVariantId = hiddenInput.value;
-      let isSoldOut = false;
-
-      // Check the JSON we just output in Liquid (The ultimate source of truth)
       const sectionId = productInfo.dataset.section;
       const jsonScript = document.getElementById('BuzzkoVariantData-' + sectionId);
+      
+      let isSoldOut = false;
+      let cartQty = 0;
       
       if (jsonScript) {
         try {
           const data = JSON.parse(jsonScript.textContent);
           const variant = data.variants.find(v => String(v.id) === String(currentVariantId));
-          if (variant && variant.available === false) {
-            isSoldOut = true;
+          if (variant) {
+            if (variant.available === false) isSoldOut = true;
+            cartQty = variant.cart_qty || 0;
           }
-        } catch(e) { console.error('BuzzKo JSON parse error', e); }
+        } catch(e) {}
       } else {
-        // Fallback
         if (hiddenInput.hasAttribute('disabled')) isSoldOut = true;
       }
 
+      // Update the (n in cart) text from JSON
+      const qtyInput = productInfo.querySelector('.quantity__input');
+      const rulesCart = productInfo.querySelector('.quantity__rules-cart');
+      if (qtyInput) qtyInput.setAttribute('data-cart-quantity', cartQty);
+      if (rulesCart) {
+        const spinner = rulesCart.querySelector('.loading__spinner');
+        if (spinner) spinner.classList.add('hidden');
+        const targetSpan = rulesCart.querySelector('span:last-child');
+        if (cartQty === 0) {
+          rulesCart.classList.add('hidden');
+        } else {
+          rulesCart.classList.remove('hidden');
+          if (targetSpan) targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, cartQty);
+        }
+      }
+
       if (isSoldOut) {
-        // FORCE DISABLE Add to Cart
         if (submitBtn) {
           submitBtn.setAttribute('disabled', 'disabled');
           submitBtn.setAttribute('aria-disabled', 'true');
@@ -413,14 +376,12 @@ if (!customElements.get('product-form')) {
           submitBtn.style.removeProperty('background-color');
           submitBtn.style.removeProperty('border-color');
           submitBtn.style.removeProperty('color');
-          
           const span = submitBtn.querySelector('span');
           if (span) {
             span.textContent = window.variantStrings ? window.variantStrings.soldOut : 'Sold out';
             span.style.removeProperty('color');
           }
         }
-        // FORCE DISABLE Buy button
         buyBtns.forEach(btn => {
           btn.setAttribute('disabled', 'disabled');
           btn.setAttribute('aria-disabled', 'true');
@@ -428,14 +389,12 @@ if (!customElements.get('product-form')) {
           btn.style.setProperty('opacity', '0.5', 'important');
         });
       } else {
-        // FORCE ENABLE Add to Cart
         if (submitBtn) {
           submitBtn.removeAttribute('disabled');
           submitBtn.removeAttribute('aria-disabled');
           submitBtn.classList.remove('loading');
           submitBtn.style.removeProperty('opacity');
           submitBtn.removeAttribute('data-buzzko-loading');
-
           const span = submitBtn.querySelector('span');
           if (span && (span.textContent.includes('Added') || span.textContent.includes('Try again') || span.textContent.toLowerCase().includes('sold out'))) {
             span.textContent = window.variantStrings ? window.variantStrings.addToCart : 'Add to cart';
@@ -445,7 +404,6 @@ if (!customElements.get('product-form')) {
             span.style.removeProperty('color');
           }
         }
-        // FORCE ENABLE Buy button
         buyBtns.forEach(btn => {
           btn.removeAttribute('disabled');
           btn.removeAttribute('aria-disabled');
@@ -458,20 +416,15 @@ if (!customElements.get('product-form')) {
     }
   }
 
-  /* === The Click Interceptor ===
-     Blocks clicks on any disabled button, but still shows the not-allowed cursor
-     (unlike pointer-events: none). This is the bulletproof way. */
   document.addEventListener('click', function (e) {
     const btn = e.target.closest && e.target.closest('.product-form__submit, .shopify-payment-button__button');
     if (!btn) return;
-
     if (btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true' || btn.classList.contains('shopify-payment-button__button--disabled')) {
       e.preventDefault();
       e.stopImmediatePropagation();
     }
   }, true);
 
-  // 1. Run on initial page load (fixes Screenshot 2)
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       const productInfo = document.querySelector('product-info');
@@ -482,12 +435,10 @@ if (!customElements.get('product-form')) {
     if (productInfo) syncButtonState(productInfo);
   }
 
-  // 2. Run when user clicks a variant
   document.addEventListener('change', function (e) {
     if (e.target.matches('.product-form__input input[type="radio"], .product-form__input select')) {
       const productInfo = e.target.closest('product-info');
       if (!productInfo) return;
-      
       const submitBtn = productInfo.querySelector('.product-form__submit');
       if (submitBtn) {
         submitBtn.removeAttribute('data-buzzko-loading');
@@ -498,27 +449,16 @@ if (!customElements.get('product-form')) {
         submitBtn.style.removeProperty('opacity');
         submitBtn.style.removeProperty('pointer-events');
       }
-
-      // Give Dawn 100ms to update the hidden input, then force sync
-      setTimeout(() => syncButtonState(productInfo), 100);
+      setTimeout(() => syncButtonState(productInfo), 150);
     }
   });
 
-  // 3. Watch for Dawn's native updates to the hidden input
   customElements.whenDefined('product-info').then(() => {
     const productInfo = document.querySelector('product-info');
     if (!productInfo) return;
-    
     const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
     if (!hiddenInput) return;
-
-    const observer = new MutationObserver(() => {
-      syncButtonState(productInfo);
-    });
-
-    observer.observe(hiddenInput, { 
-      attributes: true, 
-      attributeFilter: ['disabled', 'value'] 
-    });
+    const observer = new MutationObserver(() => { syncButtonState(productInfo); });
+    observer.observe(hiddenInput, { attributes: true, attributeFilter: ['disabled', 'value'] });
   });
 })();
