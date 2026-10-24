@@ -17,7 +17,7 @@
     margin: 0 auto;
     padding: 32px 0 40px;
     display: grid;
-    grid-template-columns: 1fr 1.3fr;
+    grid-template-columns: 1fr 1.2fr; /* Adjusted ratio slightly */
     gap: 40px;
     align-items: center;
   }
@@ -30,20 +30,13 @@
     gap: 20px;
   }
 
+  /* Fixed constraints for the text images */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
-    display: block;
-    max-width: 100%;
+    width: 100%;
+    max-width: 450px; /* Prevents them from getting too huge */
     height: auto;
+    display: block;
     object-fit: contain;
-  }
-
-  /* Keep the two text graphics deliberately small and balanced */
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img--now-open {
-    width: 190px;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img--cute-essentials {
-    width: 330px;
   }
 
   /* BUTTON */
@@ -80,7 +73,9 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
     position: relative;
     width: 100%;
-    aspect-ratio: 2.4 / 1;
+    /* Changed from 2.4/1 to 1.5/1 to make it taller and squarish */
+    aspect-ratio: 1.5 / 1; 
+    max-height: 600px; /* Safeguard for ultra-wide screens */
     background-color: #fdf3f5;
     overflow: hidden;
   }
@@ -201,9 +196,13 @@
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
       align-items: center;
     }
+    
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
+      max-width: 400px; /* Slightly smaller on tablet */
+    }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 4 / 3; /* Squarish for tablet */
       border-radius: 24px;
     }
   }
@@ -245,11 +244,11 @@
     <!-- LEFT SIDE STATIC CONTENT (Desktop only) -->
     <div class="buzzko-hero__left">
       {% if section.settings.left_image_1 != blank %}
-        {{ section.settings.left_image_1 | image_url: width: 1200 | image_tag: class: 'buzzko-hero__left-img buzzko-hero__left-img--now-open', loading: 'eager', alt: 'Now Open' }}
+        {{ section.settings.left_image_1 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 1' }}
       {% endif %}
       
       {% if section.settings.left_image_2 != blank %}
-        {{ section.settings.left_image_2 | image_url: width: 1200 | image_tag: class: 'buzzko-hero__left-img buzzko-hero__left-img--cute-essentials', loading: 'eager', alt: 'Cute Essentials, Uniquely Crafted' }}
+        {{ section.settings.left_image_2 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 2' }}
       {% endif %}
 
       {% if section.settings.button_label != blank %}
@@ -510,7 +509,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Desktop slide image",
-          "info": "Recommended: 2400 x 1000px (2.4:1)"
+          "info": "Recommended: 1600 x 1066px (1.5:1)"
         },
         {
           "type": "image_picker",
