@@ -44,8 +44,7 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
-        "left_image_1": "shopify://shop_images/image_3.png",
-        "left_image_2": "shopify://shop_images/cuteessentials_small_hires.png",
+        "left_image": "shopify://shop_images/Glossy_Bubble_Shop_Signage.png",
         "button_label": "Shop Now",
         "button_link": "",
         "button_color": "#ff5ca8",
