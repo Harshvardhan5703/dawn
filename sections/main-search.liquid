@@ -438,7 +438,14 @@
 {%- endstyle -%}
 
 {% paginate search.results by 24 %}
-  <div class="template-search{% unless search.performed and search.results_count > 0 %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
+  {%- liquid
+    assign buzzko_search_term_length = search.terms | size
+    assign buzzko_short_search = false
+    if search.performed and buzzko_search_term_length > 0 and buzzko_search_term_length < 4
+      assign buzzko_short_search = true
+    endif
+  -%}
+  <div class="template-search{% unless search.performed and search.results_count > 0 and buzzko_short_search == false %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
     <div class="template-search__header page-width{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
       <h1 class="buzzko-search-title">
         {%- if search.performed -%}
@@ -513,14 +520,14 @@
 
       {%- if search.performed -%}
         {%- unless section.settings.enable_filtering or section.settings.enable_sorting -%}
-          {%- if search.results_count > 0 -%}
+          {%- if search.results_count > 0 and buzzko_short_search == false -%}
             <p role="status">
               {{ 'templates.search.results_with_count_and_term' | t: terms: search.terms, count: search.results_count }}
             </p>
           {%- endif -%}
         {%- endunless -%}
 
-        {%- if search.results_count == 0 and search.filters == empty -%}
+        {%- if search.results_count == 0 and search.filters == empty and buzzko_short_search == false -%}
           <div class="buzzko-search-empty" role="status">
             <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
             <h2>Didn't find your little favourite?</h2>
@@ -544,6 +551,7 @@
       {%- if section.settings.enable_sorting
         and section.settings.filter_type == 'vertical'
         and search.filters != empty
+        and buzzko_short_search == false
       -%}
         <facet-filters-form class="facets facets-vertical-sort page-width small-hide">
           <form class="facets-vertical-form" id="FacetSortForm">
@@ -600,7 +608,7 @@
           class="facets-vertical page-width"
         {% endif %}
       >
-                {%- if search.filters != empty -%}
+                {%- if search.filters != empty and buzzko_short_search == false -%}
           {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
 
             {%- comment -%}
@@ -653,7 +661,7 @@
         {%- endif -%}
 
         <div class="product-grid-container" id="ProductGridContainer">
-          {%- if search.results.size == 0 and search.filters != empty -%}
+          {%- if search.results.size == 0 and search.filters != empty or buzzko_short_search -%}
             <div
               class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
               id="product-grid"
@@ -664,8 +672,12 @@
                 <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
                 <h2>Didn't find your little favourite?</h2>
                 <p>
-                  We couldn't find anything for “{{ search.terms | escape }}”.
-                  But don't worry, we're here to help you find it!
+                  {%- if buzzko_short_search -%}
+                    Please type at least 4 characters so we can find something for you.
+                  {%- else -%}
+                    We couldn't find anything for “{{ search.terms | escape }}”.
+                    But don't worry, we're here to help you find it!
+                  {%- endif -%}
                 </p>
                 <a href="{{ routes.contact_url }}" class="buzzko-search-contact">
                   Contact us
@@ -782,7 +794,7 @@
         if (message) message.classList.remove('is-visible');
       }
 
-      // 1. Block form submit for 1–2 character queries
+      // 1. Block form submit for 1–3 character queries
       document.addEventListener(
         'submit',
         function (e) {
@@ -798,7 +810,7 @@
         true
       );
 
-      // 2. Block predictive search (live results) for 1–2 character queries
+      // 2. Block predictive search (live results) for 1–3 character queries
       document.addEventListener(
         'input',
         function (e) {
