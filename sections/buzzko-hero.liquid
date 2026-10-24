@@ -31,9 +31,19 @@
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
+    display: block;
     max-width: 100%;
     height: auto;
-    display: block;
+    object-fit: contain;
+  }
+
+  /* Keep the two text graphics deliberately small and balanced */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img--now-open {
+    width: 190px;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img--cute-essentials {
+    width: 330px;
   }
 
   /* BUTTON */
@@ -235,11 +245,11 @@
     <!-- LEFT SIDE STATIC CONTENT (Desktop only) -->
     <div class="buzzko-hero__left">
       {% if section.settings.left_image_1 != blank %}
-        {{ section.settings.left_image_1 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 1' }}
+        {{ section.settings.left_image_1 | image_url: width: 1200 | image_tag: class: 'buzzko-hero__left-img buzzko-hero__left-img--now-open', loading: 'eager', alt: 'Now Open' }}
       {% endif %}
       
       {% if section.settings.left_image_2 != blank %}
-        {{ section.settings.left_image_2 | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Left Image 2' }}
+        {{ section.settings.left_image_2 | image_url: width: 1200 | image_tag: class: 'buzzko-hero__left-img buzzko-hero__left-img--cute-essentials', loading: 'eager', alt: 'Cute Essentials, Uniquely Crafted' }}
       {% endif %}
 
       {% if section.settings.button_label != blank %}
