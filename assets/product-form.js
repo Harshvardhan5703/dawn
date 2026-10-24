@@ -218,6 +218,7 @@ if (!customElements.get('product-form')) {
               });
 
             // --- BuzzKo: Open the Drawer / Notification ---
+            // Because we waited for the response, the data is ready and the drawer opens fast & fully populated
             const quickAddModal = this.closest('quick-add-modal');
             if (quickAddModal) {
               document.body.addEventListener(
@@ -365,84 +366,3 @@ if (!customElements.get('product-form')) {
     }
   );
 }
-
-/* =====================================================
-   BuzzKo: Force-unlock buttons on variant change
-   Fixes Dawn's "stuck disabled" bug without breaking sold-out states.
-===================================================== */
-(function () {
-  function syncButtonState(productInfo) {
-    if (!productInfo) return;
-
-    const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
-    const submitBtn = productInfo.querySelector('.product-form__submit');
-    const buyBtns = productInfo.querySelectorAll('.shopify-payment-button__button');
-
-    if (!hiddenInput) return;
-    const isSoldOut = hiddenInput.hasAttribute('disabled');
-
-    if (!isSoldOut) {
-      if (submitBtn) {
-        submitBtn.removeAttribute('disabled');
-        submitBtn.removeAttribute('aria-disabled');
-        submitBtn.classList.remove('loading');
-        submitBtn.style.removeProperty('opacity');
-        submitBtn.style.removeProperty('pointer-events');
-        submitBtn.removeAttribute('data-buzzko-loading');
-
-        const span = submitBtn.querySelector('span');
-        if (span && (span.textContent.includes('Added') || span.textContent.includes('Try again'))) {
-          span.textContent = window.variantStrings ? window.variantStrings.addToCart : 'Add to cart';
-          submitBtn.style.removeProperty('background-color');
-          submitBtn.style.removeProperty('border-color');
-          submitBtn.style.removeProperty('color');
-          span.style.removeProperty('color');
-        }
-      }
-
-      buyBtns.forEach(btn => {
-        btn.removeAttribute('disabled');
-        btn.removeAttribute('aria-disabled');
-        btn.classList.remove('shopify-payment-button__button--disabled');
-        btn.style.removeProperty('pointer-events');
-        btn.style.removeProperty('opacity');
-      });
-    }
-  }
-
-  document.addEventListener('change', function (e) {
-    if (e.target.matches('.product-form__input input[type="radio"], .product-form__input select')) {
-      const productInfo = e.target.closest('product-info');
-      
-      const submitBtn = productInfo.querySelector('.product-form__submit');
-      if (submitBtn) {
-        submitBtn.removeAttribute('data-buzzko-loading');
-        submitBtn.style.removeProperty('transition');
-        submitBtn.style.removeProperty('background-color');
-        submitBtn.style.removeProperty('border-color');
-        submitBtn.style.removeProperty('color');
-        submitBtn.style.removeProperty('opacity');
-        submitBtn.style.removeProperty('pointer-events');
-      }
-
-      setTimeout(() => syncButtonState(productInfo), 50);
-    }
-  });
-
-  customElements.whenDefined('product-info').then(() => {
-    const productInfo = document.querySelector('product-info');
-    if (!productInfo) return;
-    
-    const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
-    if (!hiddenInput) return;
-
-    const observer = new MutationObserver(() => {
-      syncButtonState(productInfo);
-    });
-
-    observer.observe(hiddenInput, { 
-      attributes: true, 
-      attributeFilter: ['disabled', 'value'] 
-    });
-  });
-})();
