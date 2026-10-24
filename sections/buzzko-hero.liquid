@@ -107,25 +107,28 @@
     object-position: center;
   }
 
-  /* CONTROLS (Arrows & Dots) */
+  /* CONTROLS CONTAINER (Arrows & Dots at Bottom) */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
     position: absolute;
-    inset: 0;
+    bottom: 24px; /* Position at the bottom */
+    left: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center; /* Aligns arrows and dots on the same horizontal line */
+    justify-content: space-between; /* Arrows on edges, dots in center */
     pointer-events: none;
     z-index: 2;
   }
 
-  /* UPDATED ARROWS TO WHITE TRANSLUCENT */
+  /* WHITE TRANSLUCENT ARROWS */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    position: relative; /* Changed from absolute */
     width: 44px;
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6); /* White translucent */
-    color: #111111; /* Dark icon for contrast */
+    background: rgba(255, 255, 255, 0.6); 
+    color: #111111; 
     cursor: pointer;
     pointer-events: auto;
     display: flex;
@@ -136,41 +139,30 @@
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control:hover {
-    background: rgba(255, 255, 255, 0.9); /* Less translucent on hover */
+    background: rgba(255, 255, 255, 0.9); 
   }
 
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__control--prev {
-    left: 20px;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__control--next {
-    right: 20px;
-  }
-
+  /* WHITE TRANSLUCENT DOTS */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative; /* Changed from absolute */
     display: flex;
     gap: 8px;
     pointer-events: auto;
   }
 
-  /* UPDATED DOTS TO WHITE TRANSLUCENT */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot {
     width: 10px;
     height: 10px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5); /* Inactive white translucent */
+    background: rgba(255, 255, 255, 0.5); 
     cursor: pointer;
     transition: background 180ms ease, width 180ms ease;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot.is-active {
-    background: #ffffff; /* Solid white when active */
+    background: #ffffff; 
     width: 24px;
     border-radius: 999px;
   }
@@ -223,12 +215,16 @@
       border-radius: 20px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
-      display: none;
+    /* Center the dots on mobile since arrows are hidden */
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      justify-content: center; 
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
-      bottom: 16px;
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
+      display: none;
     }
   }
 {% endstyle %}
