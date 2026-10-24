@@ -161,6 +161,21 @@
     height: 1.25rem;
   }
 
+  /* ===== BuzzKo: minimum character hint ===== */
+  .template-search__search .search-min-chars-message {
+    display: none;
+    margin: 1rem 0 0;
+    padding: 0 2rem;
+    color: #B05A2B;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .template-search__search .search-min-chars-message.is-visible {
+    display: block;
+  }
+
   /* ===== BuzzKo empty search state ===== */
   .buzzko-search-empty {
     position: relative;
@@ -308,6 +323,11 @@
     .template-search__search .field__button svg {
       width: 1.4rem;
       height: 1.4rem;
+    }
+
+    .template-search__search .search-min-chars-message {
+      padding: 0 1.6rem;
+      font-size: 1.25rem;
     }
 
     .buzzko-search-empty {
@@ -485,6 +505,10 @@
         {%- if settings.predictive_search_enabled -%}
           </predictive-search>
         {%- endif -%}
+
+        <p id="SearchMinCharsMessage" class="search-min-chars-message" role="status" aria-live="polite">
+          Please type at least 3 characters to search.
+        </p>
       </div>
 
       {%- if search.performed -%}
@@ -669,7 +693,7 @@
                   {% assign lazy_load = false %}
                   {%- if forloop.index > 2 -%}
                     {%- assign lazy_load = true -%}
-                  {%- endif -%}
+                  {%- endif %}
 
                   <li
                     class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
@@ -736,6 +760,72 @@
     {%- endif -%}
   </div>
 {% endpaginate %}
+
+<script>
+  (function () {
+    function init() {
+      // Minimum characters required. Set to 4 for strictly "more than 3".
+      var MIN_CHARS = 3;
+
+      var form = document.querySelector('.template-search__search form.search');
+      if (!form) return;
+      var input = form.querySelector('input[name="q"]');
+      if (!input) return;
+
+      var predictive = document.querySelector('predictive-search');
+      var message = document.getElementById('SearchMinCharsMessage');
+
+      function showMessage() {
+        if (message) message.classList.add('is-visible');
+      }
+      function hideMessage() {
+        if (message) message.classList.remove('is-visible');
+      }
+
+      // 1. Block form submit for 1–2 character queries
+      document.addEventListener(
+        'submit',
+        function (e) {
+          if (e.target !== form) return;
+          var q = (input.value || '').trim();
+          if (q.length > 0 && q.length < MIN_CHARS) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            showMessage();
+            input.focus();
+          }
+        },
+        true
+      );
+
+      // 2. Block predictive search (live results) for 1–2 character queries
+      document.addEventListener(
+        'input',
+        function (e) {
+          if (e.target !== input) return;
+          var q = (input.value || '').trim();
+          if (q.length > 0 && q.length < MIN_CHARS) {
+            // Stop the event so predictive-search.js never fires a request
+            e.stopImmediatePropagation();
+            if (predictive && typeof predictive.close === 'function') {
+              predictive.close();
+            }
+            showMessage();
+          } else {
+            hideMessage();
+          }
+        },
+        true
+      );
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>
 
 {% if section.settings.image_shape == 'arch' %}
   {{ 'mask-arch.svg' | inline_asset_content }}
