@@ -339,7 +339,21 @@
   box-shadow: 3px 3px 0 #1A1A1A !important;
 }
 
+    /* BuzzKo: Force not-allowed cursor on disabled states */
+    #MainProduct-{{ section.id }} .product-form__submit[disabled],
+    #MainProduct-{{ section.id }} .product-form__submit[aria-disabled="true"],
+    #MainProduct-{{ section.id }} .shopify-payment-button__button[disabled],
+    #MainProduct-{{ section.id }} .shopify-payment-button__button--disabled,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button[aria-disabled="true"] {
+      cursor: not-allowed !important;
+      pointer-events: auto !important;
+    }
 
+    #MainProduct-{{ section.id }} .product-form__submit[disabled]:hover,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button[disabled]:hover,
+    #MainProduct-{{ section.id }} .shopify-payment-button__button--disabled:hover {
+      cursor: not-allowed !important;
+    }
 
 
   {%- endstyle -%}

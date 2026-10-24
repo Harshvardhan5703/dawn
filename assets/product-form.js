@@ -410,7 +410,6 @@ if (!customElements.get('product-form')) {
           submitBtn.setAttribute('aria-disabled', 'true');
           submitBtn.classList.remove('loading');
           submitBtn.style.setProperty('opacity', '0.5', 'important');
-          submitBtn.style.setProperty('pointer-events', 'none', 'important');
           submitBtn.style.removeProperty('background-color');
           submitBtn.style.removeProperty('border-color');
           submitBtn.style.removeProperty('color');
@@ -426,7 +425,6 @@ if (!customElements.get('product-form')) {
           btn.setAttribute('disabled', 'disabled');
           btn.setAttribute('aria-disabled', 'true');
           btn.classList.add('shopify-payment-button__button--disabled');
-          btn.style.setProperty('pointer-events', 'none', 'important');
           btn.style.setProperty('opacity', '0.5', 'important');
         });
       } else {
@@ -436,7 +434,6 @@ if (!customElements.get('product-form')) {
           submitBtn.removeAttribute('aria-disabled');
           submitBtn.classList.remove('loading');
           submitBtn.style.removeProperty('opacity');
-          submitBtn.style.removeProperty('pointer-events');
           submitBtn.removeAttribute('data-buzzko-loading');
 
           const span = submitBtn.querySelector('span');
@@ -453,7 +450,6 @@ if (!customElements.get('product-form')) {
           btn.removeAttribute('disabled');
           btn.removeAttribute('aria-disabled');
           btn.classList.remove('shopify-payment-button__button--disabled');
-          btn.style.removeProperty('pointer-events');
           btn.style.removeProperty('opacity');
         });
       }
@@ -461,6 +457,19 @@ if (!customElements.get('product-form')) {
       setTimeout(() => { isSyncing = false; }, 50);
     }
   }
+
+  /* === The Click Interceptor ===
+     Blocks clicks on any disabled button, but still shows the not-allowed cursor
+     (unlike pointer-events: none). This is the bulletproof way. */
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest && e.target.closest('.product-form__submit, .shopify-payment-button__button');
+    if (!btn) return;
+
+    if (btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true' || btn.classList.contains('shopify-payment-button__button--disabled')) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  }, true);
 
   // 1. Run on initial page load (fixes Screenshot 2)
   if (document.readyState === 'loading') {
