@@ -141,21 +141,6 @@ if (!customElements.get('product-form')) {
           setTimeout(() => { if (observer) observer.disconnect(); }, 3000);
         }
         if (qtyInput) qtyInput.setAttribute('data-cart-quantity', newQty);
-
-        // --- BuzzKo: Update JSON so variant switching stays accurate ---
-        const sectionId = container.dataset.section;
-        const jsonScript = document.getElementById('BuzzkoVariantData-' + sectionId);
-        if (jsonScript) {
-          try {
-            const data = JSON.parse(jsonScript.textContent);
-            const variant = data.variants.find(v => String(v.id) === String(submittedVariantId));
-            if (variant) {
-              variant.cart_qty = newQty;
-              jsonScript.textContent = JSON.stringify(data);
-            }
-          } catch(e) {}
-        }
-        // ----------------------------------------------------------------
         // --- BuzzKo: TRUE Optimistic UI End ---
 
         const config = fetchConfig('javascript');
@@ -163,6 +148,7 @@ if (!customElements.get('product-form')) {
         delete config.headers['Content-Type'];
 
         // --- BuzzKo: BRINGING THE DRAWER BACK ---
+        // We ask for the cart sections again so the drawer can open with fresh data
         if (this.cart) {
           formData.append('sections', this.cart.getSectionsToRender().map((section) => section.id));
           formData.append('sections_url', window.location.pathname);
@@ -514,48 +500,7 @@ if (!customElements.get('product-form')) {
       }
 
       // Give Dawn 100ms to update the hidden input, then force sync
-      setTimeout(() => {
-        syncButtonState(productInfo);
-
-        // --- BuzzKo: Instantly update "(n in cart)" from JSON ---
-        const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
-        if (!hiddenInput) return;
-        
-        const sectionId = productInfo.dataset.section;
-        const jsonScript = document.getElementById('BuzzkoVariantData-' + sectionId);
-        
-        if (jsonScript) {
-          try {
-            const data = JSON.parse(jsonScript.textContent);
-            const variant = data.variants.find(v => String(v.id) === String(hiddenInput.value));
-            
-            if (variant) {
-              const qty = variant.cart_qty || 0;
-              const qtyInput = productInfo.querySelector('.quantity__input');
-              const rulesCart = productInfo.querySelector('.quantity__rules-cart');
-              
-              if (qtyInput) qtyInput.setAttribute('data-cart-quantity', qty);
-              
-              if (rulesCart) {
-                const spinner = rulesCart.querySelector('.loading__spinner');
-                if (spinner) spinner.classList.add('hidden');
-                const targetSpan = rulesCart.querySelector('span:last-child');
-                
-                if (qty === 0) {
-                  rulesCart.classList.add('hidden');
-                } else {
-                  rulesCart.classList.remove('hidden');
-                  if (targetSpan) {
-                    targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, qty);
-                  }
-                }
-              }
-            }
-          } catch(e) {}
-        }
-        // --------------------------------------------------------
-        
-      }, 100);
+      setTimeout(() => syncButtonState(productInfo), 100);
     }
   });
 
