@@ -148,7 +148,6 @@ if (!customElements.get('product-form')) {
         delete config.headers['Content-Type'];
 
         // --- BuzzKo: BRINGING THE DRAWER BACK ---
-        // We ask for the cart sections again so the drawer can open with fresh data
         if (this.cart) {
           formData.append('sections', this.cart.getSectionsToRender().map((section) => section.id));
           formData.append('sections_url', window.location.pathname);
@@ -263,17 +262,14 @@ if (!customElements.get('product-form')) {
           .finally(() => {
             if (this.cart && this.cart.classList.contains('is-empty')) this.cart.classList.remove('is-empty');
             
-            // Guarantee the button unlocks immediately after request finishes
             this.submitButton.removeAttribute('data-buzzko-loading');
             this.submitButton.style.removeProperty('pointer-events');
             
-            // Hide Dawn's spinner just in case
             const dawnSpinner = this.querySelector('.loading__spinner');
             if (dawnSpinner) dawnSpinner.classList.add('hidden');
             this.submitButton.classList.remove('loading');
 
             setTimeout(() => {
-              // If a newer request has started, ignore this reset
               if (mySeq !== requestSequence) return;
 
               const currentVariantInput = this.form.querySelector('[name=id]');
@@ -287,7 +283,6 @@ if (!customElements.get('product-form')) {
                  return;
               }
 
-              // Reset to normal Add to Cart
               this.submitButton.style.removeProperty('transition');
               this.submitButton.style.removeProperty('background-color');
               this.submitButton.style.removeProperty('border-color');
@@ -367,7 +362,7 @@ if (!customElements.get('product-form')) {
 }
 
 /* =====================================================
-   BuzzKo: Force-sync button states using Liquid JSON
+   BuzzKo: Force-sync button states & accurate cart quantity
 ===================================================== */
 (function () {
   let isSyncing = false;
@@ -399,12 +394,10 @@ if (!customElements.get('product-form')) {
           }
         } catch(e) { console.error('BuzzKo JSON parse error', e); }
       } else {
-        // Fallback
         if (hiddenInput.hasAttribute('disabled')) isSoldOut = true;
       }
 
       if (isSoldOut) {
-        // FORCE DISABLE Add to Cart
         if (submitBtn) {
           submitBtn.setAttribute('disabled', 'disabled');
           submitBtn.setAttribute('aria-disabled', 'true');
@@ -420,7 +413,6 @@ if (!customElements.get('product-form')) {
             span.style.removeProperty('color');
           }
         }
-        // FORCE DISABLE Buy button
         buyBtns.forEach(btn => {
           btn.setAttribute('disabled', 'disabled');
           btn.setAttribute('aria-disabled', 'true');
@@ -428,7 +420,6 @@ if (!customElements.get('product-form')) {
           btn.style.setProperty('opacity', '0.5', 'important');
         });
       } else {
-        // FORCE ENABLE Add to Cart
         if (submitBtn) {
           submitBtn.removeAttribute('disabled');
           submitBtn.removeAttribute('aria-disabled');
@@ -445,7 +436,6 @@ if (!customElements.get('product-form')) {
             span.style.removeProperty('color');
           }
         }
-        // FORCE ENABLE Buy button
         buyBtns.forEach(btn => {
           btn.removeAttribute('disabled');
           btn.removeAttribute('aria-disabled');
@@ -458,9 +448,7 @@ if (!customElements.get('product-form')) {
     }
   }
 
-  /* === The Click Interceptor ===
-     Blocks clicks on any disabled button, but still shows the not-allowed cursor
-     (unlike pointer-events: none). This is the bulletproof way. */
+  /* === The Click Interceptor === */
   document.addEventListener('click', function (e) {
     const btn = e.target.closest && e.target.closest('.product-form__submit, .shopify-payment-button__button');
     if (!btn) return;
@@ -471,7 +459,7 @@ if (!customElements.get('product-form')) {
     }
   }, true);
 
-  // 1. Run on initial page load (fixes Screenshot 2)
+  // 1. Run on initial page load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       const productInfo = document.querySelector('product-info');
@@ -500,7 +488,44 @@ if (!customElements.get('product-form')) {
       }
 
       // Give Dawn 100ms to update the hidden input, then force sync
-      setTimeout(() => syncButtonState(productInfo), 100);
+      setTimeout(() => {
+        syncButtonState(productInfo);
+
+        // --- BuzzKo: Fetch accurate per-variant quantity from Shopify ---
+        const hiddenInput = productInfo.querySelector('input[name="id"].product-variant-id');
+        if (!hiddenInput) return;
+        
+        const currentVariantId = hiddenInput.value;
+        const qtyInput = productInfo.querySelector('.quantity__input');
+        const rulesCart = productInfo.querySelector('.quantity__rules-cart');
+
+        fetch(`${routes.cart_url}.json`, { headers: { 'Accept': 'application/json' } })
+          .then(res => res.json())
+          .then(cart => {
+            const line = (cart.items || []).find(item => String(item.id) === String(currentVariantId));
+            const qty = line ? line.quantity : 0;
+
+            if (qtyInput) qtyInput.setAttribute('data-cart-quantity', qty);
+
+            if (rulesCart) {
+              const spinner = rulesCart.querySelector('.loading__spinner');
+              if (spinner) spinner.classList.add('hidden');
+              const targetSpan = rulesCart.querySelector('span:last-child');
+
+              if (qty === 0) {
+                rulesCart.classList.add('hidden');
+              } else {
+                rulesCart.classList.remove('hidden');
+                if (targetSpan) {
+                  targetSpan.innerHTML = targetSpan.innerHTML.replace(/\d+/, qty);
+                }
+              }
+            }
+          })
+          .catch(() => {});
+        // ------------------------------------------------------------------
+        
+      }, 100);
     }
   });
 
