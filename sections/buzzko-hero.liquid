@@ -15,9 +15,9 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
     width: min(1400px, calc(100% - 64px));
     margin: 0 auto;
-    padding: 40px 0 60px; 
+    padding: 20px 0 40px; 
     display: grid;
-    grid-template-columns: 1fr 1.4fr; /* Left side smaller, Right side larger */
+    grid-template-columns: 1fr 1.4fr; 
     gap: 60px; 
     align-items: center;
   }
@@ -28,13 +28,12 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 32px; /* Gap between the combined image and the button */
+    gap: 32px; 
   }
 
-  /* Constrain the single combined image */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
     width: 100%;
-    max-width: 450px; /* Keeps it from getting too huge */
+    max-width: 450px; 
     height: auto;
     display: block;
     object-fit: contain;
@@ -75,7 +74,7 @@
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
     position: relative;
     width: 100%;
-    aspect-ratio: 1.5 / 1; /* Squarish rectangle */
+    aspect-ratio: 1.5 / 1; 
     max-height: 520px; 
     background-color: #fdf3f5;
     overflow: hidden;
@@ -186,23 +185,17 @@
     color: #666;
   }
 
-  /* TABLET */
+  /* TABLET (Hides Left Side) */
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
-      width: min(100% - 40px, 700px);
-      padding: 30px 0 40px;
-      grid-template-columns: 1fr;
-      gap: 40px;
+      width: calc(100% - 40px);
+      max-width: 900px; /* Makes the slider wider on tablet */
+      padding: 20px 0 40px;
     }
 
+    /* THIS HIDES THE LEFT SIDE ON TABLET */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
-      align-items: center;
-      text-align: center;
-    }
-    
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
-      max-width: 400px;
-      margin: 0 auto;
+      display: none;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
@@ -220,7 +213,6 @@
       gap: 0;
     }
 
-    /* Hide left side entirely on mobile */
     #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
       display: none;
     }
