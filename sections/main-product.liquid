@@ -309,12 +309,20 @@
   outline-offset: 4px;
 }
 
-/* Disabled: no lift or shadow */
+/* BuzzKo: Make out-of-stock variants clickable and restore the shadow */
 #MainProduct-{{ section.id }} .product-form__input input[type='radio']:disabled + label,
 #MainProduct-{{ section.id }} .product-form__input input[type='radio'].disabled + label {
-  transform: none;
-  box-shadow: none;
-  cursor: not-allowed;
+  transform: translate(0, 0) !important;
+  box-shadow: 2px 2px 0 rgba(26, 26, 26, 0.72) !important;
+  cursor: pointer !important;
+  opacity: 0.6; /* Keep it slightly faded to show it's OOS */
+}
+
+/* Add the hover effect back */
+#MainProduct-{{ section.id }} .product-form__input input[type='radio']:disabled + label:hover,
+#MainProduct-{{ section.id }} .product-form__input input[type='radio'].disabled + label:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 3px 3px 0 #1A1A1A !important;
 }
 
 
