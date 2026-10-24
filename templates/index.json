@@ -17,12 +17,7 @@
           "settings": {
             "image": "shopify://shop_images/WhatsApp_Image_2026-10-17_at_00.47.43.jpg",
             "image_mobile": "shopify://shop_images/1slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "alt_text": ""
           }
         },
         "slide_RyUJNF": {
@@ -30,12 +25,7 @@
           "settings": {
             "image": "shopify://shop_images/IMG20260309142908.jpg",
             "image_mobile": "shopify://shop_images/2slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "alt_text": ""
           }
         },
         "slide_E3RHdz": {
@@ -43,12 +33,7 @@
           "settings": {
             "image": "shopify://shop_images/IMG20260309142801.jpg",
             "image_mobile": "shopify://shop_images/3slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "alt_text": ""
           }
         }
       },
@@ -59,6 +44,13 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
+        "left_image_1": "shopify://shop_images/nowopen_small_hires.png",
+        "left_image_2": "shopify://shop_images/cuteessentials_small_hires.png",
+        "button_label": "Shop Now",
+        "button_link": "",
+        "button_color": "#ff5ca8",
+        "button_text_color": "#ffffff",
+        "button_hover_color": "#e94a96",
         "autoplay": true,
         "interval": 5,
         "show_slide_controls": true
