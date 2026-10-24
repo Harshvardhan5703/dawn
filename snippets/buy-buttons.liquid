@@ -22,6 +22,27 @@
       if block.settings.show_dynamic_checkout and gift_card_recipient_feature_active == false
         assign show_dynamic_checkout = true
       endif
+
+      # BuzzKo: resolve purchasability once, up-front, so the hidden id input,
+      # the Add-to-cart button, and the Buy button all agree on the state.
+      assign check_against_inventory = true
+      if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
+        assign check_against_inventory = false
+      endif
+
+      assign quantity_rule_soldout = false
+      if product.selected_or_first_available_variant.quantity_rule.min > product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
+        assign quantity_rule_soldout = true
+      endif
+
+      assign variant_is_purchasable = true
+      if product.selected_or_first_available_variant == null
+        assign variant_is_purchasable = false
+      elsif product.selected_or_first_available_variant.available == false
+        assign variant_is_purchasable = false
+      elsif quantity_rule_soldout
+        assign variant_is_purchasable = false
+      endif
     -%}
 
     <product-form
@@ -47,10 +68,7 @@
           type="hidden"
           name="id"
           value="{{ product.selected_or_first_available_variant.id }}"
-          {% if product.selected_or_first_available_variant.available == false
-            or quantity_rule_soldout
-            or product.selected_or_first_available_variant == null
-          %}
+          {% if variant_is_purchasable == false %}
             disabled
           {% endif %}
           class="product-variant-id"
@@ -61,31 +79,19 @@
         {%- endif -%}
 
         <div class="product-form__buttons">
-          {%- liquid
-            assign check_against_inventory = true
-            if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
-              assign check_against_inventory = false
-            endif
-            if product.selected_or_first_available_variant.quantity_rule.min > product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
-              assign quantity_rule_soldout = true
-            endif
-          -%}
           <button
             id="ProductSubmitButton-{{ section_id }}"
             type="submit"
             name="add"
             class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
-            {% if product.selected_or_first_available_variant.available == false
-              or quantity_rule_soldout
-              or product.selected_or_first_available_variant == null
-            %}
+            {% if variant_is_purchasable == false %}
               disabled
             {% endif %}
           >
             <span>
               {%- if product.selected_or_first_available_variant == null -%}
                 {{ 'products.product.unavailable' | t }}
-              {%- elsif product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
+              {%- elsif variant_is_purchasable == false -%}
                 {{ 'products.product.sold_out' | t }}
               {%- else -%}
                 {{ 'products.product.add_to_cart' | t }}
@@ -93,7 +99,7 @@
             </span>
             {%- render 'loading-spinner' -%}
           </button>
-          {%- if show_dynamic_checkout -%}
+          {%- if show_dynamic_checkout and variant_is_purchasable -%}
             {{ form | payment_button }}
           {%- endif -%}
         </div>
