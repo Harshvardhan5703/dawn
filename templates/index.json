@@ -186,6 +186,7 @@
           "type": "product",
           "settings": {
             "product": "mini-stand",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -194,6 +195,7 @@
           "type": "product",
           "settings": {
             "product": "rolling-lighter",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -202,6 +204,7 @@
           "type": "product",
           "settings": {
             "product": "jaguar-lighter",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -210,6 +213,7 @@
           "type": "product",
           "settings": {
             "product": "monster-charm",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -218,6 +222,7 @@
           "type": "product",
           "settings": {
             "product": "thanos-spinner-keychains",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -226,6 +231,7 @@
           "type": "product",
           "settings": {
             "product": "diet-coke-charm",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -234,6 +240,7 @@
           "type": "product",
           "settings": {
             "product": "sunflower-pots",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -242,6 +249,7 @@
           "type": "product",
           "settings": {
             "product": "madara-character-keychains",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -250,6 +258,7 @@
           "type": "product",
           "settings": {
             "product": "",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -258,6 +267,7 @@
           "type": "product",
           "settings": {
             "product": "",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
@@ -278,6 +288,10 @@
       "name": "BuzzKo Trending Products",
       "settings": {
         "heading": "Trending Now",
+        "section_bg_color": "#fffaf5",
+        "gradient_color_1": "#ffdcef",
+        "gradient_color_2": "#f3f9d2",
+        "gradient_color_3": "#ffdcef",
         "show_view_all": true,
         "view_all_text": "View All",
         "view_all_link": "shopify://collections/all"
@@ -290,64 +304,72 @@
           "type": "product",
           "settings": {
             "product": "monster-charm",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_eeJkeD": {
           "type": "product",
           "settings": {
             "product": "thanos-spinner-keychains",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_QGD7dE": {
           "type": "product",
           "settings": {
             "product": "harley-davidson-lighter",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_3pdHFq": {
           "type": "product",
           "settings": {
             "product": "butterfly-charm",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_K8cFYW": {
           "type": "product",
           "settings": {
             "product": "kakashi-character-keychains",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_8GhHEQ": {
           "type": "product",
           "settings": {
             "product": "diet-coke-charm",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_gEBen9": {
           "type": "product",
           "settings": {
             "product": "daru-charm",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         },
         "product_GBmKJ3": {
           "type": "product",
           "settings": {
             "product": "tulip-pots",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#F7CFCF"
+            "border_color": "#f7cfcf"
           }
         }
       },
@@ -364,8 +386,12 @@
       "name": "BuzzKo Trending Products",
       "settings": {
         "heading": "Featured",
+        "section_bg_color": "#fffaf5",
+        "gradient_color_1": "#ffdcef",
+        "gradient_color_2": "#f3f9d2",
+        "gradient_color_3": "#ffdcef",
         "show_view_all": true,
-        "view_all_text": "See All",
+        "view_all_text": "View All",
         "view_all_link": "shopify://collections/all"
       }
     },
