@@ -182,62 +182,80 @@
     "buzzko_trending_products_GjexL4": {
       "type": "buzzko-trending-products",
       "blocks": {
-        "product_wxaw4c": {
+        "product_b6dWpp": {
           "type": "product",
           "settings": {
-            "product": "black-monster",
+            "product": "mini-stand",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         },
-        "product_fqW4Le": {
+        "product_qTmgYA": {
           "type": "product",
           "settings": {
-            "product": "iron-man-charm",
+            "product": "rolling-lighter",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         },
-        "product_K3Rr8p": {
+        "product_fzFhJQ": {
           "type": "product",
           "settings": {
-            "product": "11-11-charm",
+            "product": "jaguar-lighter",
             "subtitle": "",
-            "border_color": "#d0f4de"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_A8bbKy": {
+        "product_6MR4wA": {
           "type": "product",
           "settings": {
-            "product": "lighter",
+            "product": "monster-charm",
             "subtitle": "",
-            "border_color": "#ffecb3"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_7QQrHn": {
+        "product_YQzXt8": {
           "type": "product",
           "settings": {
-            "product": "poster",
+            "product": "thanos-spinner-keychains",
             "subtitle": "",
-            "border_color": "#bee3f8"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_eit7fK": {
+        "product_UyDmVU": {
           "type": "product",
           "settings": {
-            "product": "black-monster-marlboro",
+            "product": "diet-coke-charm",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_paGqH6": {
+          "type": "product",
+          "settings": {
+            "product": "sunflower-pots",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_zABY4p": {
+          "type": "product",
+          "settings": {
+            "product": "madara-character-keychains",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         }
       },
       "block_order": [
-        "product_wxaw4c",
-        "product_fqW4Le",
-        "product_K3Rr8p",
-        "product_A8bbKy",
-        "product_7QQrHn",
-        "product_eit7fK"
+        "product_b6dWpp",
+        "product_qTmgYA",
+        "product_fzFhJQ",
+        "product_6MR4wA",
+        "product_YQzXt8",
+        "product_UyDmVU",
+        "product_paGqH6",
+        "product_zABY4p"
       ],
       "name": "BuzzKo Trending Products",
       "settings": {
