@@ -3835,3 +3835,45 @@ video {
 video {
   -webkit-touch-callout: none;
 }
+
+
+/* =========================================================
+   BuzzKo Review CTA — pink pill button
+   Target: rich-text "Write a review" button
+   ========================================================= */
+#shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary {
+  --buttons-radius: 999px !important;
+  --buttons-radius-outset: 999px !important;
+  background-color: #FF60B9 !important;
+  color: #1A1A1A !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 0 30px !important;
+  min-height: 46px !important;
+  font-family: var(--font-heading-family) !important;
+  font-weight: 750 !important;
+  font-size: 15px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color .18s ease, transform .15s ease !important;
+}
+
+#shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary::before,
+#shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary::after {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+#shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary:hover {
+  background-color: #E469AF !important;
+  color: #1A1A1A !important;
+  transform: translateY(-2px);
+}
+
+#shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary:active {
+  transform: translateY(0) scale(.98);
+}
