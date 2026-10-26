@@ -441,6 +441,26 @@
     </div>
   </div>
 </dialog>
+
+
+<script>
+  (() => {
+    // Disable context menus on images and videos.
+    document.addEventListener('contextmenu', (event) => {
+      if (event.target.closest('img, video')) {
+        event.preventDefault();
+      }
+    });
+
+    // Prevent dragging images and video elements.
+    document.addEventListener('dragstart', (event) => {
+      if (event.target.closest('img, video')) {
+        event.preventDefault();
+      }
+    });
+  })();
+</script>
+
    
   </body>
 </html>

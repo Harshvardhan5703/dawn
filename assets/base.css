@@ -3820,3 +3820,18 @@ shopify-account::part(dialog) {
   max-height: 90vh; /* Prevents the modal from becoming taller than the screen */
   overflow-y: auto;
 }
+
+
+
+/* Buzzko: discourage saving images and videos */
+img,
+video {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+video {
+  -webkit-touch-callout: none;
+}
