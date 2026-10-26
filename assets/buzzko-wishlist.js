@@ -564,6 +564,10 @@
           font-size: 11px !important;
         }
 
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="success"] .btn-text::before {
+          content: none !important;
+        }
+
         .buzzko-wishlist .buzzko-product-card__atc[data-state="success"] svg {
           display: none !important;
         }
