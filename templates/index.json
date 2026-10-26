@@ -245,6 +245,22 @@
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
+        },
+        "product_MwTYyw": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_qEgnGj": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
         }
       },
       "block_order": [
@@ -255,13 +271,101 @@
         "product_YQzXt8",
         "product_UyDmVU",
         "product_paGqH6",
-        "product_zABY4p"
+        "product_zABY4p",
+        "product_MwTYyw",
+        "product_qEgnGj"
       ],
       "name": "BuzzKo Trending Products",
       "settings": {
         "heading": "Trending Now",
         "show_view_all": true,
         "view_all_text": "View All",
+        "view_all_link": "shopify://collections/all"
+      }
+    },
+    "buzzko_trending_products_tUrNdx": {
+      "type": "buzzko-trending-products",
+      "blocks": {
+        "product_jFzhbe": {
+          "type": "product",
+          "settings": {
+            "product": "monster-charm",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_eeJkeD": {
+          "type": "product",
+          "settings": {
+            "product": "thanos-spinner-keychains",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_QGD7dE": {
+          "type": "product",
+          "settings": {
+            "product": "harley-davidson-lighter",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_3pdHFq": {
+          "type": "product",
+          "settings": {
+            "product": "butterfly-charm",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_K8cFYW": {
+          "type": "product",
+          "settings": {
+            "product": "kakashi-character-keychains",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_8GhHEQ": {
+          "type": "product",
+          "settings": {
+            "product": "diet-coke-charm",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_gEBen9": {
+          "type": "product",
+          "settings": {
+            "product": "daru-charm",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        },
+        "product_GBmKJ3": {
+          "type": "product",
+          "settings": {
+            "product": "tulip-pots",
+            "subtitle": "",
+            "border_color": "#F7CFCF"
+          }
+        }
+      },
+      "block_order": [
+        "product_jFzhbe",
+        "product_eeJkeD",
+        "product_QGD7dE",
+        "product_3pdHFq",
+        "product_K8cFYW",
+        "product_8GhHEQ",
+        "product_gEBen9",
+        "product_GBmKJ3"
+      ],
+      "name": "BuzzKo Trending Products",
+      "settings": {
+        "heading": "Featured",
+        "show_view_all": true,
+        "view_all_text": "See All",
         "view_all_link": "shopify://collections/all"
       }
     },
@@ -435,6 +539,7 @@
     "buzzko_customer_proof_PQbTaK",
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
+    "buzzko_trending_products_tUrNdx",
     "buzzko_benefit_new_4QbDez",
     "buzzko_insta_new_ANz6qA",
     "1790848691c0544c6f",
