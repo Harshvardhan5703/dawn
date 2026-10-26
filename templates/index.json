@@ -55,25 +55,6 @@
         "show_slide_controls": true
       }
     },
-    "buzzko_customer_proof_PQbTaK": {
-      "type": "buzzko-customer-proof",
-      "name": "BuzzKo Customer Proof",
-      "settings": {
-        "avatar_1": "shopify://shop_images/luthfi-alfarizi-gEf9bOMTZtk-unsplash.jpg",
-        "avatar_2": "shopify://shop_images/ip-creative-8kS_Ft1BJjA-unsplash.jpg",
-        "avatar_3": "shopify://shop_images/Coral_Circle_Bearded_Avatar.png",
-        "avatar_4": "shopify://shop_images/Warm-Toned_Wavy-Haired_Avatar_Portrait.png",
-        "more_text": "+5k",
-        "avatar_size": 52,
-        "show_rating": false,
-        "rating_text": "4.9 from 2,000+ reviews",
-        "text": "Loved by <strong>5,000+</strong> happy customers",
-        "alignment": "center",
-        "background_color": "#fffaf5",
-        "padding_top": 32,
-        "padding_bottom": 32
-      }
-    },
     "buzzko_category_grid_RK8AjK": {
       "type": "buzzko-category-grid",
       "blocks": {
@@ -562,7 +543,6 @@
   },
   "order": [
     "buzzko_hero_zCzTHk",
-    "buzzko_customer_proof_PQbTaK",
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
     "buzzko_trending_products_tUrNdx",
