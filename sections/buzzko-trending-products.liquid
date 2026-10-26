@@ -63,7 +63,7 @@
 
 <style>
   #buzzko-trending-{{ section.id }} {
-    background: #FFFAF5;
+    background: {{ section.settings.section_bg_color }};
     padding: 24px 0;
   }
 
@@ -75,9 +75,9 @@
 
     background: linear-gradient(
       135deg,
-      #FFDCEF 0%,
-      #F3F9D2 50%,
-      #FFDCEF 100%
+      {{ section.settings.gradient_color_1 }} 0%,
+      {{ section.settings.gradient_color_2 }} 50%,
+      {{ section.settings.gradient_color_3 }} 100%
     );
     background-size: 200% 200%;
     border-radius: 28px;
@@ -117,7 +117,7 @@
     color: #111;
   }
 
-   #buzzko-trending-{{ section.id }} .buzzko-trending__sparkles {
+  #buzzko-trending-{{ section.id }} .buzzko-trending__sparkles {
     display: inline-block;
     margin-left: 8px;
     font-size: 30px;
@@ -186,7 +186,7 @@
   }
 
   /* =========================
-     MOBILE (Horizontal Swipe)
+     MOBILE — 2 Column Grid
   ========================= */
 
   @media screen and (max-width: 749px) {
@@ -201,7 +201,7 @@
     }
 
     #buzzko-trending-{{ section.id }} .buzzko-trending__header {
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     #buzzko-trending-{{ section.id }} .buzzko-trending__heading {
@@ -224,33 +224,12 @@
       height: 15px;
     }
 
-    /* Mobile Swipe Grid */
+    /* 2 columns, same as the other product grids on the store */
     #buzzko-trending-{{ section.id }} .buzzko-trending__grid {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-
-      margin-left: -20px;
-      margin-right: -20px;
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-bottom: 10px;
-
-      scroll-snap-type: x mandatory;
-      scroll-padding-inline: 20px;
-      scrollbar-width: none;
-    }
-
-    #buzzko-trending-{{ section.id }} .buzzko-trending__grid::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Force the cards to be a specific width in the scroll track */
-    #buzzko-trending-{{ section.id }} .buzzko-trending__grid > .buzzko-product-card {
-      flex: 0 0 76%; /* Shows 1 full card + a peek of the next */
-      scroll-snap-align: start;
-      margin-top: 4px; /* Prevents the hover shadow from getting cut off */
+      overflow: visible;
     }
   }
 </style>
@@ -266,6 +245,38 @@
       "id": "heading",
       "label": "Heading",
       "default": "Trending Now"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section background",
+      "default": "#FFFAF5"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Card background — gradient color 1",
+      "default": "#FFDCEF"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Card background — gradient color 2",
+      "default": "#F3F9D2"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Card background — gradient color 3",
+      "default": "#FFDCEF"
+    },
+    {
+      "type": "header",
+      "content": "View All"
     },
     {
       "type": "checkbox",
