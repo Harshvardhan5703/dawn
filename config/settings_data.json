@@ -213,6 +213,17 @@
           "secondary_button_label": "#ffffff",
           "shadow": "#121212"
         }
+      },
+      "scheme-review-pink": {
+        "settings": {
+          "background": "#fffaf5",
+          "background_gradient": "",
+          "text": "#121212",
+          "button": "#ec6fa9",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#121212",
+          "shadow": "#121212"
+        }
       }
     }
   },

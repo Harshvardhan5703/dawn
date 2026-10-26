@@ -19,6 +19,49 @@
         "padding_bottom": 0
       }
     },
+    "rich_text_gYBteY": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_LiNXa6": {
+          "type": "heading",
+          "settings": {
+            "heading": "Talk about your brand",
+            "heading_size": "h1"
+          }
+        },
+        "text_efXkit": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+          }
+        },
+        "button_DXjjwk": {
+          "type": "button",
+          "settings": {
+            "button_label": "Write a review",
+            "button_link": "https://judge.me/product_reviews/f2c904e3-b612-4a7c-bb86-22fc8100ed94/new?store-review-only=true&source=shareable-link",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_LiNXa6",
+        "text_efXkit",
+        "button_DXjjwk"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-review-pink",
+        "full_width": false,
+        "padding_top": 16,
+        "padding_bottom": 16
+      }
+    },
     "1790490487c811803d": {
       "type": "apps",
       "blocks": {
@@ -45,10 +88,10 @@
             "corner_styling": "soft",
             "card_spacing": "medium",
             "header_text_color": "#000000",
-            "star_and_reviewer_name_color": "#F9F9F9",
+            "star_and_reviewer_name_color": "#f9f9f9",
             "drop_shadow_color": "#000000",
             "overlay_and_background_color": "#000000",
-            "content_color": "#F9F9F9",
+            "content_color": "#f9f9f9",
             "header_text": "From our customers",
             "show_average_rating": true,
             "rating_display": "default"
@@ -65,6 +108,7 @@
   },
   "order": [
     "main",
+    "rich_text_gYBteY",
     "1790490487c811803d"
   ]
 }
