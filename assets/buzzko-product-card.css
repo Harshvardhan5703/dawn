@@ -10,6 +10,7 @@
   padding: 8px;
   color: inherit;
   transition: transform .2s ease, box-shadow .2s ease;
+  isolation: isolate;
 }
 
 .buzzko-product-card:hover {

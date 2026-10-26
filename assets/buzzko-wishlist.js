@@ -127,11 +127,19 @@
     writeItems(items);
   }
 
-  function removeByVariantId(variantId) {
-    var id = normaliseId(variantId);
+  // Removes exactly one entry.
+  // - Matches new-format entries by variantId
+  // - Falls back to productId for legacy entries that have no variantId
+  function removeByVariantId(variantId, productId) {
+    var vId = normaliseId(variantId);
+    var pId = normaliseId(productId);
     writeItems(
       readItems().filter(function (item) {
-        return entryKey(item) !== id;
+        var itemV = normaliseId(item.variantId);
+        var itemP = normaliseId(item.productId);
+        if (itemV && vId && itemV === vId) return false;
+        if (!itemV && pId && itemP === pId) return false;
+        return true;
       })
     );
   }
@@ -540,6 +548,47 @@
           display: none;
         }
 
+        /* Success state on mobile: expand to pill with text */
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="success"] {
+          width: auto;
+          min-width: 90px;
+          padding: 0 14px;
+          border-radius: 999px;
+          background: #B9E404;
+          color: #111;
+          border-color: #B9E404;
+        }
+
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="success"] .btn-text {
+          display: inline !important;
+          font-size: 11px !important;
+        }
+
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="success"] svg {
+          display: none !important;
+        }
+
+        /* Error state on mobile: expand to pill with text */
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="error"],
+        .buzzko-wishlist .buzzko-product-card__atc.is-error {
+          width: auto;
+          min-width: 80px;
+          padding: 0 14px;
+          border-radius: 999px;
+          background: #FF8B8B;
+        }
+
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="error"] .btn-text,
+        .buzzko-wishlist .buzzko-product-card__atc.is-error .btn-text {
+          display: inline !important;
+          font-size: 11px !important;
+        }
+
+        .buzzko-wishlist .buzzko-product-card__atc[data-state="error"] svg,
+        .buzzko-wishlist .buzzko-product-card__atc.is-error svg {
+          display: none !important;
+        }
+
         .buzzko-wishlist .buzzko-product-card__remove {
           top: 5px;
           right: 5px;
@@ -655,6 +704,7 @@
           '<button type="button" ' +
             'class="buzzko-product-card__remove" ' +
             'data-wishlist-remove="' + escapeHtml(variantId) + '" ' +
+            'data-product-id="' + escapeHtml(item.productId) + '" ' +
             'aria-label="Remove ' + escapeHtml(title) + ' from wishlist" ' +
             'title="Remove from wishlist">' +
             '&times;' +
@@ -859,8 +909,6 @@
 
   /* =========================================================
      VARIANT CHANGE → UPDATE HEART STATE
-     When user switches variants on the product page,
-     the heart should reflect the NEW variant's wishlist state.
   ========================================================= */
 
   function bindVariantChangeUpdates() {
@@ -869,18 +917,15 @@
       if (!target || !target.closest) return;
       if (!target.closest('form[action*="/cart/add"], variant-selects, variant-radios, .product-form')) return;
 
-      // Themes usually update the hidden input on the next tick
       window.setTimeout(function () {
         document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
       }, 50);
     });
 
-    // Most themes (Dawn, Sense, Craft, etc.) fire this
     document.addEventListener('variant:changed', function () {
       document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
     });
 
-    // Also handle themes that only dispatch on the form
     document.addEventListener('variant:change', function () {
       document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
     });
@@ -945,7 +990,10 @@
       var removeButton = event.target.closest('[data-wishlist-remove]');
       if (removeButton) {
         event.preventDefault();
-        removeByVariantId(removeButton.dataset.wishlistRemove);
+        removeByVariantId(
+          removeButton.dataset.wishlistRemove,
+          removeButton.dataset.productId
+        );
         return;
       }
     });
@@ -960,6 +1008,7 @@
       if (!button || button.disabled) return;
 
       var variantId = button.dataset.variantId;
+      var productId = button.dataset.productId;
       if (!variantId) return;
 
       var originalLabel = button.dataset.labelDefault || 'Add to Cart';
@@ -1002,7 +1051,7 @@
       })
       .then(function () {
         /* 4. REMOVE THIS VARIANT FROM WISHLIST — NO REDIRECT */
-        removeByVariantId(variantId);
+        removeByVariantId(variantId, productId);
       })
       .catch(function (error) {
         console.error('[BuzzKo Wishlist] Add to cart failed:', error);
@@ -1014,12 +1063,13 @@
 
         if (!document.body.contains(button)) return;
         button.disabled = false;
-        button.removeAttribute('data-state');
+        button.dataset.state = 'error';
         if (textSpan) textSpan.textContent = 'Try Again';
         else button.textContent = 'Try Again';
 
         window.setTimeout(function () {
           if (!document.body.contains(button)) return;
+          button.removeAttribute('data-state');
           if (textSpan) textSpan.textContent = originalLabel;
           else button.textContent = originalLabel;
         }, 1600);
