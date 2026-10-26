@@ -105,6 +105,25 @@
       --vg-per-view: 4.3;
     }
   }
+
+  /* BuzzKo: the strip is the ONLY thumbnail UI — hide Dawn's native one */
+#MainProduct-{{ section.id }} #GalleryThumbnails-{{ section.id }},
+#MainProduct-{{ section.id }} #GalleryViewer-{{ section.id }} .slider-buttons {
+  display: none !important;
+}
+
+/* BuzzKo: show only ONE main image; the strip swaps its src */
+#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:not(:first-child) {
+  display: none !important;
+}
+
+/* BuzzKo: the remaining single image shouldn't be a slider — let it fill the column */
+#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} {
+  display: block !important;
+}
+#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:first-child {
+  width: 100% !important;
+}
 </style>
 
 <script>
