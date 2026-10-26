@@ -617,3 +617,22 @@
   border-color: #ccc;
   cursor: not-allowed;
 }
+
+/* ============================================================
+   Modal Add Button — Success State
+   Matches the card ATC green (#B9E404)
+   Placed AFTER :disabled rules so it wins on equal specificity.
+   ============================================================ */
+.buzzko-modal__add-btn[data-state="success"],
+.buzzko-modal__add-btn[data-state="success"]:disabled {
+  background-color: #B9E404;
+  border-color: #B9E404;
+  color: #111;
+  cursor: default;
+}
+
+.buzzko-modal__add-btn[data-state="success"]:hover:not(:disabled) {
+  background-color: #c7ef1c;
+  border-color: #c7ef1c;
+  color: #111;
+}

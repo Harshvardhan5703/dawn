@@ -154,6 +154,8 @@
     if (!A) return;
     A.style.background = '';
     A.style.color = '';
+    A.style.borderColor = '';
+    A.removeAttribute('data-state');
     A.textContent = 'Add to Cart';
     A.disabled = false;
   }
@@ -172,7 +174,9 @@
 
     clearTimeout(closeTimer);
     A.textContent = 'Added ✓';
+    A.setAttribute('data-state', 'success');
     A.style.background = '#B9E404';
+    A.style.borderColor = '#B9E404';
     A.style.color = '#111';
     A.disabled = true;
     closeTimer = setTimeout(function () { closeModal(); resetAddButton(); }, 450);
@@ -194,6 +198,8 @@
       if (A2) {
         A2.style.background = '';
         A2.style.color = '';
+        A2.style.borderColor = '';
+        A2.removeAttribute('data-state');
         A2.textContent = 'Try again';
         A2.disabled = false;
       }
