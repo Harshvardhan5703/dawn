@@ -18,7 +18,7 @@
   ];
 
   /* =========================================================
-     STORAGE
+     STORAGE — one entry per VARIANT (not per product)
   ========================================================= */
 
   function readItems() {
@@ -26,7 +26,6 @@
       var value = JSON.parse(
         window.localStorage.getItem(STORAGE_KEY) || '[]'
       );
-
       return Array.isArray(value) ? value : [];
     } catch (error) {
       console.warn('[BuzzKo Wishlist] Could not read wishlist.', error);
@@ -36,6 +35,12 @@
 
   function normaliseId(value) {
     return String(value == null ? '' : value);
+  }
+
+  // Unique key per wishlist entry.
+  // Variant-level, with productId as a legacy fallback for old entries.
+  function entryKey(item) {
+    return normaliseId(item && (item.variantId || item.productId));
   }
 
   function writeItems(items) {
@@ -57,9 +62,17 @@
     );
   }
 
+  function hasVariant(variantId) {
+    var id = normaliseId(variantId);
+    if (!id) return false;
+    return readItems().some(function (item) {
+      return normaliseId(item.variantId) === id;
+    });
+  }
+
+  // Legacy: returns true if ANY variant of this product is wishlisted
   function hasProduct(productId) {
     var id = normaliseId(productId);
-
     return readItems().some(function (item) {
       return normaliseId(item.productId) === id;
     });
@@ -71,10 +84,11 @@
     }
 
     var items = readItems();
-    var id = normaliseId(payload.productId);
+    var variantId = normaliseId(payload.variantId) || normaliseId(payload.productId);
+    var productId = normaliseId(payload.productId);
 
     var index = items.findIndex(function (item) {
-      return normaliseId(item.productId) === id;
+      return entryKey(item) === variantId;
     });
 
     if (index >= 0) {
@@ -84,9 +98,9 @@
     }
 
     items.unshift({
-      productId: id,
+      productId: productId,
+      variantId: variantId,
       handle: String(payload.handle),
-      variantId: normaliseId(payload.variantId),
       title: String(payload.title || ''),
       url: String(payload.url || ('/products/' + payload.handle)),
       image: String(payload.image || ''),
@@ -101,25 +115,30 @@
   function updateVariant(productId, variantId, price) {
     var items = readItems();
     var id = normaliseId(productId);
-
+    var vId = normaliseId(variantId);
     var item = items.find(function (entry) {
       return normaliseId(entry.productId) === id;
     });
-
     if (!item) return;
-
-    item.variantId = normaliseId(variantId);
-
+    item.variantId = vId;
     if (price != null && price !== '') {
       item.price = Number(price);
     }
-
     writeItems(items);
   }
 
+  function removeByVariantId(variantId) {
+    var id = normaliseId(variantId);
+    writeItems(
+      readItems().filter(function (item) {
+        return entryKey(item) !== id;
+      })
+    );
+  }
+
+  // Legacy: remove ALL variants of a product
   function removeById(productId) {
     var id = normaliseId(productId);
-
     writeItems(
       readItems().filter(function (item) {
         return normaliseId(item.productId) !== id;
@@ -152,9 +171,7 @@
     if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
       try {
         return window.Shopify.formatMoney(cents, moneyFormat);
-      } catch (error) {
-        // Continue to the fallback formatter.
-      }
+      } catch (error) {}
     }
 
     var amount = (cents / 100).toFixed(2);
@@ -163,10 +180,8 @@
     return moneyFormat
       .replace(/\{\{\s*amount\s*\}\}/g, amount)
       .replace(/\{\{\s*amount_no_decimals\s*\}\}/g, noDecimals)
-      .replace(/\{\{\s*amount_with_comma_separator\s*\}\}/g,
-        amount.replace('.', ','))
-      .replace(/\{\{\s*amount_no_decimals_with_comma_separator\s*\}\}/g,
-        noDecimals);
+      .replace(/\{\{\s*amount_with_comma_separator\s*\}\}/g, amount.replace('.', ','))
+      .replace(/\{\{\s*amount_no_decimals_with_comma_separator\s*\}\}/g, noDecimals);
   }
 
   function getRootUrl() {
@@ -178,30 +193,20 @@
   }
 
   function getVariant(product, savedVariantId) {
-    var variants = Array.isArray(product.variants)
-      ? product.variants
-      : [];
-
+    var variants = Array.isArray(product.variants) ? product.variants : [];
     var savedVariant = variants.find(function (variant) {
       return normaliseId(variant.id) === normaliseId(savedVariantId);
     });
-
     if (savedVariant) return savedVariant;
-
     return variants.find(function (variant) {
       return variant.available;
     }) || variants[0] || null;
   }
 
   function getVariantLabel(variant) {
-    if (
-      !variant ||
-      !variant.title ||
-      variant.title === 'Default Title'
-    ) {
+    if (!variant || !variant.title || variant.title === 'Default Title') {
       return '';
     }
-
     return variant.title;
   }
 
@@ -222,21 +227,16 @@
 
   function getCompareAtPrice(product, variant, price) {
     var variantCompare = Number(
-      variant && variant.compare_at_price
-        ? variant.compare_at_price
-        : 0
+      variant && variant.compare_at_price ? variant.compare_at_price : 0
     );
-
     var productCompare = Number(product.compare_at_price || 0);
-
     if (variantCompare > price) return variantCompare;
     if (productCompare > price) return productCompare;
-
     return 0;
   }
 
   /* =========================================================
-     CARD STYLES (Updated to match the new 1:1 design)
+     CARD STYLES
   ========================================================= */
 
   function injectCardStyles() {
@@ -404,11 +404,9 @@
         text-decoration: line-through;
       }
 
-      /* Forms visibility */
       .buzzko-wishlist .buzzko-product-card__form--mobile { display: none !important; }
       .buzzko-wishlist .buzzko-product-card__form--desktop { margin: 0; flex-shrink: 0; position: relative; }
 
-      /* Desktop Base Button */
       .buzzko-wishlist .buzzko-product-card__atc {
         display: inline-flex;
         align-items: center;
@@ -447,12 +445,10 @@
         background: #B9E404;
       }
 
-      /* Hide mobile icons on desktop */
       .buzzko-wishlist .buzzko-product-card__atc svg {
         display: none;
       }
 
-      /* Mobile Overrides */
       @media screen and (max-width: 989px) {
         .buzzko-wishlist .buzzko-wishlist__grid {
           grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -503,7 +499,6 @@
           font-size: 10px;
         }
 
-        /* Show Mobile Form, Hide Desktop Form */
         .buzzko-wishlist .buzzko-product-card__form--desktop { display: none !important; }
         .buzzko-wishlist .buzzko-product-card__form--mobile {
           display: block !important;
@@ -554,7 +549,6 @@
         }
       }
 
-      /* Icon States */
       .buzzko-wishlist .buzzko-product-card__atc .icon-check,
       .buzzko-wishlist .buzzko-product-card__atc .icon-spinner {
         display: none;
@@ -578,7 +572,8 @@
   }
 
   /* =========================================================
-     RENDER WISHLIST CARDS (Updated with double form structure)
+     RENDER WISHLIST CARDS
+     Each card is bound to ONE variant (item.variantId).
   ========================================================= */
 
   function renderCard(entry, index) {
@@ -594,13 +589,13 @@
     var unavailable = !variant || !variant.available;
     var variantLabel = getVariantLabel(variant);
     var border = CARD_BORDERS[index % CARD_BORDERS.length];
-    var variantId = variant ? variant.id : '';
+    var variantId = variant ? variant.id : entryKey(item);
 
     var imageMarkup = image
       ? '<img class="buzzko-product-card__image" src="' +
-          escapeHtml(image) +
-          '" alt="' + escapeHtml(title) +
-          '" loading="lazy">'
+        escapeHtml(image) +
+        '" alt="' + escapeHtml(title) +
+        '" loading="lazy">'
       : '<div class="buzzko-product-card__image buzzko-product-card__placeholder" aria-hidden="true"></div>';
 
     var priceMarkup =
@@ -621,18 +616,18 @@
         '</p>'
       : '';
 
-    var buttonHtml = 
+    var buttonHtml =
       '<button type="submit" ' +
         'class="buzzko-product-card__atc" ' +
-        'data-wishlist-add-to-cart="' + escapeHtml(item.productId) + '" ' +
         'data-variant-id="' + escapeHtml(variantId) + '" ' +
+        'data-product-id="' + escapeHtml(item.productId) + '" ' +
         'data-label-default="' + (unavailable ? 'Sold Out' : 'Add to Cart') + '" ' +
         'data-label-loading="Adding…" ' +
         'data-label-success="Added ✓" ' +
         (unavailable ? 'disabled ' : '') +
       '>' +
         '<span class="btn-text">' + (unavailable ? 'Sold Out' : 'Add to Cart') + '</span>' +
-        (unavailable ? 
+        (unavailable ?
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' :
           '<svg class="icon-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>' +
           '<svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
@@ -640,13 +635,14 @@
         ) +
       '</button>';
 
-    var formContent = 
+    var formContent =
       '<input type="hidden" name="id" value="' + escapeHtml(variantId) + '">' +
       buttonHtml;
 
     return (
       '<article class="buzzko-product-card" ' +
         'data-product-id="' + escapeHtml(item.productId) + '" ' +
+        'data-variant-id="' + escapeHtml(variantId) + '" ' +
         'style="--card-border:' + border + ';">' +
 
         '<div class="buzzko-product-card__image-wrapper">' +
@@ -658,13 +654,13 @@
 
           '<button type="button" ' +
             'class="buzzko-product-card__remove" ' +
-            'data-wishlist-remove="' + escapeHtml(item.productId) + '" ' +
+            'data-wishlist-remove="' + escapeHtml(variantId) + '" ' +
             'aria-label="Remove ' + escapeHtml(title) + ' from wishlist" ' +
             'title="Remove from wishlist">' +
             '&times;' +
           '</button>' +
-          
-          '<form class="buzzko-product-card__form buzzko-product-card__form--mobile" data-wishlist-cart-form data-product-id="' + escapeHtml(item.productId) + '">' +
+
+          '<form class="buzzko-product-card__form buzzko-product-card__form--mobile" data-wishlist-cart-form>' +
             formContent +
           '</form>' +
         '</div>' +
@@ -683,7 +679,7 @@
             '<div class="buzzko-product-card__price">' +
               priceMarkup +
             '</div>' +
-            '<form class="buzzko-product-card__form buzzko-product-card__form--desktop" data-wishlist-cart-form data-product-id="' + escapeHtml(item.productId) + '">' +
+            '<form class="buzzko-product-card__form buzzko-product-card__form--desktop" data-wishlist-cart-form>' +
               formContent +
             '</form>' +
           '</div>' +
@@ -691,7 +687,6 @@
       '</article>'
     );
   }
-
 
   function renderPage(page, items) {
     var grid = page.querySelector('[data-buzzko-wishlist-grid]');
@@ -779,10 +774,30 @@
     });
   }
 
-
   /* =========================================================
-     REFRESH COUNTS AND HEART STATES
+     REFRESH — heart states now check the currently-selected VARIANT
   ========================================================= */
+
+  function updateHeartState(button) {
+    if (!button) return;
+
+    var customerSignedIn =
+      document.documentElement.dataset.buzzkoCustomerSignedIn === 'true';
+
+    var variantId = currentVariant(button);
+    var productId = button.dataset.productId;
+
+    var active = customerSignedIn && (
+      variantId ? hasVariant(variantId) : hasProduct(productId)
+    );
+
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    button.setAttribute(
+      'aria-label',
+      active ? 'Remove from wishlist' : 'Add to wishlist'
+    );
+  }
 
   function refresh() {
     var items = readItems();
@@ -794,14 +809,7 @@
       badge.setAttribute('aria-label', count + (count === 1 ? ' item in wishlist' : ' items in wishlist'));
     });
 
-    document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(function (button) {
-      var customerSignedIn = document.documentElement.dataset.buzzkoCustomerSignedIn === 'true';
-      var active = customerSignedIn && hasProduct(button.dataset.productId);
-
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', active ? 'true' : 'false');
-      button.setAttribute('aria-label', active ? 'Remove from wishlist' : 'Add to wishlist');
-    });
+    document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
 
     var page = document.querySelector(PAGE_SELECTOR);
     if (page) renderPage(page, items);
@@ -826,7 +834,7 @@
   }
 
   /* =========================================================
-     EVENTS
+     HEART TOGGLE
   ========================================================= */
 
   function bindWishlistToggle() {
@@ -849,44 +857,95 @@
     });
   }
 
+  /* =========================================================
+     VARIANT CHANGE → UPDATE HEART STATE
+     When user switches variants on the product page,
+     the heart should reflect the NEW variant's wishlist state.
+  ========================================================= */
+
+  function bindVariantChangeUpdates() {
+    document.addEventListener('change', function (event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+      if (!target.closest('form[action*="/cart/add"], variant-selects, variant-radios, .product-form')) return;
+
+      // Themes usually update the hidden input on the next tick
+      window.setTimeout(function () {
+        document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
+      }, 50);
+    });
+
+    // Most themes (Dawn, Sense, Craft, etc.) fire this
+    document.addEventListener('variant:changed', function () {
+      document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
+    });
+
+    // Also handle themes that only dispatch on the form
+    document.addEventListener('variant:change', function () {
+      document.querySelectorAll('[data-buzzko-wishlist-toggle]').forEach(updateHeartState);
+    });
+  }
+
+  /* =========================================================
+     CART BUBBLE HELPERS
+  ========================================================= */
+
+  function readCartBubbleCount() {
+    var link = document.getElementById('cart-icon-bubble');
+    if (!link) return null;
+    var bubble = link.querySelector('.cart-count-bubble');
+    if (!bubble) return 0;
+    var shown = bubble.querySelector('[aria-hidden="true"]');
+    var n = shown ? parseInt(shown.textContent, 10) : NaN;
+    return isNaN(n) ? null : n;
+  }
+
+  function writeCartBubble(count) {
+    var cartLink = document.getElementById('cart-icon-bubble');
+    if (!cartLink) return;
+
+    var bubble = cartLink.querySelector('.cart-count-bubble');
+
+    if (count === 0) {
+      if (bubble) bubble.remove();
+      return;
+    }
+
+    if (!bubble) {
+      bubble = document.createElement('div');
+      bubble.className = 'cart-count-bubble';
+      cartLink.appendChild(bubble);
+    }
+
+    bubble.innerHTML =
+      '<span aria-hidden="true">' + (count > 99 ? '99+' : count) + '</span>' +
+      '<span class="visually-hidden">' + count + (count === 1 ? ' item' : ' items') + ' in cart</span>';
+  }
 
   function updateCartHeader() {
-    var root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+    var root = getRootUrl();
     return fetch(root + 'cart.js', { headers: { Accept: 'application/json' } })
       .then(function (response) {
         if (!response.ok) throw new Error('Could not refresh the cart count.');
         return response.json();
       })
       .then(function (cart) {
-        var cartLink = document.querySelector('#cart-icon-bubble');
-        if (!cartLink) return;
-
-        var count = Number(cart.item_count || 0);
-        var bubble = cartLink.querySelector('.cart-count-bubble');
-
-        if (count === 0) {
-          if (bubble) bubble.remove();
-          return;
-        }
-
-        if (!bubble) {
-          bubble = document.createElement('div');
-          bubble.className = 'cart-count-bubble';
-          cartLink.appendChild(bubble);
-        }
-
-        bubble.innerHTML =
-          '<span aria-hidden="true">' + (count > 99 ? '99+' : count) + '</span>' +
-          '<span class="visually-hidden">' + count + (count === 1 ? ' item' : ' items') + ' in cart</span>';
+        writeCartBubble(Number(cart.item_count || 0));
       });
   }
-    
+
+  /* =========================================================
+     WISHLIST PAGE ACTIONS
+     - × removes exactly ONE variant entry
+     - ATC success removes that variant entry (no redirect)
+  ========================================================= */
+
   function bindWishlistPageActions() {
     document.addEventListener('click', function (event) {
       var removeButton = event.target.closest('[data-wishlist-remove]');
       if (removeButton) {
         event.preventDefault();
-        removeById(removeButton.dataset.wishlistRemove);
+        removeByVariantId(removeButton.dataset.wishlistRemove);
         return;
       }
     });
@@ -897,23 +956,27 @@
 
       event.preventDefault();
 
-      var button = form.querySelector('[data-wishlist-add-to-cart]');
+      var button = form.querySelector('[data-wishlist-add-to-cart], [data-variant-id]');
       if (!button || button.disabled) return;
 
-      var productId = button.dataset.wishlistAddToCart;
       var variantId = button.dataset.variantId;
       if (!variantId) return;
 
       var originalLabel = button.dataset.labelDefault || 'Add to Cart';
-
-      button.disabled = true;
-      button.dataset.state = 'loading';
-      
-      // Update text for desktop
+      var successLabel = button.dataset.labelSuccess || 'Added ✓';
       var textSpan = button.querySelector('.btn-text');
-      if(textSpan) textSpan.textContent = button.dataset.labelLoading || 'Adding…';
-      else button.textContent = button.dataset.labelLoading || 'Adding…';
 
+      /* 1. INSTANT SUCCESS */
+      button.disabled = true;
+      button.dataset.state = 'success';
+      if (textSpan) textSpan.textContent = successLabel;
+      else button.textContent = successLabel;
+
+      /* 2. OPTIMISTIC BUBBLE +1 */
+      var beforeCount = readCartBubbleCount();
+      if (beforeCount !== null) writeCartBubble(beforeCount + 1);
+
+      /* 3. ADD TO CART */
       fetch(getRootUrl() + 'cart/add.js', {
         method: 'POST',
         headers: {
@@ -933,36 +996,36 @@
         return response.json();
       })
       .then(function () {
-        button.dataset.state = 'success';
-        var textSpan = button.querySelector('.btn-text');
-        if(textSpan) textSpan.textContent = button.dataset.labelSuccess || 'Added ✓';
-        else button.textContent = button.dataset.labelSuccess || 'Added ✓';
-
         return updateCartHeader().catch(function (error) {
           console.warn('[BuzzKo Wishlist] Could not refresh cart count:', error);
         });
       })
       .then(function () {
-        removeById(productId);
-        window.location.assign(getRootUrl() + 'cart');
+        /* 4. REMOVE THIS VARIANT FROM WISHLIST — NO REDIRECT */
+        removeByVariantId(variantId);
       })
       .catch(function (error) {
         console.error('[BuzzKo Wishlist] Add to cart failed:', error);
+
+        if (beforeCount !== null) {
+          var now = readCartBubbleCount();
+          if (now !== null && now > 0) writeCartBubble(now - 1);
+        }
+
+        if (!document.body.contains(button)) return;
         button.disabled = false;
         button.removeAttribute('data-state');
-        var textSpan = button.querySelector('.btn-text');
-        if(textSpan) textSpan.textContent = 'Try Again';
+        if (textSpan) textSpan.textContent = 'Try Again';
         else button.textContent = 'Try Again';
 
         window.setTimeout(function () {
           if (!document.body.contains(button)) return;
-          if(textSpan) textSpan.textContent = originalLabel;
+          if (textSpan) textSpan.textContent = originalLabel;
           else button.textContent = originalLabel;
         }, 1600);
       });
     });
   }
-
 
   /* =========================================================
      PUBLIC API
@@ -972,10 +1035,12 @@
     key: STORAGE_KEY,
     getItems: readItems,
     hasProduct: hasProduct,
+    hasVariant: hasVariant,
     toggle: toggle,
     updateVariant: updateVariant,
     refresh: refresh,
-    remove: removeById
+    remove: removeById,
+    removeByVariantId: removeByVariantId
   };
 
   /* =========================================================
@@ -985,6 +1050,7 @@
   function init() {
     injectCardStyles();
     bindWishlistToggle();
+    bindVariantChangeUpdates();
     bindWishlistPageActions();
     window.addEventListener('storage', function (event) { if (event.key === STORAGE_KEY) refresh(); });
     window.addEventListener('buzzko:wishlist:change', refresh);
