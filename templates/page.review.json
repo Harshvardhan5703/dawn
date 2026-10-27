@@ -62,53 +62,126 @@
         "padding_bottom": 16
       }
     },
-    "1790490487c811803d": {
-      "type": "apps",
+    "customer_photo_gallery_7geFwf": {
+      "type": "customer-photo-gallery",
       "blocks": {
-        "judge_me_reviews_reviews_grid_widget_HanggV": {
-          "type": "shopify://apps/judge-me-reviews/blocks/reviews_grid_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "image_rrWRiL": {
+          "type": "image",
           "settings": {
-            "show_sample_reviews": true,
-            "review_selection": "store_reviews",
-            "products": [],
-            "filter_pinned": false,
-            "filter_featured": false,
-            "filter_custom_tags": "",
-            "show_media_only": false,
-            "display_order": "media_first",
-            "card_grouping": "per_media",
-            "columns_desktop": 3,
-            "rows_desktop": 3,
-            "columns_mobile": "2",
-            "rows_mobile": 6,
-            "show_stars": true,
-            "show_reviewer_name": true,
-            "show_review_title_on_hover_desktop": true,
-            "max_width": 1100,
-            "corner_styling": "soft",
-            "card_spacing": "medium",
-            "header_text_color": "#000000",
-            "star_and_reviewer_name_color": "#f9f9f9",
-            "drop_shadow_color": "#000000",
-            "overlay_and_background_color": "#000000",
-            "content_color": "#f9f9f9",
-            "header_text": "From our customers",
-            "show_average_rating": true,
-            "rating_display": "default"
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.42.jpg",
+            "link": ""
+          }
+        },
+        "image_hrHfWz": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.47_2.jpg",
+            "link": ""
+          }
+        },
+        "image_wcWnqg": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.46_2.jpg",
+            "link": ""
+          }
+        },
+        "image_d3gxUd": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.46.jpg",
+            "link": ""
+          }
+        },
+        "image_KfrYtr": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.43_1.jpg",
+            "link": ""
+          }
+        },
+        "image_JYnWR3": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.47.jpg",
+            "link": ""
+          }
+        },
+        "image_miyrAH": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.46_1.jpg",
+            "link": ""
+          }
+        },
+        "image_P7YHw8": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.47_1.jpg",
+            "link": ""
+          }
+        },
+        "image_4Naz3X": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.44.jpg",
+            "link": ""
+          }
+        },
+        "image_BVL9bf": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.45.jpg",
+            "link": ""
+          }
+        },
+        "image_UhJRTn": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.44_1.jpg",
+            "link": ""
+          }
+        },
+        "image_P4tzbt": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/WhatsApp_Image_2026-10-27_at_12.28.45_1.jpg",
+            "link": ""
           }
         }
       },
       "block_order": [
-        "judge_me_reviews_reviews_grid_widget_HanggV"
+        "image_rrWRiL",
+        "image_hrHfWz",
+        "image_wcWnqg",
+        "image_d3gxUd",
+        "image_KfrYtr",
+        "image_JYnWR3",
+        "image_miyrAH",
+        "image_P7YHw8",
+        "image_4Naz3X",
+        "image_BVL9bf",
+        "image_UhJRTn",
+        "image_P4tzbt"
       ],
+      "name": "Customer Photo Gallery",
       "settings": {
-        "include_margins": true
+        "heading": "",
+        "heading_alignment": "center",
+        "columns_desktop": 3,
+        "columns_mobile": "2",
+        "gap": 16,
+        "gap_mobile": 12,
+        "image_ratio": "portrait",
+        "corner_radius": 12,
+        "padding_top": 36,
+        "padding_bottom": 36
       }
     }
   },
   "order": [
     "main",
     "rich_text_gYBteY",
-    "1790490487c811803d"
+    "customer_photo_gallery_7geFwf"
   ]
 }
