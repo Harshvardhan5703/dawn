@@ -1,26 +1,61 @@
-{%- comment -%} BuzzKo per‑variant image strip — includes current main image, swap on click {%- endcomment -%}
+{%- comment -%} BuzzKo per-variant image + video strip — includes current main image, swap on click {%- endcomment -%}
 <div class="variant-gallery" data-variant-gallery hidden></div>
 
 <script type="application/json" id="VariantGalleryData-{{ section.id }}">
   {
     {%- for variant in product.variants -%}
       {%- assign files = variant.metafields.custom.variant_gallery.value -%}
+      {%- assign is_first = true -%}
       "{{ variant.id }}": [
         {%- if files -%}
           {%- for file in files -%}
-            {
-              "thumb": {{ file | image_url: width: 240 | json }},
-              "full":  {{ file | image_url: width: 1400 | json }},
-              "alt":   {{ file.alt | default: variant.title | json }}
-            }{%- unless forloop.last -%},{%- endunless -%}
+            {%- if file.media_type == 'video' -%}
+              {%- unless is_first -%},{%- endunless -%}{%- assign is_first = false -%}
+              {
+                "type":   "video",
+                "thumb":  {{ file.preview_image | image_url: width: 240 | json }},
+                "poster": {{ file.preview_image | image_url: width: 1400 | json }},
+                "alt":    {{ file.alt | default: variant.title | json }},
+                "sources": [
+                  {%- for source in file.sources -%}
+                    { "url": {{ source.url | json }}, "mime": {{ source.mime_type | json }} }{%- unless forloop.last -%},{%- endunless -%}
+                  {%- endfor -%}
+                ]
+              }
+            {%- elsif file.media_type == 'image' -%}
+              {%- unless is_first -%},{%- endunless -%}{%- assign is_first = false -%}
+              {
+                "type":  "image",
+                "thumb": {{ file.preview_image | image_url: width: 240 | json }},
+                "full":  {{ file.preview_image | image_url: width: 1400 | json }},
+                "alt":   {{ file.alt | default: variant.title | json }}
+              }
+            {%- endif -%}
           {%- endfor -%}
         {%- elsif product.has_only_default_variant -%}
-          {%- for image in product.images -%}
-            {
-              "thumb": {{ image | image_url: width: 240 | json }},
-              "full":  {{ image | image_url: width: 1400 | json }},
-              "alt":   {{ image.alt | default: product.title | truncate: 60 | json }}
-            }{%- unless forloop.last -%},{%- endunless -%}
+          {%- for media in product.media -%}
+            {%- if media.media_type == 'video' -%}
+              {%- unless is_first -%},{%- endunless -%}{%- assign is_first = false -%}
+              {
+                "type":   "video",
+                "thumb":  {{ media.preview_image | image_url: width: 240 | json }},
+                "poster": {{ media.preview_image | image_url: width: 1400 | json }},
+                "alt":    {{ media.alt | default: product.title | truncate: 60 | json }},
+                "sources": [
+                  {%- for source in media.sources -%}
+                    { "url": {{ source.url | json }}, "mime": {{ source.mime_type | json }} }{%- unless forloop.last -%},{%- endunless -%}
+                  {%- endfor -%}
+                ]
+              }
+            {%- elsif media.media_type == 'image' -%}
+              {%- unless is_first -%},{%- endunless -%}{%- assign is_first = false -%}
+              {
+                "type":  "image",
+                "thumb": {{ media.preview_image | image_url: width: 240 | json }},
+                "full":  {{ media.preview_image | image_url: width: 1400 | json }},
+                "alt":   {{ media.alt | default: product.title | truncate: 60 | json }}
+              }
+            {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
       ]{%- unless forloop.last -%},{%- endunless -%}
@@ -43,6 +78,7 @@
     overflow: hidden; background: #fff; cursor: pointer;
     transition: border-color .15s ease, transform .1s ease;
     flex: 0 0 auto;
+    position: relative;
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb img {
     width: 100%; height: 100%; object-fit: cover; display: block;
@@ -53,6 +89,56 @@
   }
   #MainProduct-{{ section.id }} .variant-gallery__thumb:active { transform: scale(.96); }
 
+  /* BuzzKo: video play badge on thumbs */
+  #MainProduct-{{ section.id }} .variant-gallery__play {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* BuzzKo: injected video overlays the current media */
+  #MainProduct-{{ section.id }} #MediaGallery-{{ section.id }} .product__media {
+    position: relative;
+  }
+  #MainProduct-{{ section.id }} .buzzko-main-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    display: block;
+    z-index: 2;
+    background: #000;
+  }
+
+  /* BuzzKo: strip replaces Dawn's native thumbnails */
+  #MainProduct-{{ section.id }} #GalleryThumbnails-{{ section.id }},
+  #MainProduct-{{ section.id }} #GalleryViewer-{{ section.id }} .slider-buttons {
+    display: none !important;
+  }
+  #MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:not(:first-child) {
+    display: none !important;
+  }
+  #MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} {
+    display: block !important;
+  }
+  #MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:first-child {
+    width: 100% !important;
+  }
+
   @media screen and (min-width: 990px) {
     #MainProduct-{{ section.id }} .product__media-wrapper {
       position: sticky;
@@ -62,32 +148,26 @@
     }
   }
 
-    /* ---- Mobile: peek layout, no scrollbar ---- */
+  /* ---- Mobile: peek layout, no scrollbar ---- */
   @media screen and (max-width: 749px) {
     #MainProduct-{{ section.id }} .variant-gallery {
       --vg-gap: 10px;
       --vg-per-view: 3.3;
-
       flex-wrap: nowrap;
       overflow-x: auto;
       overflow-y: hidden;
-
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
       overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
-
-      /* kill the scrollbar visually */
       scrollbar-width: none;
       -ms-overflow-style: none;
-
       gap: var(--vg-gap);
       padding: 4px 0 10px;
     }
     #MainProduct-{{ section.id }} .variant-gallery::-webkit-scrollbar {
       display: none;
     }
-
     #MainProduct-{{ section.id }} .variant-gallery__thumb {
       flex: 0 0 calc(
         (100% - (var(--vg-per-view) - 1) * var(--vg-gap)) / var(--vg-per-view)
@@ -99,31 +179,11 @@
     }
   }
 
-  /* Slightly wider phones: show 4 + peek instead of 3 + peek */
   @media screen and (min-width: 480px) and (max-width: 749px) {
     #MainProduct-{{ section.id }} .variant-gallery {
       --vg-per-view: 4.3;
     }
   }
-
-  /* BuzzKo: the strip is the ONLY thumbnail UI — hide Dawn's native one */
-#MainProduct-{{ section.id }} #GalleryThumbnails-{{ section.id }},
-#MainProduct-{{ section.id }} #GalleryViewer-{{ section.id }} .slider-buttons {
-  display: none !important;
-}
-
-/* BuzzKo: show only ONE main image; the strip swaps its src */
-#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:not(:first-child) {
-  display: none !important;
-}
-
-/* BuzzKo: the remaining single image shouldn't be a slider — let it fill the column */
-#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} {
-  display: block !important;
-}
-#MainProduct-{{ section.id }} #Slider-Gallery-{{ section.id }} > .product__media-item:first-child {
-  width: 100% !important;
-}
 </style>
 
 <script>
@@ -140,6 +200,7 @@
   try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
 
   let currentVariantId = null;
+  let currentItems = [];
 
   function getVariantId() {
     const input = root.querySelector('form[action*="/cart/add"] input[name="id"]');
@@ -150,13 +211,14 @@
     if (!gallery) return null;
     return gallery.querySelector('.product__media img');
   }
-  function setMainImage(src, alt) {
-    const mainImg = getMainImage();
-    if (!mainImg) return;
-    mainImg.removeAttribute('srcset');
-    mainImg.removeAttribute('sizes');
-    mainImg.src = src;
-    if (alt) mainImg.alt = alt;
+  function isCurrentMainVideo() {
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (!gallery) return false;
+    if (gallery.querySelector('.buzzko-main-video')) return true;
+    const activeSlide = gallery.querySelector('.product__media-item.is-active')
+                     || gallery.querySelector('.product__media-item');
+    if (!activeSlide) return false;
+    return !!activeSlide.querySelector('deferred-media');
   }
   function baseName(url) {
     if (!url) return '';
@@ -209,18 +271,85 @@
     }
   }
 
-  /* Build the strip: [ current main image (active) ] + [ metafield gallery ] */
+  function showImage(item) {
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (!gallery) return;
+
+    const injected = gallery.querySelector('.buzzko-main-video');
+    if (injected) injected.remove();
+
+    // If the first Dawn slide is a video, hide its poster so our image shows
+    const poster = gallery.querySelector('.deferred-media__poster');
+    if (poster) poster.style.display = 'none';
+
+    const mainImg = getMainImage();
+    if (!mainImg) return;
+    mainImg.style.display = '';
+    mainImg.removeAttribute('srcset');
+    mainImg.removeAttribute('sizes');
+    mainImg.src = item.full;
+    if (item.alt) mainImg.alt = item.alt;
+  }
+
+  function showVideo(item) {
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (!gallery) return;
+
+    // Hide any active Dawn poster
+    const poster = gallery.querySelector('.deferred-media__poster');
+    if (poster) poster.style.display = 'none';
+
+    // Hide the main img so video plays in its place
+    const mainImg = getMainImage();
+    if (mainImg) mainImg.style.display = 'none';
+
+    // Remove existing injected video
+    const existing = gallery.querySelector('.buzzko-main-video');
+    if (existing) existing.remove();
+
+    const mediaWrapper = gallery.querySelector('.product__media');
+    if (!mediaWrapper) return;
+
+    const video = document.createElement('video');
+    video.className = 'buzzko-main-video';
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.poster = item.poster || item.thumb || '';
+
+    (item.sources || []).forEach(src => {
+      const source = document.createElement('source');
+      source.src = src.url;
+      source.type = src.mime;
+      video.appendChild(source);
+    });
+
+    mediaWrapper.appendChild(video);
+    video.load();
+  }
+
   function buildStrip() {
     const id = getVariantId();
     if (!id) return;
 
-    const mainImg = getMainImage();
-    const mainSrc = mainImg ? (mainImg.currentSrc || mainImg.src) : '';
-    const mainAlt = mainImg ? (mainImg.alt || '') : '';
+    // Reset from previous variant: kill injected video, unhide img
+    const gallery = root.querySelector('#MediaGallery-' + sectionId);
+    if (gallery) {
+      const injected = gallery.querySelector('.buzzko-main-video');
+      if (injected) injected.remove();
+      const mainImg = gallery.querySelector('.product__media img');
+      if (mainImg) mainImg.style.display = '';
+    }
+
+    const mainImg    = getMainImage();
+    const mainIsVideo = isCurrentMainVideo();
+    const mainSrc    = (!mainIsVideo && mainImg) ? (mainImg.currentSrc || mainImg.src) : '';
+    const mainAlt    = mainImg ? (mainImg.alt || '') : '';
 
     const items = [];
     if (mainSrc) {
       items.push({
+        type: 'image',
         thumb: withWidth(mainSrc, 240),
         full:  withWidth(mainSrc, 1400),
         alt:   mainAlt,
@@ -229,39 +358,51 @@
     }
 
     const mainKey = baseName(mainSrc);
-    (data[id] || []).forEach(img => {
-      if (baseName(img.full) !== mainKey) items.push(img);
+    (data[id] || []).forEach(item => {
+      if (item.type === 'video') {
+        items.push(item);                       // videos never deduped by poster
+      } else if (baseName(item.full) !== mainKey) {
+        items.push(item);
+      }
     });
 
-    // Nothing beyond the main image → strip is pointless, hide it
+    // If the currently visible slide is a video, mark the first video as active
+    if (mainIsVideo) {
+      const idx = items.findIndex(it => it.type === 'video');
+      if (idx >= 0) items[idx].isMain = true;
+    }
+
     if (items.length <= 1) {
       container.hidden = true;
       container.innerHTML = '';
+      currentItems = [];
       return;
     }
 
+    currentItems = items;
     container.hidden = false;
-    container.innerHTML = items.map((img, i) => `
-      <button type="button"
-              class="variant-gallery__thumb${img.isMain ? ' is-active' : ''}"
-              data-full="${img.full}"
-              data-alt="${img.alt}"
-              aria-label="${img.alt}">
-        <img src="${img.thumb}" alt="${img.alt}" loading="lazy" width="120" height="120">
-      </button>
-    `).join('');
+    container.innerHTML = items.map((item, i) => {
+      const isVideo = item.type === 'video';
+      return `
+        <button type="button"
+                class="variant-gallery__thumb${item.isMain ? ' is-active' : ''}${isVideo ? ' is-video' : ''}"
+                data-index="${i}"
+                aria-label="${item.alt}${isVideo ? ' (video)' : ''}">
+          <img src="${item.thumb}" alt="${item.alt}" loading="lazy" width="120" height="120">
+          ${isVideo ? '<span class="variant-gallery__play" aria-hidden="true">▶</span>' : ''}
+        </button>
+      `;
+    }).join('');
 
     requestAnimationFrame(alignStrip);
   }
 
-  /* On variant change: wait for Dawn to update the main image, then rebuild */
   let settleTimer = null;
   function render() {
     const id = getVariantId();
     if (!id || id === currentVariantId) return;
     currentVariantId = id;
 
-    // Immediate attempt + a couple of retries as Dawn updates the main img async
     clearTimeout(settleTimer);
     buildStrip();
     setTimeout(buildStrip, 120);
@@ -269,21 +410,23 @@
   }
 
   container.addEventListener('click', function (e) {
-  const btn = e.target.closest('.variant-gallery__thumb');
-  if (!btn) return;
-  if (btn.classList.contains('is-active')) return;
+    const btn = e.target.closest('.variant-gallery__thumb');
+    if (!btn) return;
+    if (btn.classList.contains('is-active')) return;
 
-  const mainImg = getMainImage();
-  if (!mainImg) return;
+    const item = currentItems[parseInt(btn.dataset.index, 10)];
+    if (!item) return;
 
-  // Just change the main image — no shuffling of the strip
-  setMainImage(btn.dataset.full, btn.dataset.alt || '');
+    if (item.type === 'video') {
+      showVideo(item);
+    } else {
+      showImage(item);
+    }
 
-  // Move the black border to the clicked thumb
-  container.querySelectorAll('.variant-gallery__thumb')
-    .forEach(b => b.classList.remove('is-active'));
-  btn.classList.add('is-active');
-});
+    container.querySelectorAll('.variant-gallery__thumb')
+      .forEach(b => b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+  });
 
   document.addEventListener('change', () => setTimeout(render, 100));
   window.addEventListener('popstate', () => setTimeout(render, 100));
