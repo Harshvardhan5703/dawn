@@ -315,11 +315,10 @@
   #buzzko-footer-{{ section.id }} .buzzko-footer__menu-heading {
     margin: 0 0 17px;
     color: #111;
-    font-size: 12px;
-    line-height: 1;
-    font-weight: 800;
+    font-size: {{ section.settings.menu_heading_size }}px !important;
+    line-height: 1.2;
+    font-weight: {{ section.settings.menu_heading_weight }} !important;
     font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
-    font-weight: {{ section.settings.footer_text_font.weight }};
     font-style: {{ section.settings.footer_text_font.style }};
   }
 
@@ -338,12 +337,12 @@
     position: relative;
     z-index: 10;
     color: #333;
-    font-size: 10px;
+    font-size: {{ section.settings.menu_content_size }}px !important;
     line-height: 1.35;
     text-decoration: none;
     transition: color 0.2s ease;
     font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
-    font-weight: {{ section.settings.footer_text_font.weight }};
+    font-weight: {{ section.settings.menu_content_weight }} !important;
     font-style: {{ section.settings.footer_text_font.style }};
   }
 
@@ -492,7 +491,7 @@
   #buzzko-footer-{{ section.id }} .buzzko-footer__made-with {
     margin: 0;
     color: #222;
-    font-size: 9px;
+    font-size: {{ section.settings.bottom_text_size }}px !important;
     line-height: 1.3;
     font-family: {{ section.settings.footer_text_font.family }}, {{ section.settings.footer_text_font.fallback_families }};
     font-weight: {{ section.settings.footer_text_font.weight }};
@@ -577,17 +576,13 @@
       gap: 15px;
     }
 
+    /* Mobile adjustments automatically inherit the settings, but we reduce margins slightly */
     #buzzko-footer-{{ section.id }} .buzzko-footer__menu-heading {
-      font-size: 11px;
       margin-bottom: 13px;
     }
 
     #buzzko-footer-{{ section.id }} .buzzko-footer__menu-item {
       margin-bottom: 8px;
-    }
-
-    #buzzko-footer-{{ section.id }} .buzzko-footer__menu-link {
-      font-size: 9px;
     }
 
     #buzzko-footer-{{ section.id }} .buzzko-footer__social {
@@ -615,6 +610,65 @@
 {
   "name": "BuzzKo Footer",
   "settings": [
+    {
+      "type": "header",
+      "content": "Typography Settings"
+    },
+    {
+      "type": "range",
+      "id": "menu_heading_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Menu Heading Size",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "menu_heading_weight",
+      "label": "Menu Heading Boldness",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "800"
+    },
+    {
+      "type": "range",
+      "id": "menu_content_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Menu Link Size",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "menu_content_weight",
+      "label": "Menu Link Boldness",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "bottom_text_size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Copyright Text Size",
+      "default": 9
+    },
     {
       "type": "image_picker",
       "id": "logo",
