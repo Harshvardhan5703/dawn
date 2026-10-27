@@ -5,8 +5,8 @@
 
   var PENDING_KEY = 'buzzko:wishlist:pending-auth:v1';
   var account = null;
-  var pendingPayload = null;   // product intent (from a heart click)
-  var pendingView = false;     // view intent (from header icon)
+  var pendingPayload = null;   // product intent (heart click)
+  var pendingView = false;     // view intent (header click)
   var currentIntent = null;    // 'product' | 'view' | null — what opened THIS sheet
   var authWasOpened = false;
   var checkingAuthentication = false;
@@ -17,10 +17,12 @@
     try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(payload)); }
     catch (e) { console.warn('[BuzzKo Wishlist] Could not save pending action.', e); }
   }
+
   function getPending() {
     try { var v = sessionStorage.getItem(PENDING_KEY); return v ? JSON.parse(v) : null; }
     catch (e) { return null; }
   }
+
   function clearPending() {
     pendingPayload = null;
     try { sessionStorage.removeItem(PENDING_KEY); } catch (e) {}
@@ -30,11 +32,33 @@
 
   function isCustomerSignedIn() {
     if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
+    // Liquid fallback: the count badge is only rendered inside {% if customer %}.
     return !!document.querySelector('.buzzko-header-wishlist [data-buzzko-wishlist-count]');
+  }
+
+  // Injects the header badge for signed-out visitors who just signed in
+  // without a page reload (so refresh() has an element to update).
+  // Idempotent — no-op if the badge already exists.
+  function ensureHeaderBadge() {
+    var link = document.querySelector('.buzzko-header-wishlist');
+    if (!link || link.querySelector('[data-buzzko-wishlist-count]')) return;
+
+    var badge = document.createElement('span');
+    badge.className = 'buzzko-wishlist-count';
+    badge.setAttribute('data-buzzko-wishlist-count', '');
+    badge.setAttribute('data-count', '0');
+    badge.setAttribute('aria-live', 'polite');
+    badge.setAttribute('aria-label', '0 items in wishlist');
+    badge.textContent = '0';
+    link.appendChild(badge);
   }
 
   function markSignedIn() {
     document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
+    ensureHeaderBadge();
+    if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+      window.BuzzkoWishlist.refresh();
+    }
   }
 
   /* ---------- Shopify header account component ---------- */
@@ -47,6 +71,7 @@
 
   function getAccountTrigger() {
     if (!account || !account.shadowRoot) return null;
+    // Fixed: was missing the closing " in [part="signed-out-avatar]
     return account.shadowRoot.querySelector('[part="signed-out-avatar"]')
         || account.shadowRoot.querySelector('button');
   }
@@ -74,7 +99,18 @@
 
   function applyPendingWishlist(payload) {
     if (!payload || !payload.productId || !window.BuzzkoWishlist) return;
-    if (!window.BuzzkoWishlist.hasProduct(payload.productId)) {
+
+    // FIXED: variant-aware check so multi-variant products work correctly.
+    // Previously used hasProduct() which returns true for ANY variant,
+    // so adding variant B while variant A was saved silently did nothing.
+    var alreadySaved;
+    if (payload.variantId && typeof window.BuzzkoWishlist.hasVariant === 'function') {
+      alreadySaved = window.BuzzkoWishlist.hasVariant(payload.variantId);
+    } else {
+      alreadySaved = window.BuzzkoWishlist.hasProduct(payload.productId);
+    }
+
+    if (!alreadySaved) {
       window.BuzzkoWishlist.toggle(payload);
     }
     window.BuzzkoWishlist.refresh();
@@ -91,6 +127,10 @@
     if (checkingAuthentication) return;
     checkingAuthentication = true;
 
+    // Capture intent NOW — the sheet's auth flow may take a moment.
+    var intent = currentIntent;
+    currentIntent = null;
+
     window.setTimeout(function () {
       fetch('/account.json', {
         credentials: 'same-origin',
@@ -101,25 +141,29 @@
         .then(function (customer) {
           checkingAuthentication = false;
 
-          // Whatever intent opened this sheet is now spent.
-          currentIntent = null;
-
           if (!customer || !customer.id) {
+            // Sheet closed without sign-in. Keep pendingPayload in memory +
+            // sessionStorage so the next heart click re-prompts; view intent
+            // is transient so drop it.
             pendingView = false;
             return;
           }
 
           markSignedIn();
 
-          var payload = pendingPayload || getPending();
-          pendingView = false;
-          clearPending();
+          if (intent === 'product') {
+            var payload = pendingPayload || getPending();
+            clearPending();
+            if (payload) applyPendingWishlist(payload);
+          } else {
+            // View intent (or unknown) — never apply a stale product payload.
+            clearPending();
+          }
 
-          if (payload) applyPendingWishlist(payload);
+          pendingView = false;
         })
         .catch(function (error) {
           checkingAuthentication = false;
-          currentIntent = null;
           console.warn('[BuzzKo Wishlist] Could not verify customer session.', error);
         });
     }, 500);
@@ -159,6 +203,7 @@
     currentIntent = 'view';
 
     if (!openHeaderAccount()) {
+      // Last-resort fallback if the account web component is missing.
       pendingView = false;
       currentIntent = null;
       var returnUrl = encodeURIComponent(window.location.pathname);
@@ -174,7 +219,7 @@
     var shadow = account.shadowRoot;
     var existing = shadow.querySelector('#buzzko-wishlist-signin-notice');
 
-    // Use the intent that just opened this sheet — not accumulated state.
+    // Copy reflects the action that opened THIS sheet, not accumulated state.
     if (!currentIntent) {
       if (existing) existing.remove();
       return;
@@ -249,6 +294,8 @@
 
     recoverAfterRedirect();
 
+    // Delegated handler covers the header icon and any future
+    // [data-buzzko-wishlist-link] (e.g. a mobile drawer version).
     document.addEventListener('click', function (event) {
       var link = event.target.closest && event.target.closest('[data-buzzko-wishlist-link]');
       if (!link) return;
