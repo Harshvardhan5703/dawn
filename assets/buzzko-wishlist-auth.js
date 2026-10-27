@@ -5,8 +5,9 @@
 
   var PENDING_KEY = 'buzzko:wishlist:pending-auth:v1';
   var account = null;
-  var pendingPayload = null;   // set by handleWishlistClick (product heart)
-  var pendingView = false;     // set by handleHeaderWishlistClick (header icon)
+  var pendingPayload = null;   // product intent (from a heart click)
+  var pendingView = false;     // view intent (from header icon)
+  var currentIntent = null;    // 'product' | 'view' | null — what opened THIS sheet
   var authWasOpened = false;
   var checkingAuthentication = false;
 
@@ -29,7 +30,6 @@
 
   function isCustomerSignedIn() {
     if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
-    // Liquid fallback: the count badge only renders inside {% if customer %}.
     return !!document.querySelector('.buzzko-header-wishlist [data-buzzko-wishlist-count]');
   }
 
@@ -47,7 +47,6 @@
 
   function getAccountTrigger() {
     if (!account || !account.shadowRoot) return null;
-    // Fixed: was missing the closing " in [part="signed-out-avatar]
     return account.shadowRoot.querySelector('[part="signed-out-avatar"]')
         || account.shadowRoot.querySelector('button');
   }
@@ -102,28 +101,25 @@
         .then(function (customer) {
           checkingAuthentication = false;
 
+          // Whatever intent opened this sheet is now spent.
+          currentIntent = null;
+
           if (!customer || !customer.id) {
-            // Sheet closed without completing sign-in — drop the *view* intent
-            // so the next unrelated click doesn't show stale copy.
             pendingView = false;
             return;
           }
 
-          // Persist signed-in state for the rest of this page session so
-          // the next click (heart or header icon) works without a reload.
           markSignedIn();
 
           var payload = pendingPayload || getPending();
           pendingView = false;
           clearPending();
 
-          // Only product intent has a post-login action. View intent
-          // intentionally does nothing — the user stays on this page and
-          // can click the wishlist icon again (now it will navigate).
           if (payload) applyPendingWishlist(payload);
         })
         .catch(function (error) {
           checkingAuthentication = false;
+          currentIntent = null;
           console.warn('[BuzzKo Wishlist] Could not verify customer session.', error);
         });
     }, 500);
@@ -139,12 +135,13 @@
       return true;
     }
 
-    // Product intent wins over any stale view intent.
     pendingView = false;
     pendingPayload = payload;
+    currentIntent = 'product';
     savePending(payload);
 
     if (!openHeaderAccount()) {
+      currentIntent = null;
       clearPending();
       return false;
     }
@@ -159,16 +156,17 @@
     event.preventDefault();
 
     pendingView = true;
+    currentIntent = 'view';
 
     if (!openHeaderAccount()) {
-      // Last-resort fallback if the account web component is missing.
       pendingView = false;
+      currentIntent = null;
       var returnUrl = encodeURIComponent(window.location.pathname);
       window.location.assign('/account/login?return_url=' + returnUrl);
     }
   }
 
-  /* ---------- in-sheet notice (shared, copy differs by intent) ---------- */
+  /* ---------- in-sheet notice (copy driven by currentIntent) ---------- */
 
   function showWishlistSignInNotice() {
     if (!account || !account.shadowRoot) return;
@@ -176,22 +174,19 @@
     var shadow = account.shadowRoot;
     var existing = shadow.querySelector('#buzzko-wishlist-signin-notice');
 
-    var hasProduct = !!(pendingPayload || getPending());
-    var hasView = pendingView;
-
-    if (!hasProduct && !hasView) {
+    // Use the intent that just opened this sheet — not accumulated state.
+    if (!currentIntent) {
       if (existing) existing.remove();
       return;
     }
 
-    // Product intent takes priority — it's the more specific, actionable one.
     var title, body;
-    if (hasProduct) {
-      title = 'Save your favourites ❤️';
-      body  = 'Sign in below to add this product to your wishlist.';
-    } else {
+    if (currentIntent === 'view') {
       title = 'Sign in to see your wishlist ❤️';
       body  = 'Your saved favourites are waiting. Sign in to view them.';
+    } else {
+      title = 'Save your favourites ❤️';
+      body  = 'Sign in below to add this product to your wishlist.';
     }
 
     if (!shadow.querySelector('#buzzko-wishlist-signin-notice-style')) {
@@ -254,8 +249,6 @@
 
     recoverAfterRedirect();
 
-    // Delegated handler covers the header icon (and any future
-    // [data-buzzko-wishlist-link], e.g. a mobile drawer version).
     document.addEventListener('click', function (event) {
       var link = event.target.closest && event.target.closest('[data-buzzko-wishlist-link]');
       if (!link) return;
