@@ -27,15 +27,15 @@
   }
 
 
-    /* Increase Footer Menu Headings Font Size */
-  .footer-block__heading {
-    font-size: 2rem !important; 
-    font-weight: 600 !important; /* Optional: Makes it slightly bolder */
+    /* FORCE Footer Menu Headings Font Size */
+  #shopify-section-{{ section.id }} .footer-block__heading {
+    font-size: 20px !important; /* Change this number to make it bigger/smaller */
+    letter-spacing: 0.05rem !important;
   }
 
   @media screen and (max-width: 749px) {
-    .footer-block__heading {
-      font-size: 1.6rem !important; /* Slightly smaller on mobile */
+    #shopify-section-{{ section.id }} .footer-block__heading {
+      font-size: 18px !important; /* Mobile size */
     }
   }
 {%- endstyle -%}
