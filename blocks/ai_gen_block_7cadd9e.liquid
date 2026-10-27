@@ -66,6 +66,14 @@
     border-radius: 20px;
     border: 1px solid rgba(32, 32, 51, .12);
     box-shadow: 0 8px 22px rgba(32, 32, 51, .08);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 30px rgba(32, 32, 51, .14);
+    }
   }
 
   .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }}:nth-child(1) { background: #ffe0e7; }
@@ -76,20 +84,25 @@
   .ai-care-{{ ai_gen_id }} .ai-care__card-top-{{ ai_gen_id }} {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     margin-bottom: 14px;
   }
 
   .ai-care-{{ ai_gen_id }} .ai-care__icon-{{ ai_gen_id }} {
     display: grid;
     place-items: center;
-    flex: 0 0 52px;
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, .75);
-    font-size: 28px;
+    flex: 0 0 68px;
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .8);
+    box-shadow: 0 4px 10px rgba(32, 32, 51, .06);
     line-height: 1;
+  }
+
+  .ai-care-{{ ai_gen_id }} .ai-care__icon-{{ ai_gen_id }} .bz-icon {
+    width: 50px;
+    height: 50px;
   }
 
   .ai-care-{{ ai_gen_id }} .ai-care__card-title-{{ ai_gen_id }} {
@@ -114,6 +127,8 @@
     .ai-care-{{ ai_gen_id }} .ai-care__grid-{{ ai_gen_id }} { grid-template-columns: 1fr; gap: 14px; }
     .ai-care-{{ ai_gen_id }} .ai-care__card-{{ ai_gen_id }} { padding: 22px; }
     .ai-care-{{ ai_gen_id }} .ai-care__card-title-{{ ai_gen_id }} { font-size: 20px; }
+    .ai-care-{{ ai_gen_id }} .ai-care__icon-{{ ai_gen_id }} { flex-basis: 62px; width: 62px; height: 62px; }
+    .ai-care-{{ ai_gen_id }} .ai-care__icon-{{ ai_gen_id }} .bz-icon { width: 46px; height: 46px; }
   }
 {% endstyle %}
 
@@ -125,20 +140,20 @@
       {% if block.settings.intro != blank %}<p class="ai-care__intro-{{ ai_gen_id }}">{{ block.settings.intro | escape }}</p>{% endif %}
     </header>
     <div class="ai-care__grid-{{ ai_gen_id }}">
-      <article class="ai-care__card-{{ ai_gen_id }}">
-        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">✨</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.charms_title | escape }}</h3></div>
+      <article class="ai-care__card-{{ ai_gen_id }}" data-bz-card>
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}">{% render 'buzzko-icons', n: 6 %}</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.charms_title | escape }}</h3></div>
         <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.charms_tip_1 | escape }}</li><li>{{ block.settings.charms_tip_2 | escape }}</li><li>{{ block.settings.charms_tip_3 | escape }}</li></ul>
       </article>
-      <article class="ai-care__card-{{ ai_gen_id }}">
-        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">🔥</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.lighters_title | escape }}</h3></div>
+      <article class="ai-care__card-{{ ai_gen_id }}" data-bz-card>
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}">{% render 'buzzko-icons', n: 7 %}</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.lighters_title | escape }}</h3></div>
         <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.lighters_tip_1 | escape }}</li><li>{{ block.settings.lighters_tip_2 | escape }}</li><li>{{ block.settings.lighters_tip_3 | escape }}</li></ul>
       </article>
-      <article class="ai-care__card-{{ ai_gen_id }}">
-        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">🖼️</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.art_title | escape }}</h3></div>
+      <article class="ai-care__card-{{ ai_gen_id }}" data-bz-card>
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}">{% render 'buzzko-icons', n: 8 %}</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.art_title | escape }}</h3></div>
         <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.art_tip_1 | escape }}</li><li>{{ block.settings.art_tip_2 | escape }}</li><li>{{ block.settings.art_tip_3 | escape }}</li></ul>
       </article>
-      <article class="ai-care__card-{{ ai_gen_id }}">
-        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}" aria-hidden="true">💛</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.general_title | escape }}</h3></div>
+      <article class="ai-care__card-{{ ai_gen_id }}" data-bz-card>
+        <div class="ai-care__card-top-{{ ai_gen_id }}"><span class="ai-care__icon-{{ ai_gen_id }}">{% render 'buzzko-icons', n: 9 %}</span><h3 class="ai-care__card-title-{{ ai_gen_id }}">{{ block.settings.general_title | escape }}</h3></div>
         <ul class="ai-care__tips-{{ ai_gen_id }}"><li>{{ block.settings.general_tip_1 | escape }}</li><li>{{ block.settings.general_tip_2 | escape }}</li><li>{{ block.settings.general_tip_3 | escape }}</li></ul>
       </article>
     </div>

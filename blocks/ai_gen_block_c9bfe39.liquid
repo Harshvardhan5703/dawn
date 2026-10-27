@@ -62,6 +62,14 @@
     border-radius: 20px;
     color: #171717;
     box-sizing: border-box;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ai-returns-{{ ai_gen_id }}__card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px rgba(23, 23, 23, .12);
+    }
   }
 
   .ai-returns-{{ ai_gen_id }}__card:nth-child(1) { background: #ffe6a7; }
@@ -73,10 +81,20 @@
   .ai-returns-{{ ai_gen_id }}__card:nth-child(5) { grid-column: span 3; }
 
   .ai-returns-{{ ai_gen_id }}__icon {
-    display: block;
-    margin-bottom: 12px;
-    font-size: 30px;
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    margin-bottom: 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .8);
+    box-shadow: 0 4px 10px rgba(23, 23, 23, .06);
     line-height: 1;
+  }
+
+  .ai-returns-{{ ai_gen_id }}__icon .bz-icon {
+    width: 50px;
+    height: 50px;
   }
 
   .ai-returns-{{ ai_gen_id }}__card-title {
@@ -100,6 +118,8 @@
     .ai-returns-{{ ai_gen_id }}__card,
     .ai-returns-{{ ai_gen_id }}__card:nth-child(4),
     .ai-returns-{{ ai_gen_id }}__card:nth-child(5) { grid-column: auto; min-height: 0; padding: 22px; }
+    .ai-returns-{{ ai_gen_id }}__icon { width: 62px; height: 62px; }
+    .ai-returns-{{ ai_gen_id }}__icon .bz-icon { width: 46px; height: 46px; }
   }
 {% endstyle %}
 
@@ -113,12 +133,11 @@
     <div class="ai-returns-{{ ai_gen_id }}__grid">
       {% for i in (1..5) %}
         {% liquid
-          assign icon_key = 'card_' | append: i | append: '_icon'
           assign title_key = 'card_' | append: i | append: '_title'
           assign copy_key = 'card_' | append: i | append: '_copy'
         %}
-        <article class="ai-returns-{{ ai_gen_id }}__card">
-          <span class="ai-returns-{{ ai_gen_id }}__icon" aria-hidden="true">{{ block.settings[icon_key] | escape }}</span>
+        <article class="ai-returns-{{ ai_gen_id }}__card" data-bz-card>
+          <span class="ai-returns-{{ ai_gen_id }}__icon">{% render 'buzzko-icons', n: i %}</span>
           <h3 class="ai-returns-{{ ai_gen_id }}__card-title">{{ block.settings[title_key] | escape }}</h3>
           <div class="ai-returns-{{ ai_gen_id }}__copy">{{ block.settings[copy_key] }}</div>
         </article>
@@ -136,23 +155,18 @@
     { "type": "text", "id": "heading", "label": "Heading", "default": "Returns, made easy ✨" },
     { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Something not quite right? Here’s the quick guide to getting things sorted.</p>" },
     { "type": "header", "content": "Return window" },
-    { "type": "text", "id": "card_1_icon", "label": "Icon", "default": "⏰" },
     { "type": "text", "id": "card_1_title", "label": "Heading", "default": "Return window" },
     { "type": "richtext", "id": "card_1_copy", "label": "Details", "default": "<p>Request a return within 7 days of delivery. Keep your item unused and in its original packaging.</p>" },
     { "type": "header", "content": "Refund process" },
-    { "type": "text", "id": "card_2_icon", "label": "Icon", "default": "💸" },
     { "type": "text", "id": "card_2_title", "label": "Heading", "default": "Refund process" },
     { "type": "richtext", "id": "card_2_copy", "label": "Details", "default": "<p>After your return is received and checked, approved refunds go back to your original payment method.</p>" },
     { "type": "header", "content": "Non-returnable items" },
-    { "type": "text", "id": "card_3_icon", "label": "Icon", "default": "🚫" },
     { "type": "text", "id": "card_3_title", "label": "Heading", "default": "Non-returnable items" },
     { "type": "richtext", "id": "card_3_copy", "label": "Details", "default": "<p>Personalised, custom-made, final-sale, and used items can’t be returned unless they arrive damaged or faulty.</p>" },
     { "type": "header", "content": "Exchanges" },
-    { "type": "text", "id": "card_4_icon", "label": "Icon", "default": "🔁" },
     { "type": "text", "id": "card_4_title", "label": "Heading", "default": "Exchanges" },
     { "type": "richtext", "id": "card_4_copy", "label": "Details", "default": "<p>Want a different style? Contact us to check availability. Exchanges depend on stock and must meet the return conditions.</p>" },
     { "type": "header", "content": "Start a return" },
-    { "type": "text", "id": "card_5_icon", "label": "Icon", "default": "📩" },
     { "type": "text", "id": "card_5_title", "label": "Heading", "default": "How to initiate a return" },
     { "type": "richtext", "id": "card_5_copy", "label": "Details", "default": "<p>Message our support team with your order number and reason for return. We’ll share the next steps and return instructions.</p>" }
   ],
