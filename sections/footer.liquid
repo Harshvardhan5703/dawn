@@ -25,6 +25,19 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+
+    /* Increase Footer Menu Headings Font Size */
+  .footer-block__heading {
+    font-size: 1.8rem !important; 
+    font-weight: 600 !important; /* Optional: Makes it slightly bolder */
+  }
+
+  @media screen and (max-width: 749px) {
+    .footer-block__heading {
+      font-size: 1.6rem !important; /* Slightly smaller on mobile */
+    }
+  }
 {%- endstyle -%}
 
 <footer class="footer color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
