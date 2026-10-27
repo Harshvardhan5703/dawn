@@ -122,6 +122,8 @@
     display: block;
     z-index: 2;
     background: #000;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* BuzzKo: strip replaces Dawn's native thumbnails */
@@ -312,10 +314,18 @@
 
     const video = document.createElement('video');
     video.className = 'buzzko-main-video';
-    video.controls = true;
-    video.playsInline = true;
-    video.preload = 'metadata';
+
+    // Muted, no controls, autoplay, loop
+    video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.autoplay = true;
+    video.loop = true;
+    video.preload = 'auto';
     video.poster = item.poster || item.thumb || '';
+    // Intentionally NOT setting `controls` — tap-to-toggle instead
 
     (item.sources || []).forEach(src => {
       const source = document.createElement('source');
@@ -324,8 +334,24 @@
       video.appendChild(source);
     });
 
+    // Tap anywhere on the video → pause / play
+    video.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (video.paused) {
+        video.play().catch(function () {});
+      } else {
+        video.pause();
+      }
+    });
+
     mediaWrapper.appendChild(video);
     video.load();
+
+    // Autoplay as soon as it's ready (muted + playsinline = always allowed)
+    const tryPlay = function () { video.play().catch(function () {}); };
+    video.addEventListener('canplay', tryPlay, { once: true });
+    tryPlay();
   }
 
   function buildStrip() {
@@ -366,7 +392,6 @@
       }
     });
 
-    // If the currently visible slide is a video, mark the first video as active
     if (mainIsVideo) {
       const idx = items.findIndex(it => it.type === 'video');
       if (idx >= 0) items[idx].isMain = true;
