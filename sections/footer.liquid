@@ -25,6 +25,21 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  /* Custom Editor Typography Controls */
+  #shopify-section-{{ section.id }} .footer-block__heading {
+    font-size: {{ section.settings.heading_font_size }}px !important;
+    font-weight: {{ section.settings.heading_font_weight }} !important;
+  }
+
+  #shopify-section-{{ section.id }} .footer-block__details-content,
+  #shopify-section-{{ section.id }} .footer-block__details-content p,
+  #shopify-section-{{ section.id }} .footer-block__details-content a,
+  #shopify-section-{{ section.id }} .list-menu__item--link,
+  #shopify-section-{{ section.id }} .footer-block__brand-info {
+    font-size: {{ section.settings.content_font_size }}px !important;
+    font-weight: {{ section.settings.content_font_weight }} !important;
+  }
 {%- endstyle -%}
 
 <footer class="footer color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
@@ -424,6 +439,55 @@
     }
   ],
   "settings": [
+    {
+      "type": "header",
+      "content": "Typography Controls"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight (Boldness)",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "content_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Content Font Size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "content_font_weight",
+      "label": "Content Font Weight (Boldness)",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
     {
       "type": "color_scheme",
       "id": "color_scheme",
