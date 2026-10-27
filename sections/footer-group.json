@@ -43,6 +43,11 @@
       ],
       "name": "BuzzKo Footer",
       "settings": {
+        "menu_heading_size": 15,
+        "menu_heading_weight": "800",
+        "menu_content_size": 11,
+        "menu_content_weight": "600",
+        "bottom_text_size": 9,
         "logo": "shopify://shop_images/IMG_0404-removebg-preview.png",
         "logo_alt": "BuzzKo",
         "club_text": "JOIN THE CLUB",
