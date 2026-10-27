@@ -25,19 +25,6 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
-
-
-    /* FORCE Footer Menu Headings Font Size */
-  #shopify-section-{{ section.id }} .footer-block__heading {
-    font-size: 20px !important; /* Change this number to make it bigger/smaller */
-    letter-spacing: 0.05rem !important;
-  }
-
-  @media screen and (max-width: 749px) {
-    #shopify-section-{{ section.id }} .footer-block__heading {
-      font-size: 18px !important; /* Mobile size */
-    }
-  }
 {%- endstyle -%}
 
 <footer class="footer color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
