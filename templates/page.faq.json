@@ -43,6 +43,13 @@
             "answer": "<p>Shipping is ₹49. Orders above ₹499 qualify for free shipping.</p>"
           }
         },
+        "faq_gMhQm7": {
+          "type": "faq",
+          "settings": {
+            "question": "How can I place an order?",
+            "answer": "<p>Browse our collection, choose your favourite products, add them to your cart, and follow the checkout steps to place your order.</p>"
+          }
+        },
         "faq_NJxncB": {
           "type": "faq",
           "settings": {
@@ -69,6 +76,7 @@
         "faq_cGgF6j",
         "faq_bn7UUB",
         "faq_6McXjm",
+        "faq_gMhQm7",
         "faq_NJxncB",
         "faq_pETiBp",
         "faq_qcyzMm"
