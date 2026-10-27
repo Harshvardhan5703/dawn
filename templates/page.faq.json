@@ -40,7 +40,7 @@
           "type": "faq",
           "settings": {
             "question": "How much is shipping?",
-            "answer": "<p>Shipping is ₹49. Orders above ₹500 qualify for free shipping.</p>"
+            "answer": "<p>Shipping is ₹49. Orders above ₹499 qualify for free shipping.</p>"
           }
         },
         "faq_NJxncB": {
