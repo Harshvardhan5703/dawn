@@ -373,7 +373,7 @@
         "gradient_color_3": "#ffdcef",
         "show_view_all": true,
         "view_all_text": "View All",
-        "view_all_link": "shopify://collections/all"
+        "view_all_link": "/collections/all?sort_by=manual"
       }
     },
     "buzzko_benefit_new_4QbDez": {
