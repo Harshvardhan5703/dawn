@@ -1,4 +1,3 @@
-
 {% doc %}
   Buzzko First Visit Flyer Popup
 
@@ -12,6 +11,7 @@
   - Hero-style CTA at bottom-left
   - Close button at top-right
   - First-visit-only display using localStorage
+  - Popup reveals only once the flyer is decoded (no empty-box flash)
   - Editable Shopify theme settings
 {% enddoc %}
 
@@ -298,6 +298,8 @@
               width="{{ block.settings.image.width }}"
               height="{{ block.settings.image.height }}"
               loading="eager"
+              fetchpriority="high"
+              decoding="async"
             >
 
           </picture>
@@ -349,36 +351,22 @@
           '.ai-welcome-popup-{{ ai_gen_id }}__close'
         );
 
-        this.storageKey = this.dataset.storageKey;
-
-        const isEditor = Boolean(
-          window.Shopify && window.Shopify.designMode
+        this.image = this.querySelector(
+          '.ai-welcome-popup-{{ ai_gen_id }}__image'
         );
 
-        let alreadySeen = false;
+        this.storageKey = this.dataset.storageKey;
 
+        const isEditor = Boolean(window.Shopify && window.Shopify.designMode);
+
+        let alreadySeen = false;
         try {
-          alreadySeen =
-            localStorage.getItem(this.storageKey) === 'seen';
+          alreadySeen = localStorage.getItem(this.storageKey) === 'seen';
         } catch (error) {}
 
-        if (isEditor || !alreadySeen) {
-          this.hidden = false;
+        if (!isEditor && alreadySeen) return;
 
-          if (!isEditor) {
-            try {
-              localStorage.setItem(this.storageKey, 'seen');
-            } catch (error) {}
-          }
-
-          requestAnimationFrame(() => {
-            this.closeButton?.focus();
-          });
-        }
-
-        this.closeButton?.addEventListener('click', () => {
-          this.closePopup();
-        });
+        this.closeButton?.addEventListener('click', () => this.closePopup());
 
         this.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') {
@@ -387,9 +375,7 @@
 
           if (event.key === 'Tab' && !this.hidden) {
             const focusable = Array.from(
-              this.dialog.querySelectorAll(
-                'button:not([disabled]), a[href]'
-              )
+              this.dialog.querySelectorAll('button:not([disabled]), a[href]')
             );
 
             if (!focusable.length) return;
@@ -406,6 +392,63 @@
             }
           }
         });
+
+        this.revealWhenImageReady(isEditor);
+      }
+
+      // Wait for the flyer to be decoded before removing [hidden],
+      // so the empty cream panel never flashes before the artwork.
+      revealWhenImageReady(isEditor) {
+        let revealed = false;
+
+        const reveal = () => {
+          if (revealed) return;
+          revealed = true;
+
+          this.hidden = false;
+          this.closeButton?.focus({ preventScroll: true });
+
+          if (!isEditor) {
+            try {
+              localStorage.setItem(this.storageKey, 'seen');
+            } catch (error) {}
+          }
+        };
+
+        const img = this.image;
+
+        // No image configured — just show.
+        if (!img) {
+          reveal();
+          return;
+        }
+
+        // Safety net: never block the popup forever on a broken image.
+        const fallback = setTimeout(reveal, 3000);
+
+        const done = () => {
+          clearTimeout(fallback);
+          if (typeof img.decode === 'function') {
+            img.decode().then(reveal).catch(reveal);
+          } else {
+            reveal();
+          }
+        };
+
+        if (img.complete && img.naturalWidth > 0) {
+          done();
+          return;
+        }
+
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener(
+          'error',
+          () => {
+            clearTimeout(fallback);
+            reveal();
+          },
+          { once: true }
+        );
       }
 
       closePopup() {
@@ -413,10 +456,7 @@
       }
     }
 
-    customElements.define(
-      tagName,
-      FirstVisitPopup{{ ai_gen_id }}
-    );
+    customElements.define(tagName, FirstVisitPopup{{ ai_gen_id }});
   })();
 </script>
 
