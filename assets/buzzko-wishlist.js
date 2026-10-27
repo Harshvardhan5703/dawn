@@ -53,7 +53,7 @@
       console.warn('[BuzzKo Wishlist] Could not save wishlist.', error);
     }
 
-    refresh();
+
 
     window.dispatchEvent(
       new CustomEvent('buzzko:wishlist:change', {
