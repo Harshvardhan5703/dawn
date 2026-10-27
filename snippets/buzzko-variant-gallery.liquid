@@ -126,6 +126,36 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* BuzzKo: pause/play flash indicator on tap */
+  #MainProduct-{{ section.id }} .buzzko-video-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: opacity .2s ease, transform .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #MainProduct-{{ section.id }} .buzzko-video-indicator.is-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  #MainProduct-{{ section.id }} .buzzko-video-indicator svg {
+    width: 32px;
+    height: 32px;
+    display: block;
+  }
+
   /* BuzzKo: strip replaces Dawn's native thumbnails */
   #MainProduct-{{ section.id }} #GalleryThumbnails-{{ section.id }},
   #MainProduct-{{ section.id }} #GalleryViewer-{{ section.id }} .slider-buttons {
@@ -239,6 +269,11 @@
     const qs = [vParam, 'width=' + w].filter(Boolean).join('&');
     return base + '?' + qs;
   }
+  function removeInjectedVideo(gallery) {
+    if (!gallery) return;
+    gallery.querySelectorAll('.buzzko-main-video').forEach(el => el.remove());
+    gallery.querySelectorAll('.buzzko-video-indicator').forEach(el => el.remove());
+  }
 
   function alignStrip() {
     if (!container) return;
@@ -277,10 +312,8 @@
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!gallery) return;
 
-    const injected = gallery.querySelector('.buzzko-main-video');
-    if (injected) injected.remove();
+    removeInjectedVideo(gallery);
 
-    // If the first Dawn slide is a video, hide its poster so our image shows
     const poster = gallery.querySelector('.deferred-media__poster');
     if (poster) poster.style.display = 'none';
 
@@ -293,21 +326,44 @@
     if (item.alt) mainImg.alt = item.alt;
   }
 
+  /* Flash a centered pause/play icon over the video */
+  function flashVideoIndicator(mediaWrapper, state) {
+    if (!mediaWrapper) return;
+
+    // Clear any existing indicator so rapid taps don't stack
+    mediaWrapper.querySelectorAll('.buzzko-video-indicator').forEach(el => el.remove());
+
+    const ind = document.createElement('div');
+    ind.className = 'buzzko-video-indicator';
+    ind.setAttribute('aria-hidden', 'true');
+    ind.innerHTML = state === 'pause'
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+
+    mediaWrapper.appendChild(ind);
+
+    // Force a reflow so the transition kicks in from opacity: 0
+    void ind.offsetWidth;
+    ind.classList.add('is-visible');
+
+    setTimeout(() => {
+      ind.classList.remove('is-visible');
+      // Remove after fade-out completes
+      setTimeout(() => { if (ind.parentElement) ind.remove(); }, 220);
+    }, 500);
+  }
+
   function showVideo(item) {
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (!gallery) return;
 
-    // Hide any active Dawn poster
     const poster = gallery.querySelector('.deferred-media__poster');
     if (poster) poster.style.display = 'none';
 
-    // Hide the main img so video plays in its place
     const mainImg = getMainImage();
     if (mainImg) mainImg.style.display = 'none';
 
-    // Remove existing injected video
-    const existing = gallery.querySelector('.buzzko-main-video');
-    if (existing) existing.remove();
+    removeInjectedVideo(gallery);
 
     const mediaWrapper = gallery.querySelector('.product__media');
     if (!mediaWrapper) return;
@@ -315,7 +371,6 @@
     const video = document.createElement('video');
     video.className = 'buzzko-main-video';
 
-    // Muted, no controls, autoplay, loop
     video.muted = true;
     video.defaultMuted = true;
     video.setAttribute('muted', '');
@@ -325,7 +380,6 @@
     video.loop = true;
     video.preload = 'auto';
     video.poster = item.poster || item.thumb || '';
-    // Intentionally NOT setting `controls` — tap-to-toggle instead
 
     (item.sources || []).forEach(src => {
       const source = document.createElement('source');
@@ -334,21 +388,22 @@
       video.appendChild(source);
     });
 
-    // Tap anywhere on the video → pause / play
+    // Tap anywhere → pause/play + flash indicator
     video.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       if (video.paused) {
         video.play().catch(function () {});
+        flashVideoIndicator(mediaWrapper, 'play');
       } else {
         video.pause();
+        flashVideoIndicator(mediaWrapper, 'pause');
       }
     });
 
     mediaWrapper.appendChild(video);
     video.load();
 
-    // Autoplay as soon as it's ready (muted + playsinline = always allowed)
     const tryPlay = function () { video.play().catch(function () {}); };
     video.addEventListener('canplay', tryPlay, { once: true });
     tryPlay();
@@ -358,11 +413,9 @@
     const id = getVariantId();
     if (!id) return;
 
-    // Reset from previous variant: kill injected video, unhide img
     const gallery = root.querySelector('#MediaGallery-' + sectionId);
     if (gallery) {
-      const injected = gallery.querySelector('.buzzko-main-video');
-      if (injected) injected.remove();
+      removeInjectedVideo(gallery);
       const mainImg = gallery.querySelector('.product__media img');
       if (mainImg) mainImg.style.display = '';
     }
@@ -386,7 +439,7 @@
     const mainKey = baseName(mainSrc);
     (data[id] || []).forEach(item => {
       if (item.type === 'video') {
-        items.push(item);                       // videos never deduped by poster
+        items.push(item);
       } else if (baseName(item.full) !== mainKey) {
         items.push(item);
       }
