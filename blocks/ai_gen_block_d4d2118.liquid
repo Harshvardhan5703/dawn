@@ -32,13 +32,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 68px;
-    height: 68px;
+    width: 76px;
+    height: 76px;
     margin: 0 auto 16px;
-    border-radius: 22px;
+    border-radius: 24px;
     background: {{ block.settings.accent_color }};
-    font-size: 34px;
+    box-shadow: 0 6px 14px rgba(30, 26, 48, 0.10);
     line-height: 1;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__icon .bzt-svg {
+    width: 58px;
+    height: 58px;
   }
 
   .ai-track-order-{{ ai_gen_id }}__heading {
@@ -143,8 +148,32 @@
 {% endstyle %}
 
 <div class="ai-track-order-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
-  <div class="ai-track-order-{{ ai_gen_id }}__inner">
-    <div class="ai-track-order-{{ ai_gen_id }}__icon" aria-hidden="true">{{ block.settings.icon_emoji }}</div>
+  <div class="ai-track-order-{{ ai_gen_id }}__inner" data-bzt-card>
+    <div class="ai-track-order-{{ ai_gen_id }}__icon bzt-icon" data-bzt-icon aria-hidden="true">
+      <svg class="bzt-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <g class="bzt-lines" stroke="#3d2c4d" stroke-width="2.5" stroke-linecap="round">
+          <path d="M3 40 H9"/>
+          <path d="M1 47 H8"/>
+          <path d="M4 54 H9"/>
+        </g>
+        <g class="bzt-pin">
+          <path d="M32 3 C27 3 23.5 6.8 23.5 11.3 C23.5 17 32 23 32 23 C32 23 40.5 17 40.5 11.3 C40.5 6.8 37 3 32 3 Z" fill="#ff8fa6" stroke="#3d2c4d" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="32" cy="11" r="3" fill="#fff"/>
+        </g>
+        <ellipse class="bzt-shadow" cx="32" cy="60" rx="17" ry="2.6" fill="#3d2c4d" opacity=".14"/>
+        <g class="bzt-box">
+          <rect x="13" y="35" width="38" height="24" rx="5" fill="#ffd9a8" stroke="#3d2c4d" stroke-width="2.5" stroke-linejoin="round"/>
+          <rect x="10" y="27" width="44" height="11" rx="4" fill="#ffbf8e" stroke="#3d2c4d" stroke-width="2.5" stroke-linejoin="round"/>
+          <rect x="28" y="27" width="8" height="11" fill="#ffb3cd" stroke="#3d2c4d" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="24" cy="46" r="2" fill="#3d2c4d"/>
+          <circle cx="40" cy="46" r="2" fill="#3d2c4d"/>
+          <ellipse cx="19.5" cy="50.5" rx="2.8" ry="1.9" fill="#ffb3cd" opacity=".9"/>
+          <ellipse cx="44.5" cy="50.5" rx="2.8" ry="1.9" fill="#ffb3cd" opacity=".9"/>
+          <path d="M28.6 50 Q32 53 35.4 50" fill="none" stroke="#3d2c4d" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(54 30)"><path class="bzt-spark" d="M0 -5 Q0 0 5 0 Q0 0 0 5 Q0 0 -5 0 Q0 0 0 -5Z" fill="#ffe08a" stroke="#3d2c4d" stroke-width="1.5" stroke-linejoin="round"/></g>
+      </svg>
+    </div>
     <h2 class="ai-track-order-{{ ai_gen_id }}__heading">{{ block.settings.heading | escape }}</h2>
     <div class="ai-track-order-{{ ai_gen_id }}__description">{{ block.settings.description }}</div>
     <form class="ai-track-order-{{ ai_gen_id }}__form" action="{{ block.settings.tracking_url }}" method="get">
@@ -165,6 +194,85 @@
   </div>
 </div>
 
+{% stylesheet %}
+  .bzt-svg { overflow: visible; }
+  .bzt-svg * { transform-box: view-box; }
+  .bzt-lines { opacity: .0; }
+  .bzt-spark { transform-box: fill-box !important; transform-origin: center; transform: scale(0); }
+  .bzt-box { transform-origin: 32px 59px; }
+  .bzt-shadow { transform-origin: 32px 60px; }
+  .bzt-pin { transform-origin: 32px 23px; }
+
+  .bzt-icon.is-active .bzt-box { animation: bzt-hop 1.1s cubic-bezier(.3, 1.2, .5, 1) both; }
+  .bzt-icon.is-active .bzt-shadow { animation: bzt-shadow 1.1s ease-in-out both; }
+  .bzt-icon.is-active .bzt-pin { animation: bzt-pin 1.1s ease-in-out both; }
+  .bzt-icon.is-active .bzt-lines { animation: bzt-lines 1.1s ease-out both; }
+  .bzt-icon.is-active .bzt-spark { animation: bzt-pop .9s .4s ease-out both; }
+
+  @keyframes bzt-hop {
+    0% { transform: translateY(0) scale(1, 1); }
+    18% { transform: translateY(0) scale(1.1, .88); }
+    45% { transform: translateY(-9px) scale(.94, 1.08); }
+    72% { transform: translateY(0) scale(1.08, .92); }
+    100% { transform: translateY(0) scale(1, 1); }
+  }
+  @keyframes bzt-shadow { 0%,100% { transform: scale(1); opacity: .14; } 45% { transform: scale(.72); opacity: .07; } }
+  @keyframes bzt-pin {
+    0%,100% { transform: translateY(0) rotate(0); }
+    30% { transform: translateY(-5px) rotate(-8deg); }
+    55% { transform: translateY(1px) rotate(6deg); }
+    80% { transform: translateY(-2px) rotate(-3deg); }
+  }
+  @keyframes bzt-lines { 0% { opacity: 0; transform: translateX(-5px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateX(3px); } }
+  @keyframes bzt-pop { 0% { transform: scale(0) rotate(0); } 45% { transform: scale(1.3) rotate(45deg); } 100% { transform: scale(0) rotate(90deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bzt-icon *, .bzt-icon.is-active * { animation: none !important; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  if (window.__bztInit) return;
+  window.__bztInit = true;
+
+  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var io = null;
+
+  function play(icon, ms) {
+    icon.classList.remove('is-active');
+    void icon.getBoundingClientRect();
+    icon.classList.add('is-active');
+    clearTimeout(icon.__bztT);
+    icon.__bztT = setTimeout(function () { icon.classList.remove('is-active'); }, ms);
+  }
+
+  function setup(root) {
+    (root || document).querySelectorAll('[data-bzt-icon]:not([data-bzt-ready])').forEach(function (icon) {
+      icon.setAttribute('data-bzt-ready', '');
+      if (canHover) {
+        var card = icon.closest('[data-bzt-card]') || icon.parentElement;
+        card.addEventListener('mouseenter', function () { play(icon, 1500); });
+        card.addEventListener('focusin', function () { play(icon, 1500); });
+      } else if ('IntersectionObserver' in window) {
+        if (!io) {
+          io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) { if (e.isIntersecting) play(e.target, 1800); });
+          }, { threshold: 0.6 });
+        }
+        io.observe(icon);
+      } else {
+        icon.classList.add('is-active');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setup(); });
+  else setup();
+  document.addEventListener('shopify:section:load', function (e) { setup(e.target); });
+})();
+{% endjavascript %}
+
 {% schema %}
 {
   "name": "Buzzko track order",
@@ -172,7 +280,6 @@
     { "type": "header", "content": "Content" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Where's my order?" },
     { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>" },
-    { "type": "text", "id": "icon_emoji", "label": "Decorative emoji", "default": "📦" },
     { "type": "text", "id": "input_label", "label": "Input label for accessibility", "default": "Order number or tracking ID" },
     { "type": "text", "id": "input_placeholder", "label": "Input placeholder", "default": "Order number or tracking ID" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Track my order" },
