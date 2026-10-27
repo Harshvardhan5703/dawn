@@ -88,7 +88,8 @@
 
   .ai-track-order-{{ ai_gen_id }}__input:focus-visible,
   .ai-track-order-{{ ai_gen_id }}__button:focus-visible,
-  .ai-track-order-{{ ai_gen_id }}__help-link:focus-visible {
+  .ai-track-order-{{ ai_gen_id }}__help-link:focus-visible,
+  .ai-track-order-{{ ai_gen_id }}__order-id-link:focus-visible {
     outline: 3px solid {{ block.settings.text_color }};
     outline-offset: 3px;
   }
@@ -116,6 +117,15 @@
     color: {{ block.settings.text_color }};
     font-size: 14px;
     line-height: 1.5;
+  }
+
+  .ai-track-order-{{ ai_gen_id }}__order-id-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    text-underline-offset: 3px;
+    opacity: 0.85;
   }
 
   .ai-track-order-{{ ai_gen_id }}__help-link {
@@ -176,23 +186,50 @@
     </div>
     <h2 class="ai-track-order-{{ ai_gen_id }}__heading">{{ block.settings.heading | escape }}</h2>
     <div class="ai-track-order-{{ ai_gen_id }}__description">{{ block.settings.description }}</div>
-    <form class="ai-track-order-{{ ai_gen_id }}__form" action="{{ block.settings.tracking_url }}" method="get">
+
+    <form class="ai-track-order-{{ ai_gen_id }}__form" id="buzzko-track-form-{{ ai_gen_id }}">
       <label class="visually-hidden" for="ai-track-input-{{ ai_gen_id }}">{{ block.settings.input_label | escape }}</label>
       <input
         id="ai-track-input-{{ ai_gen_id }}"
         class="ai-track-order-{{ ai_gen_id }}__input"
         type="text"
-        name="{{ block.settings.query_parameter | escape }}"
+        name="tracking_id"
         placeholder="{{ block.settings.input_placeholder | escape }}"
         autocomplete="off"
         required
       >
       <button class="ai-track-order-{{ ai_gen_id }}__button" type="submit">{{ block.settings.button_label | escape }}</button>
     </form>
+
     {% if block.settings.hint != blank %}<p class="ai-track-order-{{ ai_gen_id }}__hint">{{ block.settings.hint | escape }}</p>{% endif %}
+
+    {% if block.settings.order_id_link_label != blank %}
+      <a class="ai-track-order-{{ ai_gen_id }}__order-id-link" href="{{ block.settings.tracking_base_url | default: 'https://buzzko.shiprocket.co/tracking' }}">
+        {{ block.settings.order_id_link_label | escape }}
+      </a>
+    {% endif %}
+
     {% if block.settings.help_link != blank %}<a class="ai-track-order-{{ ai_gen_id }}__help-link" href="{{ block.settings.help_link }}">{{ block.settings.help_label | escape }}</a>{% endif %}
   </div>
 </div>
+
+<script>
+(function() {
+  var form = document.getElementById('buzzko-track-form-{{ ai_gen_id }}');
+  if (!form) return;
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    var input = document.getElementById('ai-track-input-{{ ai_gen_id }}');
+    var trackingId = input ? input.value.trim().replace(/^#/, '') : '';
+    if (!trackingId) return;
+
+    var base = '{{ block.settings.tracking_base_url | default: "https://buzzko.shiprocket.co/tracking" }}';
+    base = base.replace(/\/+$/, ''); // strip any trailing slash
+    window.location.href = base + '/' + encodeURIComponent(trackingId);
+  });
+})();
+</script>
 
 {% stylesheet %}
   .bzt-svg { overflow: visible; }
@@ -279,16 +316,16 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Where's my order?" },
-    { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Your latest little treasure is on its way. Enter your order number or tracking ID below to follow its journey.</p>" },
-    { "type": "text", "id": "input_label", "label": "Input label for accessibility", "default": "Order number or tracking ID" },
-    { "type": "text", "id": "input_placeholder", "label": "Input placeholder", "default": "Order number or tracking ID" },
+    { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Your latest little treasure is on its way. Enter your AWB tracking number below to follow its journey.</p>" },
+    { "type": "text", "id": "input_label", "label": "Input label for accessibility", "default": "AWB tracking number" },
+    { "type": "text", "id": "input_placeholder", "label": "Input placeholder", "default": "Enter your AWB tracking number" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Track my order" },
-    { "type": "text", "id": "hint", "label": "Form note", "default": "Your order number is in your confirmation email." },
+    { "type": "text", "id": "hint", "label": "Form note", "default": "Your AWB number is in your shipping confirmation email or SMS." },
+    { "type": "text", "id": "order_id_link_label", "label": "Order ID fallback link label", "default": "Have an Order ID instead? Track with order details →" },
     { "type": "url", "id": "help_link", "label": "Help link" },
     { "type": "text", "id": "help_label", "label": "Help link label", "default": "Need a hand? Contact us" },
     { "type": "header", "content": "Tracking destination" },
-    { "type": "url", "id": "tracking_url", "label": "Tracking page URL" },
-    { "type": "text", "id": "query_parameter", "label": "Tracking query parameter", "default": "order" },
+    { "type": "text", "id": "tracking_base_url", "label": "Shiprocket tracking base URL", "default": "https://buzzko.shiprocket.co/tracking", "info": "The AWB is appended to this URL as /{AWB}. Also used as the destination for the 'Order ID' fallback link." },
     { "type": "header", "content": "Colors and layout" },
     { "type": "range", "id": "desktop_width_percent", "label": "Desktop width", "min": 50, "max": 100, "step": 5, "unit": "%", "default": 100 },
     { "type": "color", "id": "background_color", "label": "Outer background", "default": "#FFE6D6" },
