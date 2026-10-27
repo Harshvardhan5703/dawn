@@ -62,7 +62,7 @@
           "type": "category",
           "settings": {
             "collection": "charms",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_00_44_PM.png",
+            "image": "shopify://shop_images/Charm_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -79,7 +79,7 @@
           "type": "category",
           "settings": {
             "collection": "lighters",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
+            "image": "shopify://shop_images/Lighter_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -96,7 +96,7 @@
           "type": "category",
           "settings": {
             "collection": "keychains",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_11_49_PM.png",
+            "image": "shopify://shop_images/Keychains_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -130,7 +130,7 @@
           "type": "category",
           "settings": {
             "collection": "handcrafted",
-            "image": "shopify://shop_images/Cute_Crochet_Frog_Hood_Amigurumi_Doll.png",
+            "image": "shopify://shop_images/Handcraft_nobg.png",
             "image_alt": "Handcrafted",
             "title": "",
             "link": "",
