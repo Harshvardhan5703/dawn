@@ -25,7 +25,7 @@
         "ai_gen_block_d4d2118_GKEjVC": {
           "type": "ai_gen_block_d4d2118",
           "settings": {
-            "heading": "Where's my order? 📦",
+            "heading": "Where's my order?",
             "description": "<p>Your latest little treasure is on its way. Enter your AWB tracking number below to follow its journey.</p>",
             "input_label": "AWB tracking number",
             "input_placeholder": "Enter your AWB tracking number",
