@@ -4543,7 +4543,7 @@ video {
   color: var(--bk-ink) !important;
 }
 
-.otp-link otp-link--muted{
+#otp-link .otp-link--muted{
   display:none;
 }
 
