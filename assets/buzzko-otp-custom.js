@@ -13,12 +13,18 @@
 
     // 1. Handle Subtitle Text
     if (subtitle) {
+      var newText = 'Welcome! Choose your sign in option'; // Default
+      
       if (window.__buzzkoAuthIntent === 'view') {
-        subtitle.textContent = 'Sign in to see your wishlist ❤️';
+        newText = 'Sign in to see your wishlist ❤️';
       } else if (window.__buzzkoAuthIntent === 'product') {
-        subtitle.textContent = 'Sign in to add this product to your favourites ❤️';
-      } else {
-        subtitle.textContent = 'Welcome! Choose your sign in option';
+        newText = 'Sign in to add this product to your favourites ❤️';
+      }
+
+      // CRITICAL FIX: Only change text if it's different. 
+      // This stops the infinite MutationObserver loop.
+      if (subtitle.textContent.trim() !== newText) {
+        subtitle.textContent = newText;
       }
     }
 
@@ -30,21 +36,18 @@
   }
 
   // Watch for the modal popping up in the DOM
-  var observer = new MutationObserver(function (mutations) {
+  var observer = new MutationObserver(function () {
     var modal = document.getElementById('otp-nca-account-modal');
-    // If modal exists and is visible on screen
     if (modal && (modal.offsetWidth > 0 || modal.offsetHeight > 0)) {
       customizeOtpModal();
     }
   });
 
-  // Start watching the page
   document.addEventListener('DOMContentLoaded', function() {
     observer.observe(document.body, { childList: true, subtree: true });
   });
 
-  // Clear the intent flag when the modal is closed so the next time they 
-  // open it normally, it resets to "Welcome!"
+  // Clear the intent flag when the modal is closed
   document.addEventListener('click', function(event) {
     if (event.target.closest && event.target.closest('.otp-account-modal__close, .otp-account-modal-backdrop')) {
       window.__buzzkoAuthIntent = null;
