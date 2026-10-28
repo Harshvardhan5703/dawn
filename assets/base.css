@@ -3877,3 +3877,216 @@ video {
 #shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary:active {
   transform: translateY(0) scale(.98);
 }
+
+
+
+/* =====================================================
+   BUZZKO × OTP+
+   Clean custom styling for sign-in and account navigation
+   ===================================================== */
+
+:root {
+  --buzzko-cream: #F9F7F2;
+  --buzzko-charcoal: #1A1A1A;
+  --buzzko-muted: #77736C;
+  --buzzko-border: #E5E0D7;
+}
+
+/* =====================================================
+   1. SIGN-IN MODAL
+   Keep the entire modal warm cream, not white.
+   ===================================================== */
+
+#otp-nca-account-modal .otp-account-modal--bare {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+  border-radius: 22px !important;
+  overflow: hidden;
+}
+
+/* Ensure the modal's inner layers do not turn white */
+#otp-nca-account-modal .otp-login-modal-body,
+#otp-nca-account-modal .otp-login-modal-body .otp-card {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+  box-shadow: none !important;
+}
+
+/* Replace the generic B logo with the Buzzko logo */
+#otp-nca-account-modal .otp-login-modal-body .otp-card__avatar {
+  display: none !important;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-card::before {
+  content: "";
+  display: block;
+  width: 150px;
+  height: 92px;
+  margin: 0 auto 16px;
+  background-image: url("https://buzzko-m8ssgseu.myshopify.com/cdn/shop/files/buzzkologobgr_b3e234c9-26d3-43a8-ab16-2c923abccbee.png?v=1790677656&width=240");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+/* Heading */
+#otp-nca-account-modal .otp-card__title {
+  color: var(--buzzko-charcoal) !important;
+  font-family: var(--font-heading-family, Georgia, serif) !important;
+  font-size: 28px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.6px;
+  margin-bottom: 10px !important;
+}
+
+/* Supporting copy */
+#otp-nca-account-modal .otp-card__subtitle {
+  color: var(--buzzko-muted) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* Close button */
+#otp-nca-account-modal .otp-account-modal__close {
+  color: var(--buzzko-charcoal) !important;
+}
+
+/* =====================================================
+   2. SIGN-IN BUTTONS
+   Restrained styling, consistent with Buzzko branding.
+   ===================================================== */
+
+/* Google button */
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--google {
+  background: transparent !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  transition: border-color 180ms ease,
+              background-color 180ms ease;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--google:hover {
+  background: #F0ECE4 !important;
+  border-color: #C9C1B5 !important;
+}
+
+/* Apple button */
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--apple {
+  background: var(--buzzko-charcoal) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--buzzko-charcoal) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  transition: background-color 180ms ease;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--apple:hover {
+  background: #383630 !important;
+}
+
+/* Primary action: Send OTP and other primary actions */
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--primary {
+  background: var(--buzzko-charcoal) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--buzzko-charcoal) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+  transition: background-color 180ms ease,
+              border-color 180ms ease;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-btn--primary:hover {
+  background: #383630 !important;
+  border-color: #383630 !important;
+}
+
+/* =====================================================
+   3. PHONE INPUT
+   ===================================================== */
+
+#otp-nca-account-modal .otp-login-modal-body .otp-field {
+  background: var(--buzzko-cream) !important;
+  border: 1px solid #D9D3C9 !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-field:focus-within {
+  border-color: var(--buzzko-charcoal) !important;
+  box-shadow: 0 0 0 1px var(--buzzko-charcoal) !important;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-field__input {
+  background: transparent !important;
+  color: var(--buzzko-charcoal) !important;
+  box-shadow: none !important;
+}
+
+#otp-nca-account-modal .otp-login-modal-body .otp-field__input::placeholder {
+  color: #928D83 !important;
+  opacity: 1;
+}
+
+/* Divider and helper copy */
+#otp-nca-account-modal .otp-login-modal-body .otp-divider,
+#otp-nca-account-modal .otp-login-modal-body .otp-helper {
+  color: var(--buzzko-muted) !important;
+}
+
+/* Sign-in links */
+#otp-nca-account-modal .otp-login-modal-body .otp-link {
+  color: var(--buzzko-charcoal) !important;
+  text-underline-offset: 3px;
+}
+
+/* Remove OTP+ branding */
+#otp-nca-account-modal .otp-powered-badge-wrap {
+  display: none !important;
+}
+
+/* =====================================================
+   4. ACCOUNT MENU HOVER FIX ONLY
+   Preserve OTP+'s original dashboard appearance.
+   ===================================================== */
+
+/* Don't change the original colors, spacing, or layout.
+   Prevent hover styling from overriding the selected tab. */
+
+#otp-nca-account-modal .otp-account-dashboard__nav-item--active,
+#otp-nca-account-modal .otp-account-dashboard__nav-item--active:hover,
+#otp-nca-account-modal .otp-account-dashboard__nav-item--active:focus {
+  background-color: inherit;
+}
+
+/* Keep the active item visually consistent while focused.
+   Inactive items retain the app's original hover styling. */
+
+#otp-nca-account-modal .otp-account-dashboard__nav-item {
+  transition: background-color 160ms ease,
+              color 160ms ease;
+}
+
+/* =====================================================
+   5. SMALL SCREENS
+   ===================================================== */
+
+@media screen and (max-width: 600px) {
+  #otp-nca-account-modal .otp-account-modal--bare {
+    max-width: calc(100vw - 24px) !important;
+    border-radius: 18px !important;
+  }
+
+  #otp-nca-account-modal .otp-login-modal-body .otp-card::before {
+    width: 125px;
+    height: 78px;
+    margin-bottom: 14px;
+  }
+
+  #otp-nca-account-modal .otp-card__title {
+    font-size: 24px !important;
+  }
+}
