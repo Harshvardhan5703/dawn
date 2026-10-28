@@ -4708,3 +4708,17 @@ video {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* 1. Hide the "Sign in with email" link entirely */
+#otp-nca-account-modal .otp-link--muted {
+  display: none !important;
+}
+
+/* 2. Fix the Log Out / Close (X) overlap on mobile */
+@media screen and (max-width: 749px) {
+  #otp-nca-account-modal .otp-account-dashboard__logout {
+    /* Push the button to the left so the close button has breathing room */
+    margin-right: 36px !important; 
+  }
+}
