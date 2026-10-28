@@ -3877,3 +3877,298 @@ video {
 #shopify-section-template--27066160611578__rich_text_gYBteY .rich-text__buttons .button.button--primary:active {
   transform: translateY(0) scale(.98);
 }
+
+
+
+
+/* =========================================
+   BUZZKO × OTP+
+   Login and customer account modal styling
+   ========================================= */
+
+:root {
+  --buzzko-cream: #F9F7F2;
+  --buzzko-charcoal: #1A1A1A;
+  --buzzko-muted: #73716C;
+  --buzzko-border: #E7E2D9;
+  --buzzko-white: #FFFFFF;
+}
+
+/* Modal backdrop */
+.otp-account-modal-backdrop {
+  background: rgba(26, 26, 26, 0.48) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* Shared modal shell */
+.otpplus.otp-account-modal {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 24px 80px rgba(26, 26, 26, 0.16) !important;
+  overflow: hidden;
+  font-family: var(--font-body-family, sans-serif) !important;
+}
+
+/* Close button */
+.otp-account-modal__close {
+  color: var(--buzzko-charcoal) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  transition: background 0.2s ease;
+}
+
+.otp-account-modal__close:hover {
+  background: #EDE8DF !important;
+}
+
+/* =========================================
+   SIGN-IN MODAL
+   ========================================= */
+
+.otp-login-modal-body {
+  color: var(--buzzko-charcoal) !important;
+}
+
+.otp-login-modal-body .otp-card {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.otp-login-modal-body .otp-card__avatar {
+  background: var(--buzzko-charcoal) !important;
+  color: var(--buzzko-cream) !important;
+  border-radius: 12px !important;
+}
+
+.otp-login-modal-body .otp-card__title {
+  color: var(--buzzko-charcoal) !important;
+  font-family: var(--font-heading-family, sans-serif) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.035em;
+}
+
+.otp-login-modal-body .otp-card__subtitle,
+.otp-login-modal-body .otp-helper {
+  color: var(--buzzko-muted) !important;
+}
+
+/* Phone input and country selector */
+.otp-login-modal-body .otp-field {
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 12px !important;
+  background: var(--buzzko-white) !important;
+  overflow: hidden;
+}
+
+.otp-login-modal-body .otp-field:focus-within {
+  border-color: var(--buzzko-charcoal) !important;
+  box-shadow: 0 0 0 1px var(--buzzko-charcoal) !important;
+}
+
+.otp-login-modal-body .otp-field__input,
+.otp-login-modal-body .forminput {
+  color: var(--buzzko-charcoal) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.otp-login-modal-body .otp-field__input::placeholder {
+  color: #99958D !important;
+  opacity: 1;
+}
+
+/* Primary action buttons, including Send OTP */
+.otp-login-modal-body .otp-btn--primary,
+.otp-account-modal .otp-btn--primary {
+  background: var(--buzzko-charcoal) !important;
+  color: var(--buzzko-white) !important;
+  border: 1px solid var(--buzzko-charcoal) !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  transition: background 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.otp-login-modal-body .otp-btn--primary:hover,
+.otp-account-modal .otp-btn--primary:hover {
+  background: #383630 !important;
+  border-color: #383630 !important;
+}
+
+/* Google button */
+.otp-login-modal-body .otp-btn--google {
+  background: var(--buzzko-white) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 999px !important;
+}
+
+/* Apple button */
+.otp-login-modal-body .otp-btn--apple {
+  background: var(--buzzko-charcoal) !important;
+  color: var(--buzzko-white) !important;
+  border: 1px solid var(--buzzko-charcoal) !important;
+  border-radius: 999px !important;
+}
+
+/* Divider and text links */
+.otp-login-modal-body .otp-divider {
+  color: var(--buzzko-muted) !important;
+}
+
+.otp-login-modal-body .otp-link,
+.otp-account-modal .otp-link {
+  color: var(--buzzko-charcoal) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.otp-login-modal-body .otp-link:hover,
+.otp-account-modal .otp-link:hover {
+  opacity: 0.7;
+}
+
+/* =========================================
+   ACCOUNT DASHBOARD
+   ========================================= */
+
+.otp-account-modal--wide {
+  border-radius: 20px !important;
+}
+
+.otp-account-dashboard {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+}
+
+/* Sidebar */
+.otp-account-dashboard__sidebar {
+  background: #F0ECE4 !important;
+  border-color: var(--buzzko-border) !important;
+}
+
+/* Customer profile card */
+.otp-account-dashboard__profile-card {
+  background: transparent !important;
+  border-color: var(--buzzko-border) !important;
+}
+
+.otp-account-dashboard__avatar {
+  background: var(--buzzko-charcoal) !important;
+  color: var(--buzzko-cream) !important;
+  border-radius: 50% !important;
+}
+
+.otp-account-dashboard__profile-text strong {
+  color: var(--buzzko-charcoal) !important;
+}
+
+.otp-account-dashboard__profile-email {
+  color: var(--buzzko-muted) !important;
+  overflow-wrap: anywhere;
+}
+
+/* Sidebar navigation */
+.otp-account-dashboard__nav-item {
+  color: var(--buzzko-charcoal) !important;
+  background: transparent !important;
+  border-radius: 10px !important;
+  transition: background 0.2s ease;
+}
+
+.otp-account-dashboard__nav-item:hover {
+  background: #E7E1D7 !important;
+}
+
+.otp-account-dashboard__nav-item--active {
+  background: var(--buzzko-charcoal) !important;
+  color: var(--buzzko-white) !important;
+}
+
+.otp-account-dashboard__nav-item--active .otp-account-dashboard__nav-sub {
+  color: #E4E0D8 !important;
+}
+
+.otp-account-dashboard__nav-sub {
+  color: var(--buzzko-muted) !important;
+}
+
+/* Main account content */
+.otp-account-dashboard__main {
+  background: var(--buzzko-cream) !important;
+  color: var(--buzzko-charcoal) !important;
+}
+
+.otp-account-dashboard__main h2 {
+  color: var(--buzzko-charcoal) !important;
+  font-family: var(--font-heading-family, sans-serif) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em;
+}
+
+/* Profile fields */
+.otp-account-field label {
+  color: var(--buzzko-muted) !important;
+}
+
+.otp-account-field input {
+  background: var(--buzzko-white) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.otp-account-edit-btn {
+  background: var(--buzzko-white) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 999px !important;
+}
+
+/* Order cards and address cards */
+.otp-account-order-card {
+  background: var(--buzzko-white) !important;
+  color: var(--buzzko-charcoal) !important;
+  border: 1px solid var(--buzzko-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.otp-account-order-card p {
+  color: var(--buzzko-muted);
+}
+
+.otp-account-badge {
+  border-radius: 999px !important;
+}
+
+/* Logout */
+.otp-account-dashboard__logout button {
+  border-radius: 999px !important;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Small screens */
+@media screen and (max-width: 600px) {
+  .otpplus.otp-account-modal {
+    border-radius: 16px !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .otp-account-dashboard__main {
+    min-width: 0;
+  }
+
+  .otp-account-field-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
