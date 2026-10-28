@@ -4,11 +4,10 @@
   if (window.BuzzkoWishlistAuth) return;
 
   var PENDING_KEY = 'buzzko:wishlist:pending-auth:v1';
-  var account = null;
+  
+  // State
+  var currentIntent = null;    // 'product' | 'view' | null
   var pendingPayload = null;   // product intent (heart click)
-  var pendingView = false;     // view intent (header click)
-  var currentIntent = null;    // 'product' | 'view' | null — what opened THIS sheet
-  var authWasOpened = false;
   var checkingAuthentication = false;
 
   /* ---------- storage ---------- */
@@ -32,13 +31,10 @@
 
   function isCustomerSignedIn() {
     if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
-    // Liquid fallback: the count badge is only rendered inside {% if customer %}.
+    // Fallback: The count badge only renders in Liquid inside {% if customer %}
     return !!document.querySelector('.buzzko-header-wishlist [data-buzzko-wishlist-count]');
   }
 
-  // Injects the header badge for signed-out visitors who just signed in
-  // without a page reload (so refresh() has an element to update).
-  // Idempotent — no-op if the badge already exists.
   function ensureHeaderBadge() {
     var link = document.querySelector('.buzzko-header-wishlist');
     if (!link || link.querySelector('[data-buzzko-wishlist-count]')) return;
@@ -61,48 +57,12 @@
     }
   }
 
-  /* ---------- Shopify header account component ---------- */
-
-  function findHeaderAccount() {
-    return document.querySelector('.section-header shopify-account.header__icon--account')
-        || document.querySelector('shopify-account.header__icon--account')
-        || document.querySelector('.header__icons shopify-account');
-  }
-
-  function getAccountTrigger() {
-    if (!account || !account.shadowRoot) return null;
-    // Fixed: was missing the closing " in [part="signed-out-avatar]
-    return account.shadowRoot.querySelector('[part="signed-out-avatar"]')
-        || account.shadowRoot.querySelector('button');
-  }
-
-  function openHeaderAccount() {
-    account = findHeaderAccount();
-    var trigger = getAccountTrigger();
-    if (!account || !trigger) {
-      console.warn('[BuzzKo Wishlist] Could not find the Shopify header account trigger.');
-      return false;
-    }
-    var header = document.querySelector('.section-header .header');
-    if (header) {
-      account.style.setProperty(
-        '--account-dialog-top',
-        Math.round(header.getBoundingClientRect().bottom) + 'px'
-      );
-    }
-    authWasOpened = false;
-    trigger.click();
-    return true;
-  }
-
-  /* ---------- pending intents ---------- */
+  /* ---------- pending actions ---------- */
 
   function applyPendingWishlist(payload) {
     if (!payload || !payload.productId || !window.BuzzkoWishlist) return;
 
-    // FIXED: variant-aware check so multi-variant products work correctly.
-    // Previously used hasProduct() which returns true for ANY variant,
-    // so adding variant B while variant A was saved silently did nothing.
+    // Variant-aware check so adding a new variant of an already-saved product works
     var alreadySaved;
     if (payload.variantId && typeof window.BuzzkoWishlist.hasVariant === 'function') {
       alreadySaved = window.BuzzkoWishlist.hasVariant(payload.variantId);
@@ -123,13 +83,12 @@
     applyPendingWishlist(payload);
   }
 
-  function checkAuthenticationAfterSheetCloses() {
+  function checkAuthentication() {
     if (checkingAuthentication) return;
     checkingAuthentication = true;
 
-    // Capture intent NOW — the sheet's auth flow may take a moment.
     var intent = currentIntent;
-    currentIntent = null;
+    resetOtpModalText(); // Revert OTP+ modal text back to default
 
     window.setTimeout(function () {
       fetch('/account.json', {
@@ -142,10 +101,8 @@
           checkingAuthentication = false;
 
           if (!customer || !customer.id) {
-            // Sheet closed without sign-in. Keep pendingPayload in memory +
-            // sessionStorage so the next heart click re-prompts; view intent
-            // is transient so drop it.
-            pendingView = false;
+            // Closed without signing in
+            currentIntent = null;
             return;
           }
 
@@ -156,97 +113,157 @@
             clearPending();
             if (payload) applyPendingWishlist(payload);
           } else {
-            // View intent (or unknown) — never apply a stale product payload.
+            // View intent: discard any stale product payloads
             clearPending();
           }
-
-          pendingView = false;
+          currentIntent = null;
         })
         .catch(function (error) {
           checkingAuthentication = false;
+          currentIntent = null;
           console.warn('[BuzzKo Wishlist] Could not verify customer session.', error);
         });
     }, 500);
   }
 
-  /* ---------- ENTRY POINT 1: product heart click ---------- */
+  /* =========================================================
+     ACTIVE: OTP+ ACCOUNT MODAL INTEGRATION
+     ========================================================= */
+
+  function openOtpModal() {
+    // OTP+ hooks into the native header account icon to open the modal
+    var trigger = document.querySelector('.header__icon--account, shopify-account, [data-otp-login]');
+    if (trigger) {
+      trigger.click();
+      return true;
+    }
+    console.warn('[BuzzKo Wishlist] Could not find the OTP+ trigger element.');
+    return false;
+  }
+
+  function injectOtpModalText() {
+    // Poll for OTP+ modal injection
+    var attempts = 0;
+    var interval = setInterval(function () {
+      var subtitle = document.querySelector('#otp-nca-account-modal .otp-card__subtitle');
+      
+      if (subtitle) {
+        clearInterval(interval);
+        
+        // Save default OTP+ text
+        if (!subtitle.dataset.originalText) {
+          subtitle.dataset.originalText = subtitle.textContent;
+        }
+        
+        if (currentIntent === 'view') {
+          subtitle.textContent = 'Sign in to see your wishlist ❤️';
+        } else if (currentIntent === 'product') {
+          subtitle.textContent = 'Sign in to add this product to your favourites ❤️';
+        }
+      }
+      
+      if (++attempts > 40) clearInterval(interval); // Stop after 2 seconds
+    }, 50);
+  }
+
+  function resetOtpModalText() {
+    var subtitle = document.querySelector('#otp-nca-account-modal .otp-card__subtitle');
+    if (subtitle && subtitle.dataset.originalText) {
+      subtitle.textContent = subtitle.dataset.originalText;
+    }
+  }
+
+  /* ---------- entry points ---------- */
 
   function handleWishlistClick(button, payload) {
     if (isCustomerSignedIn()) return false;
+    if (!payload || !payload.productId || !payload.handle) return true;
 
-    if (!payload || !payload.productId || !payload.handle) {
-      console.warn('[BuzzKo Wishlist] Wishlist button is missing product data.');
-      return true;
-    }
-
-    pendingView = false;
-    pendingPayload = payload;
     currentIntent = 'product';
+    pendingPayload = payload;
     savePending(payload);
 
-    if (!openHeaderAccount()) {
+    if (!openOtpModal()) { // Swap this with openHeaderAccount() to revert
       currentIntent = null;
       clearPending();
       return false;
     }
+    
+    injectOtpModalText();
     return true;
   }
 
-  /* ---------- ENTRY POINT 2: header wishlist icon click ---------- */
-
   function handleHeaderWishlistClick(event) {
-    if (isCustomerSignedIn()) return;   // allow normal navigation
+    if (isCustomerSignedIn()) return;
 
     event.preventDefault();
 
-    pendingView = true;
     currentIntent = 'view';
-
-    if (!openHeaderAccount()) {
-      // Last-resort fallback if the account web component is missing.
-      pendingView = false;
+    
+    if (!openOtpModal()) { // Swap this with openHeaderAccount() to revert
       currentIntent = null;
-      var returnUrl = encodeURIComponent(window.location.pathname);
-      window.location.assign('/account/login?return_url=' + returnUrl);
+      window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
+      return;
     }
+    
+    injectOtpModalText();
   }
 
-  /* ---------- in-sheet notice (copy driven by currentIntent) ---------- */
+
+  /* =========================================================
+     DORMANT: NATIVE SHOPIFY ACCOUNT MODAL INTEGRATION
+     (Uncomment this block and update the two openOtpModal() calls 
+     above if you ever pivot back from OTP+)
+     ========================================================= */
+  /*
+  var account = null;
+  var authWasOpened = false;
+
+  function findHeaderAccount() {
+    return document.querySelector('.section-header shopify-account.header__icon--account')
+        || document.querySelector('shopify-account.header__icon--account')
+        || document.querySelector('.header__icons shopify-account');
+  }
+
+  function getAccountTrigger() {
+    if (!account || !account.shadowRoot) return null;
+    return account.shadowRoot.querySelector('[part="signed-out-avatar"]')
+        || account.shadowRoot.querySelector('button');
+  }
+
+  function openHeaderAccount() {
+    account = findHeaderAccount();
+    var trigger = getAccountTrigger();
+    if (!account || !trigger) return false;
+
+    var header = document.querySelector('.section-header .header');
+    if (header) {
+      account.style.setProperty('--account-dialog-top', Math.round(header.getBoundingClientRect().bottom) + 'px');
+    }
+    authWasOpened = false;
+    trigger.click();
+    return true;
+  }
 
   function showWishlistSignInNotice() {
     if (!account || !account.shadowRoot) return;
-
     var shadow = account.shadowRoot;
     var existing = shadow.querySelector('#buzzko-wishlist-signin-notice');
 
-    // Copy reflects the action that opened THIS sheet, not accumulated state.
     if (!currentIntent) {
       if (existing) existing.remove();
       return;
     }
 
-    var title, body;
-    if (currentIntent === 'view') {
-      title = 'Sign in to see your wishlist ❤️';
-      body  = 'Your saved favourites are waiting. Sign in to view them.';
-    } else {
-      title = 'Save your favourites ❤️';
-      body  = 'Sign in below to add this product to your wishlist.';
-    }
+    var title = currentIntent === 'view' ? 'Sign in to see your wishlist ❤️' : 'Save your favourites ❤️';
+    var body = currentIntent === 'view' ? 'Your saved favourites are waiting. Sign in to view them.' : 'Sign in below to add this product to your wishlist.';
 
     if (!shadow.querySelector('#buzzko-wishlist-signin-notice-style')) {
       var style = document.createElement('style');
       style.id = 'buzzko-wishlist-signin-notice-style';
       style.textContent = `
-        #buzzko-wishlist-signin-notice {
-          margin: 12px 16px 16px; padding: 12px 14px;
-          border-radius: 12px; background: #FFF0F7; color: #1A1A1A;
-          font-family: var(--shopify-account-font-body);
-          font-size: 13px; line-height: 1.45;
-        }
-        #buzzko-wishlist-signin-notice strong {
-          display: block; margin-bottom: 3px; font-size: 14px; font-weight: 700;
-        }
+        #buzzko-wishlist-signin-notice { margin: 12px 16px 16px; padding: 12px 14px; border-radius: 12px; background: #FFF0F7; color: #1A1A1A; font-family: var(--shopify-account-font-body); font-size: 13px; line-height: 1.45; }
+        #buzzko-wishlist-signin-notice strong { display: block; margin-bottom: 3px; font-size: 14px; font-weight: 700; }
         #buzzko-wishlist-signin-notice span { display: block; opacity: 0.8; }
       `;
       shadow.appendChild(style);
@@ -264,22 +281,12 @@
     var notice = document.createElement('div');
     notice.id = 'buzzko-wishlist-signin-notice';
     notice.setAttribute('role', 'status');
-
-    var strong = document.createElement('strong');
-    strong.textContent = title;
-    var span = document.createElement('span');
-    span.textContent = body;
-
-    notice.appendChild(strong);
-    notice.appendChild(span);
+    notice.innerHTML = '<strong>' + title + '</strong><span>' + body + '</span>';
     header.insertAdjacentElement('afterend', notice);
   }
 
-  /* ---------- init ---------- */
-
-  function init() {
+  function initNativeAccount() {
     account = findHeaderAccount();
-
     if (account) {
       account.addEventListener('open', function () {
         authWasOpened = true;
@@ -288,25 +295,41 @@
       account.addEventListener('close', function () {
         if (!authWasOpened) return;
         authWasOpened = false;
-        checkAuthenticationAfterSheetCloses();
+        checkAuthentication();
       });
     }
+  }
+  */
 
+  /* ---------- init ---------- */
+
+  function init() {
     recoverAfterRedirect();
 
-    // Delegated handler covers the header icon and any future
-    // [data-buzzko-wishlist-link] (e.g. a mobile drawer version).
+    // 1. Listen for Header Wishlist Icon Clicks
     document.addEventListener('click', function (event) {
       var link = event.target.closest && event.target.closest('[data-buzzko-wishlist-link]');
       if (!link) return;
       handleHeaderWishlistClick(event);
     });
+
+    // 2. Listen for OTP+ Modal Close to check auth & reset text
+    document.addEventListener('click', function (event) {
+      if (event.target.closest && event.target.closest('.otp-account-modal__close, .otp-account-modal-backdrop')) {
+        if (currentIntent) {
+          checkAuthentication();
+        }
+      }
+    });
+
+    // 3. Init Native Account (If uncommented above, uncomment this too)
+    // initNativeAccount();
   }
 
   window.BuzzkoWishlistAuth = {
     handleWishlistClick: handleWishlistClick,
     handleHeaderWishlistClick: handleHeaderWishlistClick,
-    openAccountMenu: openHeaderAccount,
+    openAccountMenu: openOtpModal, // Swap to openHeaderAccount if reverting
     isCustomerSignedIn: isCustomerSignedIn
   };
 
