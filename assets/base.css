@@ -3880,213 +3880,683 @@ video {
 
 
 
-/* =====================================================
-   BUZZKO × OTP+
-   Clean custom styling for sign-in and account navigation
-   ===================================================== */
+/* ============================================================
+   BuzzKo skin for OTP+ account modal
+   Scope: #otp-nca-account-modal
+   ============================================================ */
 
-:root {
-  --buzzko-cream: #F9F7F2;
-  --buzzko-charcoal: #1A1A1A;
-  --buzzko-muted: #77736C;
-  --buzzko-border: #E5E0D7;
+#otp-nca-account-modal {
+  --bk-pink: #FF60B9;
+  --bk-pink-hover: #E469AF;
+  --bk-pink-soft: #F8B5D1;
+  --bk-pink-pale: #FFDCEF;
+  --bk-pink-bg: #FFF0F7;
+  --bk-cream: #FFFAF5;
+  --bk-ink: #1A1A1A;
+  --bk-muted: #6B6663;
+  --bk-soft: #999999;
+  --bk-line: rgba(26, 26, 26, 0.08);
+  --bk-line-strong: rgba(26, 26, 26, 0.14);
+  --bk-shadow-lg: 0 24px 60px rgba(26, 26, 26, 0.18);
+  --bk-shadow-sm: 0 4px 16px rgba(26, 26, 26, 0.06);
+  --bk-heading: var(--font-heading-family, system-ui, sans-serif);
+  --bk-body: var(--font-body-family, system-ui, sans-serif);
 }
 
-/* =====================================================
-   1. SIGN-IN MODAL
-   Keep the entire modal warm cream, not white.
-   ===================================================== */
+/* ---------- Backdrop ---------- */
+#otp-nca-account-modal .otp-account-modal-backdrop {
+  background: rgba(26, 26, 26, 0.5) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
 
-#otp-nca-account-modal .otp-account-modal--bare {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-  border-radius: 22px !important;
+/* ---------- Modal shell ---------- */
+#otp-nca-account-modal .otp-account-modal {
+  background: var(--bk-cream) !important;
+  color: var(--bk-ink);
+  border: 2px solid var(--bk-pink-pale);
+  border-radius: 28px !important;
+  box-shadow: var(--bk-shadow-lg) !important;
+  font-family: var(--bk-body);
   overflow: hidden;
 }
 
-/* Ensure the modal's inner layers do not turn white */
-#otp-nca-account-modal .otp-login-modal-body,
-#otp-nca-account-modal .otp-login-modal-body .otp-card {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-  box-shadow: none !important;
+#otp-nca-account-modal .otp-account-modal--wide {
+  max-width: 900px;
 }
 
-/* Replace the generic B logo with the Buzzko logo */
-#otp-nca-account-modal .otp-login-modal-body .otp-card__avatar {
-  display: none !important;
+#otp-nca-account-modal .otp-account-modal--bare {
+  max-width: 440px;
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-card::before {
-  content: "";
-  display: block;
-  width: 150px;
-  height: 92px;
-  margin: 0 auto 16px;
-  background-image: url("https://buzzko-m8ssgseu.myshopify.com/cdn/shop/files/buzzkologobgr_b3e234c9-26d3-43a8-ab16-2c923abccbee.png?v=1790677656&width=240");
+/* ---------- Close button ---------- */
+#otp-nca-account-modal .otp-account-modal__close {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: #FFFFFF !important;
+  border: 1px solid var(--bk-line-strong) !important;
+  color: var(--bk-ink) !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  top: 16px !important;
+  right: 16px !important;
+  transition: background .15s ease, transform .15s ease;
+}
+#otp-nca-account-modal .otp-account-modal__close:hover {
+  background: var(--bk-pink-pale) !important;
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   SIGN-IN MODAL
+   ============================================================ */
+
+#otp-nca-account-modal .otp-login-modal-body {
+  padding: 36px 28px 24px;
+  color: var(--bk-ink);
+}
+
+#otp-nca-account-modal .otp-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Replace the "B" avatar with the Buzzko wordmark */
+#otp-nca-account-modal .otp-card__avatar {
+  width: 140px;
+  height: 60px;
+  margin: 0 auto 18px;
+  background-image: url('//buzzko-m8ssgseu.myshopify.com/cdn/shop/files/buzzkologobgr_b3e234c9-26d3-43a8-ab16-2c923abccbee.png?v=1790677656&width=600');
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-color: transparent;
+  color: transparent !important;
+  font-size: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
-/* Heading */
 #otp-nca-account-modal .otp-card__title {
-  color: var(--buzzko-charcoal) !important;
-  font-family: var(--font-heading-family, Georgia, serif) !important;
-  font-size: 28px !important;
-  line-height: 1.2 !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.6px;
-  margin-bottom: 10px !important;
+  font-family: var(--bk-heading);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--bk-ink);
+  margin: 0 0 8px;
+  text-align: center;
 }
 
-/* Supporting copy */
 #otp-nca-account-modal .otp-card__subtitle {
-  color: var(--buzzko-muted) !important;
-  font-size: 14px !important;
-  line-height: 1.6 !important;
+  color: var(--bk-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0 0 24px;
 }
 
-/* Close button */
-#otp-nca-account-modal .otp-account-modal__close {
-  color: var(--buzzko-charcoal) !important;
+/* ---- Buttons ---- */
+#otp-nca-account-modal .otp-btn {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 999px !important;
+  font-family: var(--bk-body);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.005em;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
 }
 
-/* =====================================================
-   2. SIGN-IN BUTTONS
-   Restrained styling, consistent with Buzzko branding.
-   ===================================================== */
-
-/* Google button */
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--google {
-  background: transparent !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  transition: border-color 180ms ease,
-              background-color 180ms ease;
+#otp-nca-account-modal .otp-btn:hover {
+  transform: translateY(-1px);
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--google:hover {
-  background: #F0ECE4 !important;
-  border-color: #C9C1B5 !important;
+#otp-nca-account-modal .otp-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
 }
 
-/* Apple button */
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--apple {
-  background: var(--buzzko-charcoal) !important;
+#otp-nca-account-modal .otp-btn--google {
+  background: #FFFFFF !important;
+  color: var(--bk-ink) !important;
+  border: 1.5px solid var(--bk-line-strong) !important;
+  margin-bottom: 10px;
+}
+#otp-nca-account-modal .otp-btn--google:hover {
+  border-color: var(--bk-pink-soft) !important;
+}
+
+#otp-nca-account-modal .otp-btn--apple {
+  background: var(--bk-ink) !important;
   color: #FFFFFF !important;
-  border: 1px solid var(--buzzko-charcoal) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  transition: background-color 180ms ease;
+  border: 1.5px solid var(--bk-ink) !important;
+  margin-bottom: 4px;
+}
+#otp-nca-account-modal .otp-btn--apple:hover {
+  background: #2b2b2b !important;
+  border-color: #2b2b2b !important;
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--apple:hover {
-  background: #383630 !important;
+#otp-nca-account-modal .otp-btn--primary {
+  background: var(--bk-pink) !important;
+  color: var(--bk-ink) !important;
+  border: 1.5px solid var(--bk-pink) !important;
+  font-weight: 800;
+}
+#otp-nca-account-modal .otp-btn--primary:hover {
+  background: var(--bk-pink-hover) !important;
+  border-color: var(--bk-pink-hover) !important;
+  color: var(--bk-ink) !important;
 }
 
-/* Primary action: Send OTP and other primary actions */
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--primary {
-  background: var(--buzzko-charcoal) !important;
-  color: #FFFFFF !important;
-  border: 1px solid var(--buzzko-charcoal) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  font-weight: 600 !important;
-  transition: background-color 180ms ease,
-              border-color 180ms ease;
+/* ---- Divider ---- */
+#otp-nca-account-modal .otp-divider {
+  color: var(--bk-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 20px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+}
+#otp-nca-account-modal .otp-divider::before,
+#otp-nca-account-modal .otp-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bk-line);
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-btn--primary:hover {
-  background: #383630 !important;
-  border-color: #383630 !important;
+/* ---- Form field ---- */
+#otp-nca-account-modal .otp-field {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: #FFFFFF;
+  border: 1.5px solid var(--bk-line-strong);
+  border-radius: 14px;
+  padding: 4px;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-/* =====================================================
-   3. PHONE INPUT
-   ===================================================== */
-
-#otp-nca-account-modal .otp-login-modal-body .otp-field {
-  background: var(--buzzko-cream) !important;
-  border: 1px solid #D9D3C9 !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
+#otp-nca-account-modal .otp-field:focus-within {
+  border-color: var(--bk-pink);
+  box-shadow: 0 0 0 3px rgba(255, 96, 185, 0.14);
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-field:focus-within {
-  border-color: var(--buzzko-charcoal) !important;
-  box-shadow: 0 0 0 1px var(--buzzko-charcoal) !important;
+#otp-nca-account-modal .country-code-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--bk-ink);
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 40px;
+  transition: background .15s ease;
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-field__input {
+#otp-nca-account-modal .country-code-wrapper:hover {
+  background: var(--bk-pink-bg);
+}
+
+#otp-nca-account-modal .country-flag-icon {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+#otp-nca-account-modal .country-trigger-chevron {
+  color: var(--bk-muted);
+}
+
+#otp-nca-account-modal .otp-field__input {
+  flex: 1;
+  border: none !important;
   background: transparent !important;
-  color: var(--buzzko-charcoal) !important;
-  box-shadow: none !important;
+  padding: 0 12px;
+  font-family: var(--bk-body);
+  font-size: 15px;
+  color: var(--bk-ink);
+  outline: none;
+  min-height: 40px;
+  min-width: 0;
 }
 
-#otp-nca-account-modal .otp-login-modal-body .otp-field__input::placeholder {
-  color: #928D83 !important;
-  opacity: 1;
+#otp-nca-account-modal .otp-field__input::placeholder {
+  color: var(--bk-soft);
 }
 
-/* Divider and helper copy */
-#otp-nca-account-modal .otp-login-modal-body .otp-divider,
-#otp-nca-account-modal .otp-login-modal-body .otp-helper {
-  color: var(--buzzko-muted) !important;
+/* ---- Helper / error ---- */
+#otp-nca-account-modal .otp-helper {
+  color: var(--bk-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 12px 0 0;
+  display: block;
+}
+#otp-nca-account-modal .otp-helper__dot {
+  margin: 0 6px;
+  color: var(--bk-soft);
 }
 
-/* Sign-in links */
-#otp-nca-account-modal .otp-login-modal-body .otp-link {
-  color: var(--buzzko-charcoal) !important;
+#otp-nca-account-modal .otp-error {
+  color: #C0392B;
+  font-size: 13px;
+  margin: 8px 0 0;
+  display: block;
+}
+
+/* ---- Link buttons ---- */
+#otp-nca-account-modal .otp-link {
+  background: none;
+  border: none;
+  color: var(--bk-ink);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: underline;
   text-underline-offset: 3px;
+  padding: 0;
+  cursor: pointer;
+}
+#otp-nca-account-modal .otp-link:hover {
+  color: var(--bk-pink);
 }
 
-/* Remove OTP+ branding */
+#otp-nca-account-modal .otp-link--muted {
+  color: var(--bk-muted);
+  display: block;
+  margin: 18px auto 0;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+#otp-nca-account-modal .otp-link--muted:hover {
+  color: var(--bk-pink);
+  text-decoration: underline;
+}
+
+/* ---- Powered-by badge (keep visible, tone down) ----
+   Remove the opacity rule if OTP+ requires full-brand visibility. */
 #otp-nca-account-modal .otp-powered-badge-wrap {
-  display: none !important;
+  padding: 8px 0 4px;
+}
+#otp-nca-account-modal .otp-powered-badge {
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: opacity .15s ease, filter .15s ease;
+}
+#otp-nca-account-modal .otp-powered-badge:hover {
+  opacity: 1;
+  filter: none;
 }
 
-/* =====================================================
-   4. ACCOUNT MENU HOVER FIX ONLY
-   Preserve OTP+'s original dashboard appearance.
-   ===================================================== */
+/* ============================================================
+   LOGGED-IN DASHBOARD
+   ============================================================ */
 
-/* Don't change the original colors, spacing, or layout.
-   Prevent hover styling from overriding the selected tab. */
-
-#otp-nca-account-modal .otp-account-dashboard__nav-item--active,
-#otp-nca-account-modal .otp-account-dashboard__nav-item--active:hover,
-#otp-nca-account-modal .otp-account-dashboard__nav-item--active:focus {
-  background-color: inherit;
+#otp-nca-account-modal .otp-account-dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 480px;
+  background: var(--bk-cream);
 }
 
-/* Keep the active item visually consistent while focused.
-   Inactive items retain the app's original hover styling. */
+/* Sidebar */
+#otp-nca-account-modal .otp-account-dashboard__sidebar {
+  background: var(--bk-pink-bg);
+  border-right: 1px solid var(--bk-pink-pale);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#otp-nca-account-modal .otp-account-dashboard__profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--bk-pink-pale);
+  border-radius: 14px;
+  box-shadow: var(--bk-shadow-sm);
+}
+
+#otp-nca-account-modal .otp-account-dashboard__avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 50%;
+  background: var(--bk-pink);
+  color: var(--bk-ink);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  display: grid;
+  place-items: center;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 4px 10px rgba(255, 96, 185, 0.25);
+}
+
+#otp-nca-account-modal .otp-account-dashboard__profile-text {
+  min-width: 0;
+}
+#otp-nca-account-modal .otp-account-dashboard__profile-text strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--bk-ink);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#otp-nca-account-modal .otp-account-dashboard__profile-email {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--bk-muted);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nav */
+#otp-nca-account-modal .otp-account-dashboard__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
 #otp-nca-account-modal .otp-account-dashboard__nav-item {
-  transition: background-color 160ms ease,
-              color 160ms ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  color: var(--bk-ink);
+  font-family: var(--bk-body);
+  font-weight: 700;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
 
-/* =====================================================
-   5. SMALL SCREENS
-   ===================================================== */
+#otp-nca-account-modal .otp-account-dashboard__nav-item:hover {
+  background: #FFFFFF;
+  border-color: var(--bk-pink-pale);
+}
 
-@media screen and (max-width: 600px) {
-  #otp-nca-account-modal .otp-account-modal--bare {
-    max-width: calc(100vw - 24px) !important;
-    border-radius: 18px !important;
+/* Buzzko-style active: raised, hard black shadow (matches variant picker) */
+#otp-nca-account-modal .otp-account-dashboard__nav-item--active {
+  background: #FFFFFF;
+  border-color: var(--bk-pink);
+  box-shadow: 3px 3px 0 var(--bk-ink);
+  transform: translate(-1px, -1px);
+}
+
+#otp-nca-account-modal .otp-account-dashboard__nav-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bk-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Logout */
+#otp-nca-account-modal .otp-account-dashboard__logout {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--bk-pink-pale);
+}
+#otp-nca-account-modal .otp-account-dashboard__logout button {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 16px;
+  background: transparent;
+  color: var(--bk-ink);
+  border: 1.5px solid var(--bk-ink);
+  border-radius: 999px;
+  font-family: var(--bk-body);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+#otp-nca-account-modal .otp-account-dashboard__logout button:hover {
+  background: var(--bk-ink);
+  color: var(--bk-cream);
+}
+
+/* Main content */
+#otp-nca-account-modal .otp-account-dashboard__main {
+  padding: 32px;
+  color: var(--bk-ink);
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+#otp-nca-account-modal .otp-account-dashboard__main h2 {
+  font-family: var(--bk-heading);
+  font-weight: 900;
+  font-size: 24px;
+  letter-spacing: -0.025em;
+  color: var(--bk-ink);
+  margin: 0 0 4px;
+}
+
+#otp-nca-account-modal .otp-account-profile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+#otp-nca-account-modal .otp-account-profile-head p {
+  color: var(--bk-muted) !important;
+  font-size: 13px;
+}
+
+#otp-nca-account-modal .otp-account-edit-btn {
+  min-height: 38px;
+  padding: 0 18px;
+  background: var(--bk-pink) !important;
+  color: var(--bk-ink) !important;
+  border: 1.5px solid var(--bk-pink) !important;
+  border-radius: 999px;
+  font-family: var(--bk-body);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+#otp-nca-account-modal .otp-account-edit-btn:hover {
+  background: var(--bk-pink-hover) !important;
+  border-color: var(--bk-pink-hover) !important;
+}
+
+/* Field grid */
+#otp-nca-account-modal .otp-account-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+#otp-nca-account-modal .otp-account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#otp-nca-account-modal .otp-account-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#otp-nca-account-modal .otp-account-field input {
+  min-height: 42px;
+  padding: 0 14px;
+  background: #FFFFFF !important;
+  border: 1.5px solid var(--bk-line) !important;
+  border-radius: 12px !important;
+  font-family: var(--bk-body);
+  font-size: 14px;
+  color: var(--bk-ink);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#otp-nca-account-modal .otp-account-field input:focus {
+  border-color: var(--bk-pink) !important;
+  box-shadow: 0 0 0 3px rgba(255, 96, 185, 0.14);
+}
+
+#otp-nca-account-modal .otp-account-field input[readonly] {
+  background: #FFFDFB !important;
+  color: var(--bk-ink);
+}
+
+/* Order + address cards */
+#otp-nca-account-modal .otp-account-order-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--bk-line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--bk-shadow-sm);
+  margin-top: 14px;
+}
+
+#otp-nca-account-modal .otp-account-order-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+#otp-nca-account-modal .otp-account-order-card__header strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--bk-ink);
+}
+
+#otp-nca-account-modal .otp-account-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--bk-pink-pale);
+  color: var(--bk-ink);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#otp-nca-account-modal .otp-account-order-card p {
+  color: var(--bk-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- Generic button "Add address" (otp-btn--primary used inline) ---- */
+#otp-nca-account-modal .otp-account-dashboard__main .otp-btn--primary {
+  width: auto;
+  padding: 0 22px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 749px) {
+  #otp-nca-account-modal .otp-account-modal {
+    border-radius: 20px !important;
   }
 
-  #otp-nca-account-modal .otp-login-modal-body .otp-card::before {
-    width: 125px;
-    height: 78px;
-    margin-bottom: 14px;
+  #otp-nca-account-modal .otp-login-modal-body {
+    padding: 28px 18px 20px;
   }
-
   #otp-nca-account-modal .otp-card__title {
-    font-size: 24px !important;
+    font-size: 22px;
+  }
+  #otp-nca-account-modal .otp-card__avatar {
+    width: 110px;
+    height: 50px;
+  }
+
+  #otp-nca-account-modal .otp-account-dashboard {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--bk-pink-pale);
+    padding: 20px 16px;
+    gap: 16px;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__nav-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 10px 14px;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__nav-sub {
+    display: none;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__logout {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+  #otp-nca-account-modal .otp-account-dashboard__main {
+    padding: 20px 16px;
+    max-height: none;
+  }
+  #otp-nca-account-modal .otp-account-field-grid {
+    grid-template-columns: 1fr;
+  }
+  #otp-nca-account-modal .otp-account-modal__close {
+    top: 12px !important;
+    right: 12px !important;
   }
 }
