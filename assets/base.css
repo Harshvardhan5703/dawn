@@ -3881,294 +3881,144 @@ video {
 
 
 
-/* =========================================
-   BUZZKO × OTP+
-   Login and customer account modal styling
-   ========================================= */
+/* ==========================================
+   BUZZKO SIGN-IN MODAL: BRANDING & POLISH
+   ========================================== */
 
-:root {
-  --buzzko-cream: #F9F7F2;
-  --buzzko-charcoal: #1A1A1A;
-  --buzzko-muted: #73716C;
-  --buzzko-border: #E7E2D9;
-  --buzzko-white: #FFFFFF;
+/* Refined sign-in modal shell */
+.otpplus.otp-account-modal--bare {
+  width: min(520px, calc(100vw - 32px)) !important;
+  max-width: 520px !important;
+  border-radius: 24px !important;
+  background: #F9F7F2 !important;
+  overflow: hidden !important;
 }
 
-/* Modal backdrop */
-.otp-account-modal-backdrop {
-  background: rgba(26, 26, 26, 0.48) !important;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
-/* Shared modal shell */
-.otpplus.otp-account-modal {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 24px 80px rgba(26, 26, 26, 0.16) !important;
-  overflow: hidden;
-  font-family: var(--font-body-family, sans-serif) !important;
-}
-
-/* Close button */
-.otp-account-modal__close {
-  color: var(--buzzko-charcoal) !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 50% !important;
-  transition: background 0.2s ease;
-}
-
-.otp-account-modal__close:hover {
-  background: #EDE8DF !important;
-}
-
-/* =========================================
-   SIGN-IN MODAL
-   ========================================= */
-
-.otp-login-modal-body {
-  color: var(--buzzko-charcoal) !important;
-}
-
-.otp-login-modal-body .otp-card {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
+/* Remove the generic black "B" avatar */
 .otp-login-modal-body .otp-card__avatar {
-  background: var(--buzzko-charcoal) !important;
-  color: var(--buzzko-cream) !important;
-  border-radius: 12px !important;
+  display: none !important;
+}
+
+/* Add the actual Buzzko logo in its place */
+.otp-login-modal-body .otp-card::before {
+  content: "";
+  display: block;
+  width: 150px;
+  height: 92px;
+  margin: 0 auto 18px;
+  background-image: url("https://buzzko-m8ssgseu.myshopify.com/cdn/shop/files/buzzkologobgr_b3e234c9-26d3-43a8-ab16-2c923abccbee.png?v=1790677656&width=240");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* Improve the login content spacing */
+.otp-login-modal-body .otp-card {
+  padding: 32px 30px 24px !important;
 }
 
 .otp-login-modal-body .otp-card__title {
-  color: var(--buzzko-charcoal) !important;
-  font-family: var(--font-heading-family, sans-serif) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.035em;
+  font-size: clamp(24px, 3vw, 30px) !important;
+  line-height: 1.2 !important;
+  margin: 0 0 10px !important;
 }
 
-.otp-login-modal-body .otp-card__subtitle,
-.otp-login-modal-body .otp-helper {
-  color: var(--buzzko-muted) !important;
+.otp-login-modal-body .otp-card__subtitle {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  margin-bottom: 26px !important;
 }
 
-/* Phone input and country selector */
-.otp-login-modal-body .otp-field {
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 12px !important;
-  background: var(--buzzko-white) !important;
-  overflow: hidden;
-}
-
-.otp-login-modal-body .otp-field:focus-within {
-  border-color: var(--buzzko-charcoal) !important;
-  box-shadow: 0 0 0 1px var(--buzzko-charcoal) !important;
-}
-
-.otp-login-modal-body .otp-field__input,
-.otp-login-modal-body .forminput {
-  color: var(--buzzko-charcoal) !important;
-  background: transparent !important;
-  border-radius: 0 !important;
+/* Consistent button sizing */
+.otp-login-modal-body .otp-btn {
+  min-height: 52px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
   box-shadow: none !important;
 }
 
-.otp-login-modal-body .otp-field__input::placeholder {
-  color: #99958D !important;
-  opacity: 1;
+/* Make the phone field feel more intentional */
+.otp-login-modal-body .otp-field {
+  min-height: 58px !important;
+  border-radius: 12px !important;
 }
 
-/* Primary action buttons, including Send OTP */
-.otp-login-modal-body .otp-btn--primary,
-.otp-account-modal .otp-btn--primary {
-  background: var(--buzzko-charcoal) !important;
-  color: var(--buzzko-white) !important;
-  border: 1px solid var(--buzzko-charcoal) !important;
-  border-radius: 999px !important;
-  font-weight: 600 !important;
-  transition: background 0.2s ease, color 0.2s ease,
-              border-color 0.2s ease;
+.otp-login-modal-body .otp-field__input {
+  min-height: 54px !important;
+  font-size: 15px !important;
 }
 
-.otp-login-modal-body .otp-btn--primary:hover,
-.otp-account-modal .otp-btn--primary:hover {
-  background: #383630 !important;
-  border-color: #383630 !important;
-}
-
-/* Google button */
-.otp-login-modal-body .otp-btn--google {
-  background: var(--buzzko-white) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 999px !important;
-}
-
-/* Apple button */
-.otp-login-modal-body .otp-btn--apple {
-  background: var(--buzzko-charcoal) !important;
-  color: var(--buzzko-white) !important;
-  border: 1px solid var(--buzzko-charcoal) !important;
-  border-radius: 999px !important;
-}
-
-/* Divider and text links */
+/* Refine the divider */
 .otp-login-modal-body .otp-divider {
-  color: var(--buzzko-muted) !important;
+  margin: 22px 0 !important;
+  font-size: 13px !important;
 }
 
-.otp-login-modal-body .otp-link,
-.otp-account-modal .otp-link {
-  color: var(--buzzko-charcoal) !important;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+/* Make the close control neat and unobtrusive */
+.otpplus.otp-account-modal--bare .otp-account-modal__close {
+  top: 16px !important;
+  right: 16px !important;
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 27px !important;
+  line-height: 1 !important;
 }
 
-.otp-login-modal-body .otp-link:hover,
-.otp-account-modal .otp-link:hover {
-  opacity: 0.7;
+/* Hide the Powered by OTP+ branding */
+#otp-nca-account-modal .otp-powered-badge-wrap {
+  display: none !important;
 }
 
-/* =========================================
-   ACCOUNT DASHBOARD
-   ========================================= */
+/* ==========================================
+   BUZZKO ACCOUNT NAVIGATION HOVER FIX
+   ========================================== */
 
-.otp-account-modal--wide {
-  border-radius: 20px !important;
-}
-
-.otp-account-dashboard {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-}
-
-/* Sidebar */
-.otp-account-dashboard__sidebar {
-  background: #F0ECE4 !important;
-  border-color: var(--buzzko-border) !important;
-}
-
-/* Customer profile card */
-.otp-account-dashboard__profile-card {
-  background: transparent !important;
-  border-color: var(--buzzko-border) !important;
-}
-
-.otp-account-dashboard__avatar {
-  background: var(--buzzko-charcoal) !important;
-  color: var(--buzzko-cream) !important;
-  border-radius: 50% !important;
-}
-
-.otp-account-dashboard__profile-text strong {
-  color: var(--buzzko-charcoal) !important;
-}
-
-.otp-account-dashboard__profile-email {
-  color: var(--buzzko-muted) !important;
-  overflow-wrap: anywhere;
-}
-
-/* Sidebar navigation */
-.otp-account-dashboard__nav-item {
-  color: var(--buzzko-charcoal) !important;
-  background: transparent !important;
-  border-radius: 10px !important;
-  transition: background 0.2s ease;
-}
-
-.otp-account-dashboard__nav-item:hover {
+/* Keep ordinary hover styling off the selected tab */
+.otp-account-dashboard__nav-item:hover:not(
+  .otp-account-dashboard__nav-item--active
+) {
   background: #E7E1D7 !important;
+  color: #1A1A1A !important;
 }
 
-.otp-account-dashboard__nav-item--active {
-  background: var(--buzzko-charcoal) !important;
-  color: var(--buzzko-white) !important;
+/* Critical: hovering the selected tab must not
+   override its active appearance */
+.otp-account-dashboard__nav-item--active,
+.otp-account-dashboard__nav-item--active:hover,
+.otp-account-dashboard__nav-item--active:focus,
+.otp-account-dashboard__nav-item--active:focus-visible {
+  background: #1A1A1A !important;
+  color: #FFFFFF !important;
 }
 
-.otp-account-dashboard__nav-item--active .otp-account-dashboard__nav-sub {
+/* Keep active-tab subtitle readable */
+.otp-account-dashboard__nav-item--active .otp-account-dashboard__nav-sub,
+.otp-account-dashboard__nav-item--active:hover .otp-account-dashboard__nav-sub {
   color: #E4E0D8 !important;
 }
 
-.otp-account-dashboard__nav-sub {
-  color: var(--buzzko-muted) !important;
+/* Smooth, restrained hover on inactive items */
+.otp-account-dashboard__nav-item {
+  transition: background-color 160ms ease,
+              color 160ms ease;
 }
 
-/* Main account content */
-.otp-account-dashboard__main {
-  background: var(--buzzko-cream) !important;
-  color: var(--buzzko-charcoal) !important;
-}
-
-.otp-account-dashboard__main h2 {
-  color: var(--buzzko-charcoal) !important;
-  font-family: var(--font-heading-family, sans-serif) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.025em;
-}
-
-/* Profile fields */
-.otp-account-field label {
-  color: var(--buzzko-muted) !important;
-}
-
-.otp-account-field input {
-  background: var(--buzzko-white) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-}
-
-.otp-account-edit-btn {
-  background: var(--buzzko-white) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 999px !important;
-}
-
-/* Order cards and address cards */
-.otp-account-order-card {
-  background: var(--buzzko-white) !important;
-  color: var(--buzzko-charcoal) !important;
-  border: 1px solid var(--buzzko-border) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-}
-
-.otp-account-order-card p {
-  color: var(--buzzko-muted);
-}
-
-.otp-account-badge {
-  border-radius: 999px !important;
-}
-
-/* Logout */
-.otp-account-dashboard__logout button {
-  border-radius: 999px !important;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-/* Small screens */
+/* Mobile adjustments */
 @media screen and (max-width: 600px) {
-  .otpplus.otp-account-modal {
-    border-radius: 16px !important;
-    max-width: calc(100vw - 24px) !important;
+  .otpplus.otp-account-modal--bare {
+    width: calc(100vw - 24px) !important;
+    max-width: 520px !important;
+    border-radius: 18px !important;
   }
 
-  .otp-account-dashboard__main {
-    min-width: 0;
+  .otp-login-modal-body .otp-card {
+    padding: 28px 18px 20px !important;
   }
 
-  .otp-account-field-grid {
-    grid-template-columns: minmax(0, 1fr) !important;
+  .otp-login-modal-body .otp-card::before {
+    width: 125px;
+    height: 78px;
+    margin-bottom: 14px;
   }
 }
