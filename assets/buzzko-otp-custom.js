@@ -4,7 +4,7 @@
   // Global flag for the Wishlist script to communicate with this UI script
   window.__buzzkoAuthIntent = null;
 
-  function customizeOtpModal() {
+    function customizeOtpModal() {
     var modal = document.getElementById('otp-nca-account-modal');
     if (!modal) return;
 
@@ -21,8 +21,6 @@
         newText = 'Sign in to add this product to your favourites ❤️';
       }
 
-      // CRITICAL FIX: Only change text if it's different. 
-      // This stops the infinite MutationObserver loop.
       if (subtitle.textContent.trim() !== newText) {
         subtitle.textContent = newText;
       }
@@ -30,7 +28,17 @@
 
     // 2. Handle Terms & Conditions Link
     if (helper && !helper.dataset.hasTerms) {
-      helper.innerHTML = '<a href="/policies/terms-of-service" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 3px; font-weight: 700;">Terms & conditions</a>';
+      // Create the link HTML (no bold font-weight)
+      var linkHtml = '<a href="/policies/terms-of-service" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">Terms & conditions</a>';
+      
+      // Swap out just the text, keeping the SMS and dot text intact
+      if (helper.innerHTML.includes('Charges may apply')) {
+        helper.innerHTML = helper.innerHTML.replace('Charges may apply', linkHtml);
+      } else {
+        // Fallback just in case OTP+ changes their text
+        helper.innerHTML = 'A 6-digit code will be sent via SMS<span class="otp-helper__dot">·</span>' + linkHtml;
+      }
+      
       helper.dataset.hasTerms = 'true';
     }
   }
