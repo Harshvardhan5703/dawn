@@ -4,7 +4,7 @@
   // Global flag for the Wishlist script to communicate with this UI script
   window.__buzzkoAuthIntent = null;
 
-    function customizeOtpModal() {
+  function customizeOtpModal() {
     var modal = document.getElementById('otp-nca-account-modal');
     if (!modal) return;
 
@@ -13,33 +13,35 @@
 
     // 1. Handle Subtitle Text
     if (subtitle) {
-      var newText = 'Welcome! Choose your sign in option'; // Default
-      
+      var currentText = subtitle.textContent.trim();
+      var newText = null;
+
+      // If opened via Wishlist, force our text
       if (window.__buzzkoAuthIntent === 'view') {
         newText = 'Sign in to see your wishlist ❤️';
       } else if (window.__buzzkoAuthIntent === 'product') {
         newText = 'Sign in to add this product to your favourites ❤️';
+      } else {
+        // DEFAULT OPEN: Only replace if we are on the initial screen.
+        // If the text has changed to "Enter OTP", we ignore it.
+        if (currentText === "Choose how you'd like to continue" || currentText === 'Welcome! Choose your sign in option') {
+          newText = 'Welcome! Choose your sign in option';
+        }
       }
 
-      if (subtitle.textContent.trim() !== newText) {
+      if (newText && currentText !== newText) {
         subtitle.textContent = newText;
       }
     }
 
     // 2. Handle Terms & Conditions Link
     if (helper && !helper.dataset.hasTerms) {
-      // Create the link HTML (no bold font-weight)
-      var linkHtml = '<a href="/policies/terms-of-service" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">Terms & conditions</a>';
-      
-      // Swap out just the text, keeping the SMS and dot text intact
+      // ONLY swap the text if we are on the screen that actually says "Charges may apply"
       if (helper.innerHTML.includes('Charges may apply')) {
+        var linkHtml = '<a href="/policies/terms-of-service" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">Terms & conditions</a>';
         helper.innerHTML = helper.innerHTML.replace('Charges may apply', linkHtml);
-      } else {
-        // Fallback just in case OTP+ changes their text
-        helper.innerHTML = 'A 6-digit code will be sent via SMS<span class="otp-helper__dot">·</span>' + linkHtml;
+        helper.dataset.hasTerms = 'true';
       }
-      
-      helper.dataset.hasTerms = 'true';
     }
   }
 
