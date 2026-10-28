@@ -4543,7 +4543,9 @@ video {
   color: var(--bk-ink) !important;
 }
 
-
+#otp-link .otp-link--muted{
+  display:none;
+}
 
 /* ============================================================
    RESPONSIVE
@@ -4708,10 +4710,7 @@ video {
 }
 
 
-/* 1. Hide the "Sign in with email" link entirely */
-#otp-nca-account-modal .otp-link--muted {
-  display: none !important;
-}
+
 
 /* 2. Fix the Log Out / Close (X) overlap on mobile */
 @media screen and (max-width: 749px) {
