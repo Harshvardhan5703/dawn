@@ -4722,3 +4722,14 @@ video {
     margin-right: 36px !important; 
   }
 }
+
+
+#otp-nca-account-modal .otp-card__title {
+  display: none !important;
+}
+#otp-nca-account-modal .otp-card__subtitle {
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  color: var(--bk-ink) !important;
+  margin: 0 0 20px !important;
+}
