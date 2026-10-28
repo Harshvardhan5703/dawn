@@ -4574,108 +4574,137 @@ video {
     font-size: 18px !important;
   }
 
-  /* ---- Dashboard: 2-row grid instead of stacked column ---- */
+  /* --- 1. FORCE GRID LAYOUT ON THE SIDEBAR --- */
   #otp-nca-account-modal .otp-account-dashboard {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     min-height: 0;
   }
 
   #otp-nca-account-modal .otp-account-dashboard__sidebar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
     grid-template-areas:
       "profile logout"
-      "nav     nav";
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border-right: none;
-    border-bottom: 1px solid var(--bk-pink-pale);
+      "nav     nav" !important;
+    align-items: center !important;
+    gap: 12px 10px !important;
+    padding: 16px 14px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--bk-pink-pale) !important;
+    position: relative !important; /* kills any absolute children */
   }
 
-  /* Profile card: compact, name + email truncate to 1 line each */
+  /* --- 2. PROFILE CARD: Prevent overlap & truncate text --- */
   #otp-nca-account-modal .otp-account-dashboard__profile-card {
-    grid-area: profile;
-    min-width: 0;                /* allow ellipsis */
-    padding: 8px 10px;
-    gap: 10px;
+    grid-area: profile !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important; /* Crucial for ellipsis to work */
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    gap: 10px !important;
+    box-sizing: border-box !important;
   }
 
   #otp-nca-account-modal .otp-account-dashboard__avatar {
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    font-size: 12px;
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+    font-size: 12px !important;
   }
 
   #otp-nca-account-modal .otp-account-dashboard__profile-text {
-    min-width: 0;
-    overflow: hidden;
+    flex: 1 1 100% !important;
+    min-width: 0 !important; /* Allows text to shrink */
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  #otp-nca-account-modal .otp-account-dashboard__profile-text strong,
+  #otp-nca-account-modal .otp-account-dashboard__profile-text p {
+    display: block !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
   }
 
   #otp-nca-account-modal .otp-account-dashboard__profile-text strong {
-    font-size: 12px;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+    font-size: 12px !important;
+  }
+  
+  #otp-nca-account-modal .otp-account-dashboard__profile-text p {
+    font-size: 10px !important;
   }
 
-  #otp-nca-account-modal .otp-account-dashboard__profile-email {
-    font-size: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+  /* --- 3. LOGOUT BUTTON: Force back into the grid --- */
+  #otp-nca-account-modal .otp-account-dashboard__logout {
+    grid-area: logout !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    width: auto !important;
+  }
+  
+  #otp-nca-account-modal .otp-account-dashboard__logout button {
+    width: auto !important;
+    min-height: 32px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
   }
 
-  /* Nav: horizontal scroll strip */
+  /* --- 4. NAVIGATION --- */
   #otp-nca-account-modal .otp-account-dashboard__nav {
-    grid-area: nav;
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    grid-area: nav !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    margin-top: 4px !important;
+    padding-bottom: 2px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
   }
   #otp-nca-account-modal .otp-account-dashboard__nav::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 
   #otp-nca-account-modal .otp-account-dashboard__nav-item {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 8px 12px;
-    font-size: 12px;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
   }
   #otp-nca-account-modal .otp-account-dashboard__nav-sub {
-    display: none;
+    display: none !important;
   }
 
-  /* Logout: compact pill, top-right next to the profile card */
-  #otp-nca-account-modal .otp-account-dashboard__logout {
-    grid-area: logout;
-    margin: 0;
-    padding: 0;
-    border-top: none;
-    align-self: center;
-  }
-  #otp-nca-account-modal .otp-account-dashboard__logout button {
-    width: auto;
-    min-height: 34px;
-    padding: 0 14px;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-
-  /* Main content */
+  /* --- 5. MAIN CONTENT & HUGE HEADINGS --- */
   #otp-nca-account-modal .otp-account-dashboard__main {
-    padding: 18px 14px;
-    max-height: none;
+    padding: 20px 14px !important;
+    max-height: none !important;
   }
+
+  /* Force the "Addresses", "My Orders", "Profile Details" headings to look normal */
+  #otp-nca-account-modal .otp-account-dashboard__main h2 {
+    font-family: var(--bk-body) !important; /* Force sans-serif */
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 12px !important;
+    color: var(--bk-ink) !important;
+  }
+
   #otp-nca-account-modal .otp-account-field-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 }
