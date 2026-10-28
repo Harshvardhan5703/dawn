@@ -4543,9 +4543,7 @@ video {
   color: var(--bk-ink) !important;
 }
 
-#otp-link .otp-link--muted{
-  display:none;
-}
+
 
 /* ============================================================
    RESPONSIVE
@@ -4728,7 +4726,7 @@ video {
   display: none !important;
 }
 #otp-nca-account-modal .otp-card__subtitle {
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   font-size: 16px !important;
   color: var(--bk-ink) !important;
   margin: 0 0 20px !important;
