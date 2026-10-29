@@ -130,6 +130,7 @@
         "gap": 16,
         "gap_mobile": 12,
         "image_ratio": "portrait",
+        "portrait_height": 150,
         "corner_radius": 12,
         "padding_top": 36,
         "padding_bottom": 36
