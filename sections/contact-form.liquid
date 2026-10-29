@@ -107,15 +107,33 @@
     padding: 16px;
     border: 1px solid #F1D5DC;
     border-radius: 14px;
-    background: #FFFAF5;
+    background: #FFFFFF;
     text-decoration: none;
     color: #1A1A1A;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(26, 26, 26, 0.05);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .buzzko-contact__channel-card:hover {
     border-color: #E66C8C;
+    background: #FFF7FA;
     transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(230, 108, 140, 0.16);
+  }
+
+  .buzzko-contact__channel-card:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(230, 108, 140, 0.14);
+  }
+
+  .buzzko-contact__channel-card:focus-visible {
+    outline: 2px solid #E66C8C;
+    outline-offset: 2px;
   }
 
   .buzzko-contact__channel-icon {
@@ -128,6 +146,12 @@
     border-radius: 50%;
     background: #FDE9F1;
     color: #E66C8C;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .buzzko-contact__channel-card:hover .buzzko-contact__channel-icon {
+    background: #E66C8C;
+    color: #FFFFFF;
   }
 
   .buzzko-contact__channel-icon svg {
@@ -153,6 +177,33 @@
     font-size: 12px;
     color: #716B68;
     line-height: 1.4;
+  }
+
+  .buzzko-contact__channel-arrow {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #B8ADA8;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .buzzko-contact__channel-arrow svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .buzzko-contact__channel-card:hover .buzzko-contact__channel-arrow {
+    color: #E66C8C;
+    transform: translateX(3px);
   }
 
   .buzzko-contact__form-card {
@@ -359,6 +410,11 @@
                 {{ section.settings.channel_hours | escape }}
               </span>
             </span>
+            <span class="buzzko-contact__channel-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M5 12h13M13 6l6 6-6 6"/>
+              </svg>
+            </span>
           </a>
 
           <a
@@ -379,6 +435,11 @@
               <span class="buzzko-contact__channel-text">
                 {{ section.settings.channel_hours | escape }}
               </span>
+            </span>
+            <span class="buzzko-contact__channel-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M5 12h13M13 6l6 6-6 6"/>
+              </svg>
             </span>
           </a>
         </div>
