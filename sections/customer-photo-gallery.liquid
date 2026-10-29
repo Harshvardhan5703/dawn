@@ -4,7 +4,8 @@
     when 'square'
       assign ratio = '1 / 1'
     when 'portrait'
-      assign ratio = '4 / 5'
+      assign portrait_height = section.settings.portrait_height | divided_by: 100.0
+      assign ratio = '1 / ' | append: portrait_height
     when 'landscape'
       assign ratio = '4 / 3'
   endcase
@@ -210,6 +211,17 @@
         { "value": "adapt", "label": "Adapt to original photo" }
       ],
       "default": "square"
+    },
+    {
+      "type": "range",
+      "id": "portrait_height",
+      "label": "Portrait image height",
+      "min": 110,
+      "max": 170,
+      "step": 5,
+      "unit": "%",
+      "default": 125,
+      "info": "Higher = taller images (less top/bottom cropping for tall photos). 125% matches the old 4:5 ratio."
     },
     {
       "type": "range",
