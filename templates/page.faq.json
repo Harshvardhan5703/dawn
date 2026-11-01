@@ -22,13 +22,6 @@
     "buzzko_faq_gANgCX": {
       "type": "buzzko-faq",
       "blocks": {
-        "faq_cGgF6j": {
-          "type": "faq",
-          "settings": {
-            "question": "How can I place an order?",
-            "answer": "<p>Browse our collection, choose your favourite products, add them to your cart, and follow the checkout steps to place your order.</p>"
-          }
-        },
         "faq_bn7UUB": {
           "type": "faq",
           "settings": {
@@ -73,7 +66,6 @@
         }
       },
       "block_order": [
-        "faq_cGgF6j",
         "faq_bn7UUB",
         "faq_6McXjm",
         "faq_gMhQm7",
