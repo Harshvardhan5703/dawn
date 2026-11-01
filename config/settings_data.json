@@ -164,11 +164,18 @@
       },
       "15781151713536345247": {
         "type": "shopify://apps/byteinfy-cod-partial-pay/blocks/codflow-popup/019dab64-5dce-7b3c-8a45-cd623fa9806c",
-        "disabled": false,
+        "disabled": true,
         "settings": {
           "button_text": "Buy Now",
           "button_color": "#000000",
-          "button_text_color": "#FFFFFF"
+          "button_text_color": "#ffffff"
+        }
+      },
+      "13059677947418467827": {
+        "type": "shopify://apps/penguincod/blocks/cod-checkout-popup/019af37d-e0e1-7221-8666-6edff9880ae8",
+        "disabled": false,
+        "settings": {
+          "enabled": true
         }
       }
     },
