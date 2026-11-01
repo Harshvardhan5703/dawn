@@ -124,6 +124,7 @@
       "name": "Customer Photo Gallery",
       "settings": {
         "heading": "Love From Our Customers ♡",
+        "subheading": "Real reviews, real experiences, and lots of love.",
         "heading_alignment": "center",
         "columns_desktop": 3,
         "columns_mobile": "2",
