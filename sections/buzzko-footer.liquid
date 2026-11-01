@@ -380,10 +380,14 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     z-index: 10;
     
-    /* Font Selector Variables */
-    font-family: {{ section.settings.club_font.family }}, {{ section.settings.club_font.fallback_families }};
+    /* --- FIX FOR iOS: Replaced generic fallback with safe fonts --- */
+    font-family: {{ section.settings.club_font.family }}, 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
     font-weight: {{ section.settings.club_font.weight }};
     font-style: {{ section.settings.club_font.style }};
+    
+    /* Stops iOS from artificially distorting the font weight */
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Splash layer behind the button */
