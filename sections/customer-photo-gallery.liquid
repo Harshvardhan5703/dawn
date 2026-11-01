@@ -17,8 +17,18 @@
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
   }
 
-  .photo-gallery-{{ section.id }} .photo-gallery__heading {
+  .photo-gallery-{{ section.id }} .photo-gallery__header {
     margin: 0 0 24px;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__heading {
+    margin: 0;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__subheading {
+    margin: 8px 0 0;
+    font-size: 1.6rem;
+    opacity: 0.75;
   }
 
   .photo-gallery-{{ section.id }} .photo-gallery__grid {
@@ -32,6 +42,10 @@
     overflow: hidden;
     border-radius: {{ section.settings.corner_radius }}px;
     background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__item--hidden {
+    display: none !important;
   }
 
   .photo-gallery-{{ section.id }} .photo-gallery__item img,
@@ -56,6 +70,52 @@
     }
   {%- endif -%}
 
+  /* Pagination */
+  .photo-gallery-{{ section.id }} .photo-gallery__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__pagination[hidden] {
+    display: none !important;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__page-btn:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__page-btn[aria-current='page'] {
+    border-color: currentColor;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+
+  .photo-gallery-{{ section.id }} .photo-gallery__page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
   @media screen and (min-width: 750px) {
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top }}px;
@@ -69,20 +129,25 @@
   }
 {%- endstyle -%}
 
-<div class="photo-gallery photo-gallery-{{ section.id }} section-{{ section.id }}-padding">
+<div
+  id="PhotoGallery-{{ section.id }}"
+  class="photo-gallery photo-gallery-{{ section.id }} section-{{ section.id }}-padding"
+>
   <div class="page-width">
 
-    {%- if section.settings.heading != blank -%}
-      <h2
-        class="photo-gallery__heading"
-        style="text-align: {{ section.settings.heading_alignment }};"
-      >
-        {{ section.settings.heading | escape }}
-      </h2>
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="photo-gallery__header" style="text-align: {{ section.settings.heading_alignment }};">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="photo-gallery__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="photo-gallery__subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+      </div>
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <div class="photo-gallery__grid">
+      <div class="photo-gallery__grid" data-gallery-grid>
         {%- for block in section.blocks -%}
           {%- if block.type == 'image' -%}
             {%- capture image_markup -%}
@@ -106,7 +171,7 @@
               {%- endif -%}
             {%- endcapture -%}
 
-            <div class="photo-gallery__item" {{ block.shopify_attributes }}>
+            <div class="photo-gallery__item" data-gallery-item {{ block.shopify_attributes }}>
               {%- if block.settings.link != blank -%}
                 <a
                   href="{{ block.settings.link }}"
@@ -124,10 +189,129 @@
           {%- endif -%}
         {%- endfor -%}
       </div>
+
+      <nav
+        class="photo-gallery__pagination"
+        data-gallery-pagination
+        aria-label="Photo gallery pagination"
+        hidden
+      ></nav>
     {%- endif -%}
 
   </div>
 </div>
+
+<script>
+  (function () {
+    var root = document.getElementById('PhotoGallery-{{ section.id }}');
+    if (!root) return;
+
+    var grid = root.querySelector('[data-gallery-grid]');
+    var nav = root.querySelector('[data-gallery-pagination]');
+    if (!grid || !nav) return;
+
+    var items = Array.prototype.slice.call(grid.querySelectorAll('[data-gallery-item]'));
+    if (!items.length) return;
+
+    /* Items per page: 15 on desktop, 16 on smaller screens (2-column grid) */
+    var PER_PAGE_DESKTOP = 15;
+    var PER_PAGE_MOBILE = 16;
+
+    var desktopQuery = window.matchMedia('(min-width: 750px)');
+    var currentPage = 1;
+
+    function getPerPage() {
+      return desktopQuery.matches ? PER_PAGE_DESKTOP : PER_PAGE_MOBILE;
+    }
+
+    function getPageCount() {
+      return Math.max(1, Math.ceil(items.length / getPerPage()));
+    }
+
+    function makeButton(label, targetPage, disabled, ariaLabel) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'photo-gallery__page-btn';
+      btn.textContent = label;
+      btn.disabled = disabled;
+      btn.setAttribute('aria-label', ariaLabel);
+      btn.addEventListener('click', function () {
+        goToPage(targetPage);
+      });
+      return btn;
+    }
+
+    function render() {
+      var total = getPageCount();
+      if (currentPage > total) currentPage = total;
+      if (currentPage < 1) currentPage = 1;
+
+      var perPage = getPerPage();
+      var start = (currentPage - 1) * perPage;
+      var end = start + perPage;
+
+      items.forEach(function (item, index) {
+        var shouldShow = index >= start && index < end;
+        item.classList.toggle('photo-gallery__item--hidden', !shouldShow);
+      });
+
+      nav.innerHTML = '';
+
+      if (total <= 1) {
+        nav.hidden = true;
+        return;
+      }
+
+      nav.hidden = false;
+
+      nav.appendChild(makeButton('Prev', currentPage - 1, currentPage === 1, 'Previous page'));
+
+      for (var page = 1; page <= total; page++) {
+        (function (pageNumber) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'photo-gallery__page-btn';
+          btn.textContent = String(pageNumber);
+          btn.setAttribute('aria-label', 'Page ' + pageNumber);
+          if (pageNumber === currentPage) {
+            btn.setAttribute('aria-current', 'page');
+          }
+          btn.addEventListener('click', function () {
+            goToPage(pageNumber);
+          });
+          nav.appendChild(btn);
+        })(page);
+      }
+
+      nav.appendChild(makeButton('Next', currentPage + 1, currentPage === total, 'Next page'));
+    }
+
+    function goToPage(page) {
+      var total = getPageCount();
+      if (page < 1 || page > total || page === currentPage) return;
+
+      currentPage = page;
+      render();
+
+      // Scroll back up only if the top of the section is already off-screen
+      if (root.getBoundingClientRect().top < 0) {
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function onBreakpointChange() {
+      render();
+    }
+
+    if (typeof desktopQuery.addEventListener === 'function') {
+      desktopQuery.addEventListener('change', onBreakpointChange);
+    } else if (typeof desktopQuery.addListener === 'function') {
+      desktopQuery.addListener(onBreakpointChange);
+    }
+
+    render();
+  })();
+</script>
 
 {% schema %}
 {
@@ -139,7 +323,13 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "info": "Leave empty to hide. (You already have a heading above, so you can leave this blank.)"
+      "info": "Leave empty to hide."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Optional line of text shown below the heading."
     },
     {
       "type": "select",
