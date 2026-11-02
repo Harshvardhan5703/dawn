@@ -39,8 +39,8 @@
         "faq_gMhQm7": {
           "type": "faq",
           "settings": {
-            "question": "How can I place an order?",
-            "answer": "<p>Browse our collection, choose your favourite products, add them to your cart, and follow the checkout steps to place your order.</p>"
+            "question": "How do I place an order?",
+            "answer": "<p>Browse<br/>our collection, add your favorite products to the cart, and head to check out.<br/>Enter your delivery details, pick a payment method, and confirm. You’ll get an<br/>order confirmation right after.</p>"
           }
         },
         "faq_NJxncB": {
