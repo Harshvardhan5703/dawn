@@ -22,6 +22,20 @@
     "customer_photo_gallery_7geFwf": {
       "type": "customer-photo-gallery",
       "blocks": {
+        "image_MrCDFi": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/n3.jpg",
+            "link": ""
+          }
+        },
+        "image_pt4933": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/n2.jpg",
+            "link": ""
+          }
+        },
         "image_rrWRiL": {
           "type": "image",
           "settings": {
@@ -108,6 +122,8 @@
         }
       },
       "block_order": [
+        "image_MrCDFi",
+        "image_pt4933",
         "image_rrWRiL",
         "image_hrHfWz",
         "image_wcWnqg",
