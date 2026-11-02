@@ -40,31 +40,46 @@
       }
     }
 
+    // Inject link and bind the click DIRECTLY to the <a> tag
     if (helper && !helper.dataset.hasTerms) {
       if (helper.innerHTML.includes('Charges may apply')) {
         var linkHtml = '<a href="javascript:void(0)" class="buzzko-terms-link" style="color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer;">Terms & conditions</a>';
         helper.innerHTML = helper.innerHTML.replace('Charges may apply', linkHtml);
         helper.dataset.hasTerms = 'true';
+        
+        var termsLink = helper.querySelector('.buzzko-terms-link');
+        if (termsLink) {
+          // Attach the listener directly to the element so OTP+ can't block it
+          termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            openTermsModal();
+          });
+        }
       }
     }
   }
 
   function openTermsModal() {
-    // Create the modal if it doesn't exist yet
-    if (!document.getElementById('buzzko-terms-modal')) {
+    var modal = document.getElementById('buzzko-terms-modal');
+    
+    if (!modal) {
+      // Create the modal with hardcoded inline styles to guarantee it's visible
       var modalHtml = `
-        <div id="buzzko-terms-modal" class="buzzko-terms-backdrop">
-          <div class="buzzko-terms-content">
-            <button type="button" class="buzzko-terms-close" aria-label="Close">&times;</button>
-            <div class="buzzko-terms-body">
-              <div class="buzzko-terms-loader">Loading policy...</div>
+        <div id="buzzko-terms-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(26,26,26,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2147483647; display: flex; align-items: center; justify-content: center; opacity: 1; visibility: visible;">
+          <div class="buzzko-terms-content" style="background: #FFFAF5; width: 100%; max-width: 650px; max-height: 85vh; border-radius: 20px; border: 2px solid #FFDCEF; box-shadow: 0 24px 60px rgba(26,26,26,0.2); position: relative; display: flex; flex-direction: column; margin: 20px;">
+            <button type="button" class="buzzko-terms-close" aria-label="Close" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #FFFFFF; border: 1px solid rgba(26,26,26,0.14); font-size: 20px; line-height: 1; color: #1A1A1A; cursor: pointer; z-index: 10; display: grid; place-items: center;">&times;</button>
+            <div class="buzzko-terms-body" style="padding: 32px; overflow-y: auto; font-family: var(--bk-body); color: #1A1A1A; font-size: 14px; line-height: 1.6;">
+              <div class="buzzko-terms-loader" style="text-align: center; color: #6B6663; padding: 40px 0; font-weight: 600;">Loading policy...</div>
             </div>
           </div>
         </div>
       `;
       document.body.insertAdjacentHTML('beforeend', modalHtml);
+      modal = document.getElementById('buzzko-terms-modal');
 
-      // Fetch the Shopify policy page content
+      // Fetch content
       fetch('/policies/terms-of-service')
         .then(function(res) { return res.text(); })
         .then(function(html) {
@@ -75,41 +90,37 @@
                            || doc.querySelector('main') 
                            || doc.body;
 
-          var modalBody = document.querySelector('#buzzko-terms-modal .buzzko-terms-body');
-          if (modalBody) {
-            modalBody.innerHTML = policyContent.innerHTML;
-          }
+          var modalBody = modal.querySelector('.buzzko-terms-body');
+          if (modalBody) modalBody.innerHTML = policyContent.innerHTML;
         })
         .catch(function() {
-          var modalBody = document.querySelector('#buzzko-terms-modal .buzzko-terms-body');
+          var modalBody = modal.querySelector('.buzzko-terms-body');
           if (modalBody) modalBody.innerHTML = '<p>Could not load terms. Please check back later.</p>';
         });
+    } else {
+      // If it already exists, just force it open
+      modal.style.display = 'flex';
+      modal.style.opacity = '1';
+      modal.style.visibility = 'visible';
     }
-
-    // Show the modal
-    document.getElementById('buzzko-terms-modal').classList.add('is-active');
   }
 
-  // 1. Intercept the Terms Link click (Using capture phase to beat OTP+)
-  document.addEventListener('click', function(event) {
-    if (event.target.closest && event.target.closest('.buzzko-terms-link')) {
-      event.preventDefault();
-      event.stopImmediatePropagation(); // Stop OTP+ from closing its modal
-      openTermsModal();
-    }
-  }, true); // <--- true is the secret sauce here
-
-  // 2. Handle closing the terms modal
+  // Handle closing the terms modal
   document.addEventListener('click', function(event) {
     var modal = document.getElementById('buzzko-terms-modal');
     if (!modal) return;
 
-    if (event.target === modal || event.target.closest('.buzzko-terms-close')) {
-      modal.classList.remove('is-active');
+    if (event.target === modal || (event.target.closest && event.target.closest('.buzzko-terms-close'))) {
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
+      // Small delay so the fade out can be seen if you have CSS transitions
+      setTimeout(function() {
+        if (modal.style.opacity === '0') modal.style.display = 'none';
+      }, 200);
     }
   }, true);
 
-  // 3. The rest of the observer logic
+  // The observer logic
   var observer = new MutationObserver(function () {
     var modal = document.getElementById('otp-nca-account-modal');
     if (modal && (modal.offsetWidth > 0 || modal.offsetHeight > 0)) {
