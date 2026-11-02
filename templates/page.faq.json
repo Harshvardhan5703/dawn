@@ -25,8 +25,8 @@
         "faq_bn7UUB": {
           "type": "faq",
           "settings": {
-            "question": "What payment methods do you accept?",
-            "answer": "<p>You can pay using the payment options displayed at checkout.</p>"
+            "question": "1. Which payment methods can I use?",
+            "answer": "<p>We accept all payment methods, including<br/>UPI, debit and credit cards, net banking, and wallets. You’ll see every option<br/>at checkout.</p>"
           }
         },
         "faq_6McXjm": {
