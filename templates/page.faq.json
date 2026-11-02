@@ -22,6 +22,13 @@
     "buzzko_faq_gANgCX": {
       "type": "buzzko-faq",
       "blocks": {
+        "faq_YXckAT": {
+          "type": "faq",
+          "settings": {
+            "question": "How long will delivery take?",
+            "answer": "<p>It compete depends on your location. We ship orders within 3-4 days.</p>"
+          }
+        },
         "faq_bn7UUB": {
           "type": "faq",
           "settings": {
@@ -66,6 +73,7 @@
         }
       },
       "block_order": [
+        "faq_YXckAT",
         "faq_bn7UUB",
         "faq_6McXjm",
         "faq_gMhQm7",
