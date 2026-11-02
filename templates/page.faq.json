@@ -53,15 +53,15 @@
         "faq_pETiBp": {
           "type": "faq",
           "settings": {
-            "question": "Can I return or exchange a product?",
-            "answer": "<p>Please refer to our return policy for the conditions and process for returns.</p>"
+            "question": "Are there any extra charges for COD?",
+            "answer": "<p>None at all. We don’t charge any COD fee. The ₹50 you pay upfront is part of your<br/>order total, so it’s deducted from the amount you pay on delivery.</p>"
           }
         },
         "faq_qcyzMm": {
           "type": "faq",
           "settings": {
-            "question": "What should I do if my order arrives damaged?",
-            "answer": "<p>Please keep the 360° unboxing video as required by our return policy and contact us with the order details.</p>"
+            "question": "Why do I have to pay ₹50 in advance for COD?",
+            "answer": "<p>The small advance confirms that your order is genuine and helps us avoid failed<br/>deliveries. You’re not paying extra, since the full ₹50 is adjusted against<br/>your bill.</p>"
           }
         }
       },
