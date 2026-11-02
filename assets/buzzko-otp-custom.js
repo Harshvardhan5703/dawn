@@ -6,21 +6,34 @@
 
   function customizeOtpModal() {
     var modal = document.getElementById('otp-nca-account-modal');
-    if (!modal) return;
+    if (!modal || modal.style.display === 'none') return;
 
+    // 1. Detect if the Login Screen is currently showing
     if (modal.querySelector('.otp-card') || modal.querySelector('.otp-login-modal-body')) {
       sawLoginScreen = true;
     }
 
+    // 2. The moment the Dashboard appears after a successful login, kill the modal and reload.
     var dashboard = modal.querySelector('.otp-account-dashboard');
-    if (sawLoginScreen && dashboard && modal.style.display !== 'none') {
-      modal.style.display = 'none';
+    if (sawLoginScreen && dashboard) {
+      modal.style.display = 'none'; // Hide instantly
+      
+      // Trigger a page reload so Shopify updates the header and applies pending wishlist items
+      if (!window.__buzzkoIsReloading) {
+        window.__buzzkoIsReloading = true;
+        
+        // 100ms delay lets OTP+ finish writing its session cookies before we reload
+        setTimeout(function() {
+          window.location.reload();
+        }, 100);
+      }
       return; 
     }
 
     var subtitle = modal.querySelector('.otp-card__subtitle');
     var helper = modal.querySelector('.otp-helper');
 
+    // 3. Handle Subtitle Text
     if (subtitle) {
       var currentText = subtitle.textContent.trim();
       var newText = null;
@@ -40,7 +53,7 @@
       }
     }
 
-    // Inject link and bind the click DIRECTLY to the <a> tag
+    // 4. Handle Terms & Conditions Link
     if (helper && !helper.dataset.hasTerms) {
       if (helper.innerHTML.includes('Charges may apply')) {
         var linkHtml = '<a href="javascript:void(0)" class="buzzko-terms-link" style="color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer;">Terms & conditions</a>';
@@ -49,7 +62,6 @@
         
         var termsLink = helper.querySelector('.buzzko-terms-link');
         if (termsLink) {
-          // Attach the listener directly to the element so OTP+ can't block it
           termsLink.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -65,7 +77,6 @@
     var modal = document.getElementById('buzzko-terms-modal');
     
     if (!modal) {
-      // Create the modal with hardcoded inline styles to guarantee it's visible
       var modalHtml = `
         <div id="buzzko-terms-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(26,26,26,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2147483647; display: flex; align-items: center; justify-content: center; opacity: 1; visibility: visible;">
           <div class="buzzko-terms-content" style="background: #FFFAF5; width: 100%; max-width: 650px; max-height: 85vh; border-radius: 20px; border: 2px solid #FFDCEF; box-shadow: 0 24px 60px rgba(26,26,26,0.2); position: relative; display: flex; flex-direction: column; margin: 20px;">
@@ -79,7 +90,6 @@
       document.body.insertAdjacentHTML('beforeend', modalHtml);
       modal = document.getElementById('buzzko-terms-modal');
 
-      // Fetch content
       fetch('/policies/terms-of-service')
         .then(function(res) { return res.text(); })
         .then(function(html) {
@@ -98,7 +108,6 @@
           if (modalBody) modalBody.innerHTML = '<p>Could not load terms. Please check back later.</p>';
         });
     } else {
-      // If it already exists, just force it open
       modal.style.display = 'flex';
       modal.style.opacity = '1';
       modal.style.visibility = 'visible';
@@ -113,23 +122,26 @@
     if (event.target === modal || (event.target.closest && event.target.closest('.buzzko-terms-close'))) {
       modal.style.opacity = '0';
       modal.style.visibility = 'hidden';
-      // Small delay so the fade out can be seen if you have CSS transitions
       setTimeout(function() {
         if (modal.style.opacity === '0') modal.style.display = 'none';
       }, 200);
     }
   }, true);
 
-  // The observer logic
-  var observer = new MutationObserver(function () {
-    var modal = document.getElementById('otp-nca-account-modal');
-    if (modal && (modal.offsetWidth > 0 || modal.offsetHeight > 0)) {
+  // Optimized Observer Logic
+  var observer = new MutationObserver(function (mutations) {
+    var isOtpMutation = mutations.some(function(m) {
+      return (m.target && m.target.id === 'otp-nca-account-modal') || 
+             (m.target.closest && m.target.closest('#otp-nca-account-modal'));
+    });
+
+    if (isOtpMutation) {
       customizeOtpModal();
     }
   });
 
   document.addEventListener('DOMContentLoaded', function() {
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 
   document.addEventListener('click', function(event) {
