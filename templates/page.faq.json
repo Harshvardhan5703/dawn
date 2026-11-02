@@ -46,8 +46,8 @@
         "faq_NJxncB": {
           "type": "faq",
           "settings": {
-            "question": "Do you offer Cash on Delivery?",
-            "answer": "<p>Yes. For COD orders, ₹100 is payable in advance for orders above ₹499, and the remaining amount is paid on delivery.</p>"
+            "question": "Is Cash on Delivery (COD) available?",
+            "answer": "<p>Yes! For COD orders, you pay ₹50 upfront to<br/>confirm your order, and the remaining amount is paid in cash when your order<br/>arrives.</p>"
           }
         },
         "faq_pETiBp": {
