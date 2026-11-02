@@ -21,7 +21,6 @@
     var subtitle = modal.querySelector('.otp-card__subtitle');
     var helper = modal.querySelector('.otp-helper');
 
-    // 1. Handle Subtitle Text
     if (subtitle) {
       var currentText = subtitle.textContent.trim();
       var newText = null;
@@ -41,21 +40,16 @@
       }
     }
 
-    // 2. Handle Terms & Conditions Link
     if (helper && !helper.dataset.hasTerms) {
       if (helper.innerHTML.includes('Charges may apply')) {
-        // Removed target="_blank", added class for our JS to intercept
-        var linkHtml = '<a href="#" class="buzzko-terms-link" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">Terms & conditions</a>';
+        var linkHtml = '<a href="javascript:void(0)" class="buzzko-terms-link" style="color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer;">Terms & conditions</a>';
         helper.innerHTML = helper.innerHTML.replace('Charges may apply', linkHtml);
         helper.dataset.hasTerms = 'true';
       }
     }
   }
 
-  // 3. The Terms Modal Logic
-  function openTermsModal(event) {
-    event.preventDefault(); // Stop the page from jumping to the top
-    
+  function openTermsModal() {
     // Create the modal if it doesn't exist yet
     if (!document.getElementById('buzzko-terms-modal')) {
       var modalHtml = `
@@ -74,11 +68,8 @@
       fetch('/policies/terms-of-service')
         .then(function(res) { return res.text(); })
         .then(function(html) {
-          // Parse the HTML to extract just the policy text
           var parser = new DOMParser();
           var doc = parser.parseFromString(html, 'text/html');
-          
-          // Try to find the main policy body, fallback to main tag or body
           var policyContent = doc.querySelector('.shopify-policy__body') 
                            || doc.querySelector('.rte') 
                            || doc.querySelector('main') 
@@ -99,25 +90,26 @@
     document.getElementById('buzzko-terms-modal').classList.add('is-active');
   }
 
-  // Listen for clicks on the terms link
+  // 1. Intercept the Terms Link click (Using capture phase to beat OTP+)
   document.addEventListener('click', function(event) {
     if (event.target.closest && event.target.closest('.buzzko-terms-link')) {
-      openTermsModal(event);
+      event.preventDefault();
+      event.stopImmediatePropagation(); // Stop OTP+ from closing its modal
+      openTermsModal();
     }
-  });
+  }, true); // <--- true is the secret sauce here
 
-  // Handle closing the terms modal
+  // 2. Handle closing the terms modal
   document.addEventListener('click', function(event) {
     var modal = document.getElementById('buzzko-terms-modal');
     if (!modal) return;
 
-    // If clicking the dark backdrop or the X button
     if (event.target === modal || event.target.closest('.buzzko-terms-close')) {
       modal.classList.remove('is-active');
     }
-  });
+  }, true);
 
-  // The rest of the observer logic
+  // 3. The rest of the observer logic
   var observer = new MutationObserver(function () {
     var modal = document.getElementById('otp-nca-account-modal');
     if (modal && (modal.offsetWidth > 0 || modal.offsetHeight > 0)) {
