@@ -62,7 +62,7 @@
           {%- endcapture -%}
 
           <li class="grid__item">
-            <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
+            <div class="buzzko-product-card" style="--card-border: {{ card_border }};" data-product-id="{{ recommendation.id }}">
               <div class="buzzko-product-card__image-wrapper">
                 
                 {% unless recommendation.available %}
@@ -419,6 +419,72 @@
       button.setAttribute('data-state', 'success'); setTimeout(function () { button.removeAttribute('data-state'); button.disabled = false; }, 400);
     })
     .catch(function (error) { console.error(error); button.removeAttribute('data-state'); button.disabled = false; });
+  });
+})();
+</script>
+
+<!-- Wishlist state safety net — fixes handler marking all hearts active/inactive on one click -->
+<script>
+(function () {
+  if (document.body.dataset.buzzkoHeartFix) return;
+  document.body.dataset.buzzkoHeartFix = 'true';
+
+  var activeHeart = null;
+  var otherHeartsState = null;
+  var resetTimer = null;
+
+  document.addEventListener('click', function (e) {
+    var heart = e.target.closest && e.target.closest('.buzzko-card-heart');
+    if (!heart) return;
+    if (!heart.closest('product-recommendations')) return;
+
+    activeHeart = heart;
+    otherHeartsState = new Map();
+
+    document.querySelectorAll('.buzzko-card-heart').forEach(function (h) {
+      if (h === heart) return;
+      if (!h.closest('product-recommendations')) return;
+      otherHeartsState.set(h, {
+        active: h.classList.contains('is-active'),
+        pressed: h.getAttribute('aria-pressed') || 'false'
+      });
+    });
+
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(function () {
+      activeHeart = null;
+      otherHeartsState = null;
+    }, 30000);
+  }, true);
+
+  var observer = new MutationObserver(function (mutations) {
+    if (!activeHeart || !otherHeartsState) return;
+
+    mutations.forEach(function (m) {
+      if (m.type !== 'attributes') return;
+      var el = m.target;
+      if (!el.matches || !el.matches('.buzzko-card-heart')) return;
+      if (el === activeHeart) return;
+
+      var desired = otherHeartsState.get(el);
+      if (!desired) return;
+
+      var currentActive = el.classList.contains('is-active');
+      var currentPressed = el.getAttribute('aria-pressed') || 'false';
+
+      if (currentActive !== desired.active) {
+        el.classList.toggle('is-active', desired.active);
+      }
+      if (currentPressed !== desired.pressed) {
+        el.setAttribute('aria-pressed', desired.pressed);
+      }
+    });
+  });
+
+  observer.observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['class', 'aria-pressed']
   });
 })();
 </script>
