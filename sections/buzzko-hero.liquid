@@ -287,13 +287,14 @@
                     >
                   {% endif %}
                   {{ block.settings.image
-                    | image_url: width: 2400
-                    | image_tag:
-                      loading: slide_loading,
-                      widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
-                      sizes: '(min-width: 990px) 60vw, 100vw',
-                      alt: block.settings.alt_text
-                  }}
+  | image_url: width: 2400
+  | image_tag:
+    loading: slide_loading,
+    fetchpriority: slide_fetchpriority,
+    widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
+    sizes: '(min-width: 990px) 60vw, 100vw',
+    alt: block.settings.alt_text
+}}
                 </picture>
               </div>
             {% endif %}
