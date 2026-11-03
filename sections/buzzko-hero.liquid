@@ -110,19 +110,19 @@
   /* CONTROLS CONTAINER (Arrows & Dots at Bottom) */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
     position: absolute;
-    bottom: 24px; /* Position at the bottom */
+    bottom: 24px;
     left: 24px;
     right: 24px;
     display: flex;
-    align-items: center; /* Aligns arrows and dots on the same horizontal line */
-    justify-content: space-between; /* Arrows on edges, dots in center */
+    align-items: center;
+    justify-content: space-between;
     pointer-events: none;
     z-index: 2;
   }
 
   /* WHITE TRANSLUCENT ARROWS */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
-    position: relative; /* Changed from absolute */
+    position: relative;
     width: 44px;
     height: 44px;
     border: none;
@@ -144,7 +144,7 @@
 
   /* WHITE TRANSLUCENT DOTS */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
-    position: relative; /* Changed from absolute */
+    position: relative;
     display: flex;
     gap: 8px;
     pointer-events: auto;
@@ -265,14 +265,19 @@
           {% for block in section.blocks %}
             {% if block.settings.image != blank %}
               {% liquid
-  assign slide_loading = 'lazy'
-  assign slide_fetchpriority = 'auto'
+                assign slide_loading = 'lazy'
+                assign slide_fetchpriority = 'auto'
+                assign slide_preload = false
 
-  if forloop.first
-    assign slide_loading = 'eager'
-    assign slide_fetchpriority = 'high'
-  endif
-%}
+                if forloop.first
+                  assign slide_loading = 'eager'
+                  assign slide_fetchpriority = 'high'
+
+                  unless section.index > 1
+                    assign slide_preload = true
+                  endunless
+                endif
+              %}
               <div class="buzzko-hero__slide{% if forloop.first %} is-active{% endif %}" data-slide {{ block.shopify_attributes }}>
                 <picture>
                   {% if block.settings.image_mobile != blank %}
@@ -287,14 +292,15 @@
                     >
                   {% endif %}
                   {{ block.settings.image
-  | image_url: width: 2400
-  | image_tag:
-    loading: slide_loading,
-    fetchpriority: slide_fetchpriority,
-    widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
-    sizes: '(min-width: 990px) 60vw, 100vw',
-    alt: block.settings.alt_text
-}}
+                    | image_url: width: 2400
+                    | image_tag:
+                      loading: slide_loading,
+                      fetchpriority: slide_fetchpriority,
+                      preload: slide_preload,
+                      widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
+                      sizes: '(min-width: 990px) 60vw, 100vw',
+                      alt: block.settings.alt_text
+                  }}
                 </picture>
               </div>
             {% endif %}
