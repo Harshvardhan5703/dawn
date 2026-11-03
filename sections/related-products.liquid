@@ -57,13 +57,41 @@
             {%- else -%}{%- assign card_border = '#FF9FC8' -%}
           {%- endcase -%}
 
+          {%- capture variants_json -%}
+            [{% for v in recommendation.variants %}{"id": "{{ v.id }}", "title": "{{ v.title | escape }}", "price": "{{ v.price | money }}", "price_raw": {{ v.price }}, "available": {{ v.available }}, "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ recommendation.featured_image | image_url: width: 600 }}{% endif %}"}{% unless forloop.last %},{% endunless %}{% endfor %}]
+          {%- endcapture -%}
+
           <li class="grid__item">
-            <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
+            <div class="buzzko-product-card" style="--card-border: {{ card_border }};" data-product-id="{{ recommendation.id }}">
               <div class="buzzko-product-card__image-wrapper">
                 
                 {% unless recommendation.available %}
                   <div class="buzzko-product-card__badge buzzko-product-card__badge--soldout">Sold Out</div>
                 {% endunless %}
+
+                {%- comment -%} WISHLIST HEART (top-right) {%- endcomment -%}
+                <button
+                  type="button"
+                  class="buzzko-card-heart"
+                  data-buzzko-wishlist-toggle
+                  data-product-id="{{ recommendation.id }}"
+                  data-product-handle="{{ recommendation.handle }}"
+                  data-product-title="{{ recommendation.title | escape }}"
+                  data-product-url="{{ recommendation.url }}"
+                  data-product-image="{% if recommendation.featured_image %}{{ recommendation.featured_image | image_url: width: 700 }}{% endif %}"
+                  data-product-price="{{ variant.price }}"
+                  data-variant-id="{{ variant.id }}"
+                  {% unless recommendation.has_only_default_variant %}
+                    data-has-variants="true"
+                    data-variants="{{ variants_json | escape }}"
+                  {% endunless %}
+                  aria-label="Add to wishlist"
+                  aria-pressed="false"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+                  </svg>
+                </button>
 
                 <a href="{{ recommendation.url }}" class="buzzko-product-card__image-link" aria-label="{{ recommendation.title | escape }}">
                   {% if recommendation.featured_image != blank %}
@@ -76,10 +104,6 @@
 
                 {%- capture form_content -%}
                   <input type="hidden" name="id" value="{{ variant.id }}">
-                  
-                  {%- capture variants_json -%}
-                    [{% for v in recommendation.variants %}{"id": "{{ v.id }}", "title": "{{ v.title | escape }}", "price": "{{ v.price | money }}", "available": {{ v.available }}, "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ recommendation.featured_image | image_url: width: 600 }}{% endif %}"}{% unless forloop.last %},{% endunless %}{% endfor %}]
-                  {%- endcapture -%}
 
                   <button
                     type="{% if recommendation.has_only_default_variant %}submit{% else %}button{% endif %}"
@@ -240,6 +264,41 @@
   .buzzko-modal__add-btn { margin-top: auto; width: 100%; padding: 14px; background-color: #000; color: #fff; border: 1px solid #000; border-radius: 9999px; font-size: 15px; font-weight: 800; cursor: pointer; transition: background-color 0.2s ease; min-height: 4.4rem; }
   .buzzko-modal__add-btn:hover:not(:disabled) { background-color: #222; }
   .buzzko-modal__add-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
+
+  /* Wishlist heart */
+  .buzzko-card-heart {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 15;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.92);
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .buzzko-card-heart:hover { background: #fff; transform: scale(1.06); }
+  .buzzko-card-heart:active { transform: scale(0.94); }
+  .buzzko-card-heart:focus-visible { outline: 2px solid #1A1A1A; outline-offset: 2px; }
+  .buzzko-card-heart svg { width: 18px; height: 18px; display: block; transition: fill .15s ease; }
+  .buzzko-card-heart.is-active,
+  .buzzko-card-heart[aria-pressed="true"] { color: #000; }
+  .buzzko-card-heart.is-active svg,
+  .buzzko-card-heart[aria-pressed="true"] svg { fill: currentColor; }
+  @media screen and (max-width: 749px) {
+    .buzzko-card-heart { width: 30px; height: 30px; top: 6px; right: 6px; }
+    .buzzko-card-heart svg { width: 16px; height: 16px; }
+  }
 </style>
 
 <!-- JAVASCRIPT -->
@@ -361,6 +420,199 @@
     })
     .catch(function (error) { console.error(error); button.removeAttribute('data-state'); button.disabled = false; });
   });
+})();
+</script>
+
+<!-- BULLETPROOF WISHLIST PROXY FOR RELATED PRODUCTS -->
+<script>
+(function () {
+  if (document.body.dataset.buzzkoHeartProxy) return;
+  document.body.dataset.buzzkoHeartProxy = 'true';
+
+  // 1. Find or create the proxy heart
+  let proxyHeart = document.querySelector('.product-form__wishlist');
+  if (!proxyHeart) {
+    proxyHeart = document.createElement('button');
+    proxyHeart.className = 'product-form__wishlist';
+    proxyHeart.setAttribute('data-buzzko-wishlist-toggle', '');
+    proxyHeart.style.display = 'none';
+    document.body.appendChild(proxyHeart);
+  }
+
+  let skipHeartClick = new WeakSet();
+  let modalMode = 'cart';
+  let modalTriggerButton = null;
+  let selectedVariantId = null;
+
+  function parts() {
+    return {
+      modal: document.getElementById('buzzko-variant-modal'),
+      img: document.getElementById('buzzko-modal-img'),
+      title: document.getElementById('buzzko-modal-title'),
+      price: document.getElementById('buzzko-modal-price'),
+      variants: document.getElementById('buzzko-modal-variants'),
+      add: document.getElementById('buzzko-modal-add')
+    };
+  }
+
+  function openVariantModal(productTitle, defaultImage, variantsJson, options) {
+    options = options || {};
+    modalMode = options.mode === 'wishlist' ? 'wishlist' : 'cart';
+    modalTriggerButton = options.triggerButton || null;
+
+    var P = parts();
+    if (!P.modal || !P.variants) return;
+
+    var variants = JSON.parse(variantsJson);
+    P.title.textContent = productTitle;
+    P.img.src = defaultImage || '';
+    P.variants.innerHTML = '';
+    selectedVariantId = null;
+    var firstAvailableBtn = null;
+
+    variants.forEach(function (v) {
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'buzzko-modal-variant-btn'; btn.textContent = v.title;
+      if (!v.available) btn.disabled = true; else if (!firstAvailableBtn) firstAvailableBtn = btn;
+      btn.dataset.variantId = v.id;
+      btn.dataset.image = v.image || defaultImage;
+      btn.dataset.price = v.price;
+      btn.dataset.priceRaw = (v.price_raw !== undefined && v.price_raw !== null) ? String(v.price_raw) : '';
+      btn.setAttribute('aria-pressed', 'false');
+
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        P.variants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function (b) { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
+        btn.classList.add('is-active'); btn.setAttribute('aria-pressed', 'true');
+        if (btn.dataset.image) P.img.src = btn.dataset.image;
+        selectedVariantId = btn.dataset.variantId; P.price.textContent = btn.dataset.price;
+        P.add.disabled = false;
+        P.add.textContent = modalMode === 'wishlist' ? 'Add to Wishlist' : 'Add to Cart';
+      });
+      P.variants.appendChild(btn);
+    });
+
+    if (firstAvailableBtn) firstAvailableBtn.click();
+    else { P.price.innerHTML = ''; P.add.disabled = true; P.add.textContent = 'Sold Out'; }
+    if (typeof P.modal.showModal === 'function') P.modal.showModal(); else P.modal.setAttribute('open', '');
+  }
+
+  function closeModal() {
+    var P = parts();
+    if (!P.modal) return;
+    if (typeof P.modal.close === 'function') P.modal.close(); else P.modal.removeAttribute('open');
+    selectedVariantId = null;
+    modalMode = 'cart';
+    modalTriggerButton = null;
+  }
+
+  function dispatchHeartClick(heart) {
+    skipHeartClick.add(heart);
+    var evt = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+    heart.dispatchEvent(evt);
+    setTimeout(function () { skipHeartClick.delete(heart); }, 0);
+  }
+
+  function onModalAdd() {
+    var A = parts().add;
+    if (!A || A.disabled || !selectedVariantId) return;
+    var id = selectedVariantId;
+
+    if (modalMode === 'wishlist') {
+      var heart = modalTriggerButton;
+      if (!heart) { closeModal(); return; }
+
+      var selBtn = parts().variants.querySelector('[data-variant-id="' + id + '"]');
+      if (selBtn) {
+        var parsed = [];
+        try { parsed = JSON.parse(heart.dataset.variants || '[]'); } catch (e) {}
+        var match = parsed.filter(function (v) { return String(v.id) === String(id); })[0];
+        if (match) {
+          heart.dataset.variantId = match.id;
+          if (match.price_raw !== undefined && match.price_raw !== null) heart.dataset.productPrice = match.price_raw;
+          if (match.image) heart.dataset.productImage = match.image;
+        } else {
+          heart.dataset.variantId = id;
+          if (selBtn.dataset.priceRaw) heart.dataset.productPrice = selBtn.dataset.priceRaw;
+          if (selBtn.dataset.image) heart.dataset.productImage = selBtn.dataset.image;
+        }
+      }
+      closeModal();
+      dispatchHeartClick(heart);
+      return;
+    }
+
+    A.textContent = 'Added ✓';
+    A.setAttribute('data-state', 'success');
+    A.style.background = '#B9E404'; A.style.borderColor = '#B9E404'; A.style.color = '#111';
+    A.disabled = true;
+    setTimeout(function () { closeModal(); A.textContent = 'Add to Cart'; A.disabled = false; A.removeAttribute('data-state'); A.style.background = ''; A.style.borderColor = ''; A.style.color = ''; }, 450);
+
+    var data = new FormData();
+    data.append('id', id); data.append('quantity', 1);
+
+    fetch((window.Shopify && window.Shopify.routes && window.Shopify.routes.root || '/') + 'cart/add.js', {
+      method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data
+    })
+    .then(res => res.json())
+    .then(() => {
+      var drawer = document.querySelector('cart-drawer'); if (drawer && typeof drawer.open === 'function') drawer.open();
+    })
+    .catch(err => {
+      console.error(err);
+      A.textContent = 'Try again'; A.disabled = false;
+      A.style.background = ''; A.style.borderColor = ''; A.style.color = '';
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest('#buzzko-modal-close')) { closeModal(); return; }
+    if (t.id === 'buzzko-variant-modal') { closeModal(); return; }
+    if (t.closest('#buzzko-modal-add')) { onModalAdd(); }
+  });
+
+  // Intercept card heart clicks and proxy them through the hidden main heart
+  document.addEventListener('click', function (event) {
+    var heart = event.target.closest && event.target.closest('.buzzko-card-heart');
+    if (!heart) return;
+
+    if (!skipHeartClick.has(heart)) {
+      if (heart.dataset.hasVariants === 'true') {
+        if (heart.classList.contains('is-active') || heart.getAttribute('aria-pressed') === 'true') return;
+        event.preventDefault();
+        event.stopPropagation();
+        openVariantModal(heart.dataset.productTitle, heart.dataset.productImage, heart.dataset.variants, { mode: 'wishlist', triggerButton: heart });
+        return;
+      }
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const originalData = {};
+    for (let i = 0; i < proxyHeart.attributes.length; i++) {
+        const attr = proxyHeart.attributes[i];
+        if (attr.name.startsWith('data-') && attr.name !== 'data-buzzko-wishlist-toggle') originalData[attr.name] = attr.value;
+    }
+
+    for (let i = 0; i < heart.attributes.length; i++) {
+        const attr = heart.attributes[i];
+        if (attr.name.startsWith('data-') && attr.name !== 'data-buzzko-wishlist-toggle') proxyHeart.setAttribute(attr.name, attr.value);
+    }
+
+    proxyHeart.click();
+
+    setTimeout(() => {
+        for (let i = 0; i < proxyHeart.attributes.length; i++) {
+            const attr = proxyHeart.attributes[i];
+            if (attr.name.startsWith('data-') && attr.name !== 'data-buzzko-wishlist-toggle' && !originalData[attr.name]) proxyHeart.removeAttribute(attr.name);
+        }
+        for (let name in originalData) proxyHeart.setAttribute(name, originalData[name]);
+        if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') window.BuzzkoWishlist.refresh();
+    }, 50);
+  }, true);
 })();
 </script>
 
