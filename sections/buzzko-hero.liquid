@@ -265,11 +265,14 @@
           {% for block in section.blocks %}
             {% if block.settings.image != blank %}
               {% liquid
-                assign slide_loading = 'lazy'
-                if forloop.first
-                  assign slide_loading = 'eager'
-                endif
-              %}
+  assign slide_loading = 'lazy'
+  assign slide_fetchpriority = 'auto'
+
+  if forloop.first
+    assign slide_loading = 'eager'
+    assign slide_fetchpriority = 'high'
+  endif
+%}
               <div class="buzzko-hero__slide{% if forloop.first %} is-active{% endif %}" data-slide {{ block.shopify_attributes }}>
                 <picture>
                   {% if block.settings.image_mobile != blank %}
