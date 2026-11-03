@@ -14,6 +14,21 @@
   {%- else -%}{%- assign card_border = '#FF9FC8' -%}
 {%- endcase -%}
 
+{%- capture variants_json -%}
+  [
+    {% for v in product.variants %}
+      {
+        "id": "{{ v.id }}",
+        "title": "{{ v.title | escape }}",
+        "price": "{{ v.price | money }}",
+        "price_raw": {{ v.price }},
+        "available": {{ v.available }},
+        "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ product.featured_image | image_url: width: 600 }}{% endif %}"
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+{%- endcapture -%}
+
 <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
   <div class="buzzko-product-card__image-wrapper">
     
@@ -22,6 +37,30 @@
         Sold Out
       </div>
     {% endunless %}
+
+    {%- comment -%} WISHLIST HEART (top-right) {%- endcomment -%}
+    <button
+      type="button"
+      class="buzzko-card-heart"
+      data-buzzko-wishlist-toggle
+      data-product-id="{{ product.id }}"
+      data-product-handle="{{ product.handle }}"
+      data-product-title="{{ product.title | escape }}"
+      data-product-url="{{ product.url }}"
+      data-product-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 700 }}{% endif %}"
+      data-product-price="{{ variant.price }}"
+      data-variant-id="{{ variant.id }}"
+      {% unless product.has_only_default_variant %}
+        data-has-variants="true"
+        data-variants="{{ variants_json | escape }}"
+      {% endunless %}
+      aria-label="Add to wishlist"
+      aria-pressed="false"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+      </svg>
+    </button>
 
     <a href="{{ product.url }}" class="buzzko-product-card__image-link" aria-label="{{ product.title | escape }}">
       {% if product.featured_image != blank %}
@@ -43,20 +82,6 @@
 
     {%- capture form_content -%}
       <input type="hidden" name="id" value="{{ variant.id }}">
-      
-      {%- capture variants_json -%}
-        [
-          {% for v in product.variants %}
-            {
-              "id": "{{ v.id }}",
-              "title": "{{ v.title | escape }}",
-              "price": "{{ v.price | money }}",
-              "available": {{ v.available }},
-              "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ product.featured_image | image_url: width: 600 }}{% endif %}"
-            }{% unless forloop.last %},{% endunless %}
-          {% endfor %}
-        ]
-      {%- endcapture -%}
 
       <button
         type="{% if product.has_only_default_variant %}submit{% else %}button{% endif %}"
