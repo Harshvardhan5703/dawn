@@ -870,11 +870,15 @@
   }
 
   function currentVariant(button) {
-    var root = button.closest('product-info') || document.querySelector('product-info');
-    var input = root && root.querySelector('form[action*="/cart/add"] input[name="id"]');
-    return input && input.value ? input.value : (button.dataset.variantId || '');
+    // If the button is inside the main product section, get the selected variant from the form.
+    if (button.closest('product-info')) {
+      var root = button.closest('product-info');
+      var input = root.querySelector('form[action*="/cart/add"] input[name="id"]');
+      return input && input.value ? input.value : (button.dataset.variantId || '');
+    }
+    // Otherwise (like on product cards), just use the variant ID stored on the button.
+    return button.dataset.variantId || '';
   }
-
   function payloadFromButton(button) {
     return {
       productId: button.dataset.productId,
