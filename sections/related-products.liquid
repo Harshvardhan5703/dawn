@@ -69,7 +69,7 @@
                   <div class="buzzko-product-card__badge buzzko-product-card__badge--soldout">Sold Out</div>
                 {% endunless %}
 
-                {%- comment -%} WISHLIST HEART {%- endcomment -%}
+                {%- comment -%} CUSTOM RELATED HEART {%- endcomment -%}
                 <button
                   type="button"
                   class="buzzko-related-heart"
@@ -290,9 +290,9 @@
   .buzzko-related-heart:active { transform: scale(0.94); }
   .buzzko-related-heart:focus-visible { outline: 2px solid #1A1A1A; outline-offset: 2px; }
   .buzzko-related-heart svg { width: 18px; height: 18px; display: block; transition: fill .15s ease; }
-  .buzzko-related-heart.is-active,
+  .buzzko-related-heart.is-wishlisted,
   .buzzko-related-heart[aria-pressed="true"] { color: #000; }
-  .buzzko-related-heart.is-active svg,
+  .buzzko-related-heart.is-wishlisted svg,
   .buzzko-related-heart[aria-pressed="true"] svg { fill: currentColor; }
   @media screen and (max-width: 749px) {
     .buzzko-related-heart { width: 30px; height: 30px; top: 6px; right: 6px; }
@@ -428,7 +428,70 @@
   if (document.body.dataset.buzzkoRelatedWishlist) return;
   document.body.dataset.buzzkoRelatedWishlist = 'true';
 
-  // Intercept clicks on the related hearts
+  // Helper to read localStorage and find the true state
+  function getWishlist() {
+    let list = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.toLowerCase().includes('wishlist') || key.toLowerCase().includes('saved')) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key));
+          if (Array.isArray(parsed)) list = list.concat(parsed);
+        } catch (e) {}
+      }
+    }
+    return list;
+  }
+
+  function isInWishlist(pid, vid) {
+    const list = getWishlist();
+    return list.some(item => {
+      let id = item;
+      if (typeof item === 'object' && item !== null) {
+        id = item.id || item.productId || item.variantId;
+      }
+      return String(id) === String(pid) || String(id) === String(vid);
+    });
+  }
+
+  // Sync all related hearts based on actual localStorage data
+  function syncHearts() {
+    document.querySelectorAll('.buzzko-related-heart').forEach(heart => {
+      const inList = isInWishlist(heart.dataset.productId, heart.dataset.variantId);
+      heart.classList.toggle('is-wishlisted', inList);
+      heart.setAttribute('aria-pressed', inList ? 'true' : 'false');
+    });
+  }
+
+  // Run on load
+  setTimeout(syncHearts, 500);
+
+  // Helper to trigger the global handler without it messing up our hearts
+  function triggerGlobalProxy(heart, isCurrentlyIn) {
+    const proxy = document.createElement('button');
+    proxy.className = 'product-form__wishlist'; // Tells global handler to catch it
+    proxy.setAttribute('data-buzzko-wishlist-toggle', '');
+    proxy.style.display = 'none';
+
+    Array.from(heart.attributes).forEach(attr => {
+      if (attr.name.startsWith('data-') && attr.name !== 'data-buzzko-related-heart') {
+        proxy.setAttribute(attr.name, attr.value);
+      }
+    });
+
+    if (isCurrentlyIn) {
+      proxy.classList.add('is-active'); // Tell global handler to REMOVE
+    }
+
+    document.body.appendChild(proxy);
+    proxy.click();
+
+    setTimeout(() => {
+      proxy.remove();
+      syncHearts(); // Fix visuals from actual localStorage
+    }, 100);
+  }
+
   document.addEventListener('click', function (event) {
     var heart = event.target.closest('.buzzko-related-heart');
     if (!heart) return;
@@ -436,14 +499,13 @@
     event.preventDefault();
     event.stopPropagation();
 
-    // If it has variants, open the modal (handled by the modal script above)
-    if (heart.dataset.hasVariants === 'true' && !heart.classList.contains('is-active')) {
-      // We manually dispatch the event to the modal logic, but since we already stopped propagation, 
-      // the modal script won't see it unless we trigger it.
-      // Actually, the modal script is listening via `event.target.closest('.buzzko-product-card__atc')` for the card. 
-      // For the heart, we need to trigger the modal here if it has variants.
-      
-      // Wait, the previous script handled the modal. Let's integrate it here to be safe.
+    const pid = heart.dataset.productId;
+    const vid = heart.dataset.variantId;
+    const hasVariants = heart.dataset.hasVariants === 'true';
+    let isCurrentlyIn = isInWishlist(pid, vid);
+
+    // If variants and not in wishlist, open modal
+    if (hasVariants && !isCurrentlyIn) {
       var modal = document.getElementById('buzzko-variant-modal');
       if (modal) {
         var variantsJson = heart.dataset.variants;
@@ -483,11 +545,9 @@
         if (firstAvailableBtn) firstAvailableBtn.click();
         else { modalPrice.innerHTML = ''; modalAddBtn.disabled = true; modalAddBtn.textContent = 'Sold Out'; }
 
-        // Change the Add button behavior for wishlist
         modalAddBtn.onclick = function() {
           if (!selectedVariantId) return;
           
-          // Find the selected variant and update the heart
           var selBtn = modalVariants.querySelector('[data-variant-id="' + selectedVariantId + '"]');
           if (selBtn) {
             var parsed = JSON.parse(heart.dataset.variants || '[]');
@@ -500,24 +560,7 @@
           }
 
           modal.close();
-          
-          // Trigger the proxy logic
-          var proxy = document.createElement('button');
-          proxy.className = 'product-form__wishlist buzzko-card-heart';
-          proxy.style.display = 'none';
-          proxy.setAttribute('data-buzzko-wishlist-toggle', '');
-          proxy.setAttribute('aria-pressed', 'false');
-
-          Array.from(heart.attributes).forEach(attr => {
-            if (attr.name.startsWith('data-')) proxy.setAttribute(attr.name, attr.value);
-          });
-
-          document.body.appendChild(proxy);
-          proxy.click();
-          setTimeout(() => proxy.remove(), 1000);
-
-          heart.classList.add('is-active');
-          heart.setAttribute('aria-pressed', 'true');
+          triggerGlobalProxy(heart, false);
         };
 
         if (typeof modal.showModal === 'function') modal.showModal(); else modal.setAttribute('open', '');
@@ -525,36 +568,8 @@
       return;
     }
 
-    // If no variants or already wishlisted, use proxy
-    var isCurrentlyActive = heart.classList.contains('is-active');
-
-    var proxy = document.createElement('button');
-    proxy.className = 'product-form__wishlist buzzko-card-heart';
-    proxy.style.display = 'none';
-    proxy.setAttribute('data-buzzko-wishlist-toggle', '');
-
-    if (isCurrentlyActive) {
-        proxy.classList.add('is-active');
-        proxy.setAttribute('aria-pressed', 'true');
-    }
-
-    Array.from(heart.attributes).forEach(attr => {
-      if (attr.name.startsWith('data-')) proxy.setAttribute(attr.name, attr.value);
-    });
-
-    document.body.appendChild(proxy);
-    proxy.click();
-
-    setTimeout(() => proxy.remove(), 1000);
-
-    // Manually toggle visual state
-    if (isCurrentlyActive) {
-      heart.classList.remove('is-active');
-      heart.setAttribute('aria-pressed', 'false');
-    } else {
-      heart.classList.add('is-active');
-      heart.setAttribute('aria-pressed', 'true');
-    }
+    // Add or remove
+    triggerGlobalProxy(heart, isCurrentlyIn);
   }, true);
 })();
 </script>
@@ -666,7 +681,7 @@
         },
         {
           "value": "diamond",
-          "label": "t:sections.all.image_shape.options.__6.label"
+          "label": "t:sections.all.image_shape.options__6.label"
         },
         {
           "value": "parallelogram",
