@@ -322,13 +322,17 @@
   var modalAddBtn = document.getElementById('buzzko-modal-add');
   var modalCloseBtn = document.getElementById('buzzko-modal-close');
   var selectedVariantId = null;
+  
+  var modalMode = 'cart';
   var activeHeart = null;
 
-  function openModal(heart) {
+  function openModal(productTitle, defaultImage, variantsJson, mode, heart) {
+    modalMode = mode;
     activeHeart = heart;
-    var variants = JSON.parse(heart.dataset.variants);
-    modalTitle.textContent = heart.dataset.productTitle;
-    modalImg.src = heart.dataset.productImage || '';
+    
+    var variants = JSON.parse(variantsJson);
+    modalTitle.textContent = productTitle;
+    modalImg.src = defaultImage || '';
     modalVariants.innerHTML = '';
     selectedVariantId = null;
     var firstAvailableBtn = null;
@@ -337,7 +341,7 @@
       var btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'buzzko-modal-variant-btn'; btn.textContent = v.title;
       if (!v.available) btn.disabled = true; else if (!firstAvailableBtn) firstAvailableBtn = btn;
-      btn.dataset.variantId = v.id; btn.dataset.image = v.image || heart.dataset.productImage; btn.dataset.price = v.price;
+      btn.dataset.variantId = v.id; btn.dataset.image = v.image || defaultImage; btn.dataset.price = v.price;
       btn.dataset.priceRaw = v.price_raw || '';
       btn.addEventListener('click', function() {
         if (btn.disabled) return;
@@ -347,7 +351,7 @@
         selectedVariantId = btn.dataset.variantId; 
         modalPrice.textContent = btn.dataset.price;
         modalAddBtn.disabled = false; 
-        modalAddBtn.textContent = 'Add to Wishlist';
+        modalAddBtn.textContent = modalMode === 'wishlist' ? 'Add to Wishlist' : 'Add to Cart';
       });
       modalVariants.appendChild(btn);
     });
@@ -369,56 +373,79 @@
 
   if (modalAddBtn) {
     modalAddBtn.addEventListener('click', function() {
-      if (!selectedVariantId || !activeHeart) return;
+      if (!selectedVariantId) return;
       
-      // 1. Save a reference to the heart BEFORE we close the modal
-      var heartToUpdate = activeHeart;
+      if (modalMode === 'wishlist') {
+        if (!activeHeart) return;
+        var heartToUpdate = activeHeart;
 
-      // 2. Update the heart's dataset with the chosen variant
-      var selBtn = modalVariants.querySelector('[data-variant-id="' + selectedVariantId + '"]');
-      if (selBtn && heartToUpdate) {
-        var parsed = JSON.parse(heartToUpdate.dataset.variants || '[]');
-        var match = parsed.filter(function (v) { return String(v.id) === String(selectedVariantId); })[0];
-        if (match) {
-          heartToUpdate.dataset.variantId = match.id;
-          if (match.price_raw !== undefined && match.price_raw !== null) heartToUpdate.dataset.productPrice = match.price_raw;
-          if (match.image) heartToUpdate.dataset.productImage = match.image;
-        } else {
-          heartToUpdate.dataset.variantId = selectedVariantId;
-          if (selBtn.dataset.priceRaw) heartToUpdate.dataset.productPrice = selBtn.dataset.priceRaw;
-          if (selBtn.dataset.image) heartToUpdate.dataset.productImage = selBtn.dataset.image;
+        var selBtn = modalVariants.querySelector('[data-variant-id="' + selectedVariantId + '"]');
+        if (selBtn && heartToUpdate) {
+          var parsed = JSON.parse(heartToUpdate.dataset.variants || '[]');
+          var match = parsed.filter(function (v) { return String(v.id) === String(selectedVariantId); })[0];
+          if (match) {
+            heartToUpdate.dataset.variantId = match.id;
+            if (match.price_raw !== undefined && match.price_raw !== null) heartToUpdate.dataset.productPrice = match.price_raw;
+            if (match.image) heartToUpdate.dataset.productImage = match.image;
+          } else {
+            heartToUpdate.dataset.variantId = selectedVariantId;
+            if (selBtn.dataset.priceRaw) heartToUpdate.dataset.productPrice = selBtn.dataset.priceRaw;
+            if (selBtn.dataset.image) heartToUpdate.dataset.productImage = selBtn.dataset.image;
+          }
         }
-      }
 
-      // 3. Build the payload for BuzzkoWishlist BEFORE closing
-      var payload = {
-        productId: heartToUpdate.dataset.productId,
-        handle: heartToUpdate.dataset.productHandle,
-        variantId: heartToUpdate.dataset.variantId,
-        title: heartToUpdate.dataset.productTitle,
-        url: heartToUpdate.dataset.productUrl,
-        image: heartToUpdate.dataset.productImage,
-        price: heartToUpdate.dataset.productPrice
-      };
+        var payload = {
+          productId: heartToUpdate.dataset.productId,
+          handle: heartToUpdate.dataset.productHandle,
+          variantId: heartToUpdate.dataset.variantId,
+          title: heartToUpdate.dataset.productTitle,
+          url: heartToUpdate.dataset.productUrl,
+          image: heartToUpdate.dataset.productImage,
+          price: heartToUpdate.dataset.productPrice
+        };
 
-      // 4. Close the modal
-      closeModal();
-      
-      // 5. Trigger the global BuzzkoWishlist logic directly
-      if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
-        var nowAdded = window.BuzzkoWishlist.toggle(payload);
-        heartToUpdate.classList.toggle('is-active', nowAdded);
-        heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+        closeModal();
+        
+        if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
+          var nowAdded = window.BuzzkoWishlist.toggle(payload);
+          heartToUpdate.classList.toggle('is-active', nowAdded);
+          heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+          
+          if (window.BuzzkoWishlist.refresh) {
+            window.BuzzkoWishlist.refresh();
+          }
+        }
+      } else {
+        // CART MODE
+        modalAddBtn.textContent = 'Adding...'; modalAddBtn.disabled = true;
+        var data = new FormData();
+        data.append('id', selectedVariantId); data.append('quantity', 1);
+        data.append('sections', 'cart-drawer,cart-icon-bubble'); data.append('sections_url', window.location.pathname);
+        
+        fetch(ROOT + 'cart/add.js', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: data })
+        .then(function(res) { return res.json(); })
+        .then(function(added) {
+          if (added.sections && added.sections['cart-icon-bubble']) {
+            var temp = document.createElement('div');
+            temp.innerHTML = added.sections['cart-icon-bubble'];
+            var newBubble = temp.querySelector('.cart-count-bubble');
+            var oldBubble = document.querySelector('.cart-count-bubble');
+            if (newBubble) { if (oldBubble) oldBubble.replaceWith(newBubble); else document.getElementById('cart-icon-bubble').appendChild(newBubble); }
+          }
+          var drawer = document.querySelector('cart-drawer'); if (drawer && typeof drawer.open === 'function') drawer.open();
+          modalAddBtn.textContent = 'Added ✓'; setTimeout(function() { closeModal(); }, 400);
+        })
+        .catch(function(err) { console.error(err); modalAddBtn.textContent = 'Try Again'; modalAddBtn.disabled = false; });
       }
     });
   }
 
+  // ATC CLICKS
   root.addEventListener('click', function(event) {
     var button = event.target.closest('.buzzko-product-card__atc');
     if (button && !button.disabled && button.dataset.hasVariants === 'true') {
       event.preventDefault();
-      var heart = button.closest('.buzzko-product-card').querySelector('.buzzko-card-heart');
-      if(heart) openModal(heart);
+      openModal(button.dataset.productTitle, button.dataset.productImage, button.dataset.variants, 'cart', null);
     }
   });
 
@@ -449,19 +476,17 @@
     .catch(function (error) { console.error(error); button.removeAttribute('data-state'); button.disabled = false; });
   });
 
-  // INTERCEPT HEART CLICKS FOR VARIANTS
+  // HEART CLICKS (VARIANTS ONLY)
   document.addEventListener('click', function (event) {
     var heart = event.target.closest('.buzzko-card-heart');
     if (!heart) return;
 
-    // Only intercept if it has variants and is NOT already wishlisted
+    // If it has variants and is NOT already wishlisted
     if (heart.dataset.hasVariants === 'true' && !heart.classList.contains('is-active')) {
       event.preventDefault();
       event.stopPropagation();
-      openModal(heart);
+      openModal(heart.dataset.productTitle, heart.dataset.productImage, heart.dataset.variants, 'wishlist', heart);
     }
-    // If it doesn't have variants, or is already active, do nothing. 
-    // Let buzzko-wishlist.js handle it naturally!
   }, true);
 })();
 </script>
