@@ -330,6 +330,13 @@
     modalMode = mode;
     activeHeart = heart;
     
+    // Reset button state
+    modalAddBtn.style.background = '';
+    modalAddBtn.style.borderColor = '';
+    modalAddBtn.style.color = '';
+    modalAddBtn.disabled = false;
+    modalAddBtn.textContent = modalMode === 'wishlist' ? 'Add to Wishlist' : 'Add to Cart';
+
     var variants = JSON.parse(variantsJson);
     modalTitle.textContent = productTitle;
     modalImg.src = defaultImage || '';
@@ -366,6 +373,13 @@
     if (typeof modal.close === 'function') modal.close(); else modal.removeAttribute('open');
     selectedVariantId = null;
     activeHeart = null;
+    if (modalAddBtn) {
+      modalAddBtn.style.background = '';
+      modalAddBtn.style.borderColor = '';
+      modalAddBtn.style.color = '';
+      modalAddBtn.textContent = 'Add to Cart';
+      modalAddBtn.disabled = false;
+    }
   }
 
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
@@ -408,16 +422,28 @@
         
         if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
           var nowAdded = window.BuzzkoWishlist.toggle(payload);
+          
+          // 1. Manually fill the heart
           heartToUpdate.classList.toggle('is-active', nowAdded);
           heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
           
-          if (window.BuzzkoWishlist.refresh) {
-            window.BuzzkoWishlist.refresh();
-          }
+          // 2. Manually update the header count to bypass the script loading race condition
+          var items = window.BuzzkoWishlist.getItems ? window.BuzzkoWishlist.getItems() : [];
+          var count = items.length;
+          document.querySelectorAll('[data-buzzko-wishlist-count]').forEach(function (badge) {
+            badge.textContent = count > 99 ? '99+' : String(count);
+            badge.dataset.count = String(count);
+            badge.setAttribute('aria-label', count + (count === 1 ? ' item in wishlist' : ' items in wishlist'));
+          });
         }
       } else {
         // CART MODE
-        modalAddBtn.textContent = 'Adding...'; modalAddBtn.disabled = true;
+        modalAddBtn.textContent = 'Adding...'; 
+        modalAddBtn.disabled = true;
+        modalAddBtn.style.background = '';
+        modalAddBtn.style.borderColor = '';
+        modalAddBtn.style.color = '';
+
         var data = new FormData();
         data.append('id', selectedVariantId); data.append('quantity', 1);
         data.append('sections', 'cart-drawer,cart-icon-bubble'); data.append('sections_url', window.location.pathname);
@@ -433,9 +459,20 @@
             if (newBubble) { if (oldBubble) oldBubble.replaceWith(newBubble); else document.getElementById('cart-icon-bubble').appendChild(newBubble); }
           }
           var drawer = document.querySelector('cart-drawer'); if (drawer && typeof drawer.open === 'function') drawer.open();
-          modalAddBtn.textContent = 'Added ✓'; setTimeout(function() { closeModal(); }, 400);
+          
+          // Success State matching the normal card
+          modalAddBtn.textContent = 'Added ✓'; 
+          modalAddBtn.style.background = '#B9E404';
+          modalAddBtn.style.borderColor = '#B9E404';
+          modalAddBtn.style.color = '#111';
+
+          setTimeout(function() { closeModal(); }, 800);
         })
-        .catch(function(err) { console.error(err); modalAddBtn.textContent = 'Try Again'; modalAddBtn.disabled = false; });
+        .catch(function(err) { 
+          console.error(err); 
+          modalAddBtn.textContent = 'Try Again'; 
+          modalAddBtn.disabled = false; 
+        });
       }
     });
   }
@@ -471,7 +508,7 @@
         if (newBubble) { if (oldBubble) oldBubble.replaceWith(newBubble); else document.getElementById('cart-icon-bubble').appendChild(newBubble); }
       }
       var drawer = document.querySelector('cart-drawer'); if (drawer && typeof drawer.open === 'function') drawer.open();
-      button.setAttribute('data-state', 'success'); setTimeout(function () { button.removeAttribute('data-state'); button.disabled = false; }, 400);
+      button.setAttribute('data-state', 'success'); setTimeout(function () { button.removeAttribute('data-state'); button.disabled = false; }, 700);
     })
     .catch(function (error) { console.error(error); button.removeAttribute('data-state'); button.disabled = false; });
   });
