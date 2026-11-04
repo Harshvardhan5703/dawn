@@ -423,11 +423,10 @@
         if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
           var nowAdded = window.BuzzkoWishlist.toggle(payload);
           
-          // 1. Manually fill the heart
+          // Force manual UI update
           heartToUpdate.classList.toggle('is-active', nowAdded);
           heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
           
-          // 2. Manually update the header count to bypass the script loading race condition
           var items = window.BuzzkoWishlist.getItems ? window.BuzzkoWishlist.getItems() : [];
           var count = items.length;
           document.querySelectorAll('[data-buzzko-wishlist-count]').forEach(function (badge) {
@@ -435,6 +434,14 @@
             badge.dataset.count = String(count);
             badge.setAttribute('aria-label', count + (count === 1 ? ' item in wishlist' : ' items in wishlist'));
           });
+
+          // Use a tiny timeout to override any late refresh() from buzzko-wishlist.js
+          setTimeout(function() {
+            heartToUpdate.classList.toggle('is-active', nowAdded);
+            document.querySelectorAll('[data-buzzko-wishlist-count]').forEach(function (badge) {
+              badge.textContent = count > 99 ? '99+' : String(count);
+            });
+          }, 50);
         }
       } else {
         // CART MODE
