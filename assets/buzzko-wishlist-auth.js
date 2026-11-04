@@ -22,24 +22,82 @@
 
   /* ---------- auth state ---------- */
   function isCustomerSignedIn() {
-    // Rely purely on Liquid's output. If it's false, we'll confirm with Shopify.
-    return document.documentElement.dataset.buzzkoCustomerSignedIn === 'true';
+    // 1. Check Liquid state (Google Login / Native Shopify)
+    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
+    
+    // 2. Check native Shopify cookie
+    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) return true;
+
+    // 3. THE OTP FIX: Check for OTP frontend signs
+    // If there is a "Log out" link, the OTP library considers them logged in.
+    if (document.querySelector('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]')) {
+      return true;
+    }
+    
+    // 4. Check localStorage for OTP session tokens
+    try {
+       for (var i = 0; i < localStorage.length; i++) {
+           var k = localStorage.key(i).toLowerCase();
+           if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
+               var v = localStorage.getItem(localStorage.key(i));
+               // Ensure it's a real token, not just an empty string or "false"
+               if (v && v.length > 10 && v !== 'false' && v !== 'null') return true;
+           }
+       }
+    } catch(e) {}
+
+    return false;
+  }
+
+  function ensureHeaderBadge() {
+    var link = document.querySelector('.buzzko-header-wishlist');
+    if (!link || link.querySelector('[data-buzzko-wishlist-count]')) return;
+    var badge = document.createElement('span');
+    badge.className = 'buzzko-wishlist-count';
+    badge.setAttribute('data-buzzko-wishlist-count', '');
+    badge.setAttribute('data-count', '0');
+    badge.setAttribute('aria-live', 'polite');
+    badge.textContent = '0';
+    link.appendChild(badge);
+  }
+
+  function markSignedIn() {
+    document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
+    ensureHeaderBadge();
+    if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+      window.BuzzkoWishlist.refresh();
+    }
+  }
+
+  /* ---------- pending actions ---------- */
+  function applyPendingWishlist(payload) {
+    if (!payload || !payload.productId || !window.BuzzkoWishlist) return;
+    
+    var alreadySaved = (payload.variantId && window.BuzzkoWishlist.hasVariant) 
+      ? window.BuzzkoWishlist.hasVariant(payload.variantId) 
+      : window.BuzzkoWishlist.hasProduct(payload.productId);
+
+    if (!alreadySaved && window.BuzzkoWishlist.toggle) {
+      window.BuzzkoWishlist.toggle(payload);
+    }
+    
+    if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
+
+    // Force the specific heart to fill visually
+    var heartBtns = document.querySelectorAll('[data-buzzko-wishlist-toggle]');
+    heartBtns.forEach(function(btn) {
+      if (btn.dataset.productId === String(payload.productId) || btn.dataset.variantId === String(payload.variantId)) {
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    });
   }
 
   function recoverAfterRedirect() {
     var payload = getPending();
     if (!payload || !isCustomerSignedIn()) return;
     clearPending();
-    
-    // The page reloaded successfully and the user is signed in. Add the item!
-    if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
-       var alreadySaved = (payload.variantId && window.BuzzkoWishlist.hasVariant) 
-         ? window.BuzzkoWishlist.hasVariant(payload.variantId) 
-         : window.BuzzkoWishlist.hasProduct(payload.productId);
-       
-       if (!alreadySaved) window.BuzzkoWishlist.toggle(payload);
-       if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
-    }
+    applyPendingWishlist(payload);
   }
 
   function checkAuthentication() {
@@ -47,17 +105,20 @@
     currentIntent = null; 
 
     window.setTimeout(function () {
-      fetch('/account.json', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
-        .then(function (res) { return res.ok ? res.json() : null; })
-        .then(function (customer) {
-          if (!customer || !customer.id) return; 
-          // Success! The OTP worked but the page didn't reload. Force it to reload.
-          window.location.reload();
-        })
-        .catch(function () {});
+      if (isCustomerSignedIn()) {
+        markSignedIn();
+        if (intent === 'product') {
+          var payload = pendingPayload || getPending();
+          clearPending();
+          if (payload) applyPendingWishlist(payload);
+        } else {
+          clearPending(); 
+        }
+      }
     }, 500);
   }
 
+  /* ---------- entry points ---------- */
   function openOtpModal() {
     var trigger = document.querySelector('.header__icon--account, shopify-account, [data-otp-login]');
     if (trigger) { trigger.click(); return true; }
@@ -65,93 +126,40 @@
   }
 
   function handleWishlistClick(button, payload) {
-    // If the dataset is already true, let the normal wishlist logic handle it.
+    // If the frontend OTP session exists, return false to let buzzko-wishlist.js do its magic!
     if (isCustomerSignedIn()) return false; 
     
     if (!payload || !payload.productId || !payload.handle) return true;
 
-    // Show loading state on the heart
-    if (button) {
-      button.style.opacity = '0.5';
-      button.style.pointerEvents = 'none';
+    currentIntent = 'product';
+    pendingPayload = payload;
+    savePending(payload);
+
+    window.__buzzkoAuthIntent = 'product';
+
+    if (!openOtpModal()) {
+      currentIntent = null; window.__buzzkoAuthIntent = null; clearPending();
+      return false;
     }
-
-    // Ask Shopify directly if they are actually logged in
-    fetch('/account.json', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
-      .then(function (res) { 
-        if (!res.ok) return null;
-        return res.json(); 
-      })
-      .then(function (customer) {
-        if (customer && customer.id) {
-          // THEY ARE LOGGED IN (OTP didn't reload). 
-          // Save the wishlist item, then force reload so Liquid updates the page!
-          savePending(payload);
-          window.location.reload();
-        } else {
-          // They are genuinely signed out. Restore button and open OTP.
-          if (button) {
-            button.style.opacity = '';
-            button.style.pointerEvents = '';
-          }
-
-          currentIntent = 'product';
-          pendingPayload = payload;
-          savePending(payload);
-          window.__buzzkoAuthIntent = 'product';
-
-          if (!openOtpModal()) {
-            currentIntent = null; window.__buzzkoAuthIntent = null; clearPending();
-            // Fallback if OTP modal doesn't exist
-            if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
-              var nowAdded = window.BuzzkoWishlist.toggle(payload);
-              if (button) {
-                button.classList.toggle('is-active', nowAdded);
-                button.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
-              }
-            }
-          }
-        }
-      })
-      .catch(function () {
-        // If fetch fails, just open the modal normally
-        if (button) {
-          button.style.opacity = '';
-          button.style.pointerEvents = '';
-        }
-        openOtpModal();
-      });
-
-    return true; // Tell buzzko-wishlist.js we are handling this asynchronously
+    return true;
   }
 
   function handleHeaderWishlistClick(event) {
     if (isCustomerSignedIn()) return;
     event.preventDefault();
+    currentIntent = 'view';
     
-    fetch('/account.json', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
-      .then(function (res) { return res.ok ? res.json() : null; })
-      .then(function (customer) {
-        if (customer && customer.id) {
-          // Logged in via OTP but page didn't reload. Force reload.
-          window.location.reload();
-        } else {
-          currentIntent = 'view';
-          window.__buzzkoAuthIntent = 'view';
-          if (!openOtpModal()) {
-            currentIntent = null; window.__buzzkoAuthIntent = null;
-            window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
-          }
-        }
-      })
-      .catch(function() {
-        window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
-      });
+    window.__buzzkoAuthIntent = 'view';
+
+    if (!openOtpModal()) {
+      currentIntent = null; window.__buzzkoAuthIntent = null;
+      window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
   }
 
   /* ---------- init ---------- */
   function init() {
-    // 1. Check if we just reloaded from an OTP login and need to add an item
     recoverAfterRedirect();
 
     document.addEventListener('click', function (event) {
@@ -168,10 +176,6 @@
 
     window.addEventListener('focus', function() {
       if (currentIntent || getPending()) checkAuthentication();
-    });
-
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted && (currentIntent || getPending())) checkAuthentication();
     });
   }
 
