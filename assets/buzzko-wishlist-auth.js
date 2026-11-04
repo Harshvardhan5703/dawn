@@ -7,7 +7,6 @@
   
   var currentIntent = null;    
   var pendingPayload = null;   
-  var checkingAuthentication = false;
 
   /* ---------- storage ---------- */
   function savePending(payload) {
@@ -23,19 +22,11 @@
 
   /* ---------- auth state ---------- */
   function isCustomerSignedIn() {
-    // 1. Check the server-set data attribute first
-    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') {
-      return true;
-    }
-
-    // 2. MOBILE FALLBACK: Check the actual Shopify login cookie
-    // OTP on mobile sets the cookie but doesn't reload the page, so the dataset stays false.
+    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
     if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) {
-      // Self-heal the state so the rest of the page knows they are logged in
       document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
       return true;
     }
-
     return false;
   }
 
@@ -67,11 +58,11 @@
       ? window.BuzzkoWishlist.hasVariant(payload.variantId) 
       : window.BuzzkoWishlist.hasProduct(payload.productId);
 
-    if (!alreadySaved) {
+    if (!alreadySaved && window.BuzzkoWishlist.toggle) {
       window.BuzzkoWishlist.toggle(payload);
     }
     
-    window.BuzzkoWishlist.refresh();
+    if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
 
     // Force the specific heart to fill visually
     var heartBtns = document.querySelectorAll('[data-buzzko-wishlist-toggle]');
@@ -91,9 +82,6 @@
   }
 
   function checkAuthentication() {
-    if (checkingAuthentication) return;
-    checkingAuthentication = true;
-
     var intent = currentIntent;
     currentIntent = null; 
 
@@ -103,7 +91,6 @@
       })
         .then(function (res) { return res.ok ? res.json() : null; })
         .then(function (customer) {
-          checkingAuthentication = false;
           if (!customer || !customer.id) return; 
 
           markSignedIn();
@@ -116,7 +103,7 @@
             clearPending(); 
           }
         })
-        .catch(function () { checkingAuthentication = false; });
+        .catch(function () {});
     }, 500);
   }
 
@@ -128,36 +115,84 @@
   }
 
   function handleWishlistClick(button, payload) {
-    // isCustomerSignedIn now checks the cookie directly, fixing the mobile issue!
-    if (isCustomerSignedIn()) return false;
+    if (isCustomerSignedIn()) return false; // Handled instantly by buzzko-wishlist.js
     
     if (!payload || !payload.productId || !payload.handle) return true;
 
-    currentIntent = 'product';
-    pendingPayload = payload;
-    savePending(payload);
-
-    window.__buzzkoAuthIntent = 'product';
-
-    if (!openOtpModal()) {
-      currentIntent = null; window.__buzzkoAuthIntent = null; clearPending();
-      return false;
+    // Show a subtle loading state on the heart
+    if (button) {
+      button.style.opacity = '0.5';
+      button.style.pointerEvents = 'none';
     }
-    return true;
+
+    // MOBILE OTP FIX: Verify with Shopify directly before opening the modal
+    fetch('/account.json', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (customer) {
+        if (button) {
+          button.style.opacity = '';
+          button.style.pointerEvents = '';
+        }
+
+        if (customer && customer.id) {
+          // They ARE logged in (OTP didn't reload the page)
+          markSignedIn();
+          applyPendingWishlist(payload);
+        } else {
+          // They are genuinely signed out
+          currentIntent = 'product';
+          pendingPayload = payload;
+          savePending(payload);
+          window.__buzzkoAuthIntent = 'product';
+
+          if (!openOtpModal()) {
+            currentIntent = null; window.__buzzkoAuthIntent = null; clearPending();
+            // Fallback: toggle locally if no OTP modal exists
+            if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
+              var nowAdded = window.BuzzkoWishlist.toggle(payload);
+              if (button) {
+                button.classList.toggle('is-active', nowAdded);
+                button.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+              }
+            }
+          }
+        }
+      })
+      .catch(function () {
+        if (button) {
+          button.style.opacity = '';
+          button.style.pointerEvents = '';
+        }
+        openOtpModal();
+      });
+
+    return true; // Stop propagation, we handled it asynchronously
   }
 
   function handleHeaderWishlistClick(event) {
     if (isCustomerSignedIn()) return;
     event.preventDefault();
-    currentIntent = 'view';
     
-    window.__buzzkoAuthIntent = 'view';
+    var link = event.target.closest('[data-buzzko-wishlist-link]');
 
-    if (!openOtpModal()) {
-      currentIntent = null; window.__buzzkoAuthIntent = null;
-      window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
-      return;
-    }
+    fetch('/account.json', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (customer) {
+        if (customer && customer.id) {
+          markSignedIn();
+          if (link && link.href) window.location.href = link.href;
+        } else {
+          currentIntent = 'view';
+          window.__buzzkoAuthIntent = 'view';
+          if (!openOtpModal()) {
+            currentIntent = null; window.__buzzkoAuthIntent = null;
+            window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
+          }
+        }
+      })
+      .catch(function() {
+        window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
+      });
   }
 
   /* ---------- init ---------- */
@@ -176,12 +211,10 @@
       }
     });
 
-    // MOBILE FIX: Check auth when the user switches back to the tab (e.g., from email/SMS app)
     window.addEventListener('focus', function() {
       if (currentIntent || getPending()) checkAuthentication();
     });
 
-    // MOBILE FIX: Check auth when page is restored from cache
     window.addEventListener('pageshow', function(event) {
       if (event.persisted && (currentIntent || getPending())) checkAuthentication();
     });
