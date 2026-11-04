@@ -540,7 +540,7 @@
   "shopify": {
     "checkout": {
       "order_summary": {
-        "shipping_label": "Shipping / Fee"
+        "shipping_label": "Shipping / COD Handling Fee"
       }
     }
   }
