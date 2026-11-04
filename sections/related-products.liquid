@@ -322,7 +322,7 @@
   var modalAddBtn = document.getElementById('buzzko-modal-add');
   var modalCloseBtn = document.getElementById('buzzko-modal-close');
   var selectedVariantId = null;
-  var activeHeart = null; // Keep track of which heart opened the modal
+  var activeHeart = null;
 
   function openModal(heart) {
     activeHeart = heart;
@@ -371,37 +371,44 @@
     modalAddBtn.addEventListener('click', function() {
       if (!selectedVariantId || !activeHeart) return;
       
+      // 1. Save a reference to the heart BEFORE we close the modal
+      var heartToUpdate = activeHeart;
+
+      // 2. Update the heart's dataset with the chosen variant
       var selBtn = modalVariants.querySelector('[data-variant-id="' + selectedVariantId + '"]');
-      if (selBtn && activeHeart) {
-        var parsed = JSON.parse(activeHeart.dataset.variants || '[]');
+      if (selBtn && heartToUpdate) {
+        var parsed = JSON.parse(heartToUpdate.dataset.variants || '[]');
         var match = parsed.filter(function (v) { return String(v.id) === String(selectedVariantId); })[0];
         if (match) {
-          activeHeart.dataset.variantId = match.id;
-          if (match.price_raw !== undefined && match.price_raw !== null) activeHeart.dataset.productPrice = match.price_raw;
-          if (match.image) activeHeart.dataset.productImage = match.image;
+          heartToUpdate.dataset.variantId = match.id;
+          if (match.price_raw !== undefined && match.price_raw !== null) heartToUpdate.dataset.productPrice = match.price_raw;
+          if (match.image) heartToUpdate.dataset.productImage = match.image;
         } else {
-          activeHeart.dataset.variantId = selectedVariantId;
-          if (selBtn.dataset.priceRaw) activeHeart.dataset.productPrice = selBtn.dataset.priceRaw;
-          if (selBtn.dataset.image) activeHeart.dataset.productImage = selBtn.dataset.image;
+          heartToUpdate.dataset.variantId = selectedVariantId;
+          if (selBtn.dataset.priceRaw) heartToUpdate.dataset.productPrice = selBtn.dataset.priceRaw;
+          if (selBtn.dataset.image) heartToUpdate.dataset.productImage = selBtn.dataset.image;
         }
       }
 
+      // 3. Build the payload for BuzzkoWishlist BEFORE closing
+      var payload = {
+        productId: heartToUpdate.dataset.productId,
+        handle: heartToUpdate.dataset.productHandle,
+        variantId: heartToUpdate.dataset.variantId,
+        title: heartToUpdate.dataset.productTitle,
+        url: heartToUpdate.dataset.productUrl,
+        image: heartToUpdate.dataset.productImage,
+        price: heartToUpdate.dataset.productPrice
+      };
+
+      // 4. Close the modal
       closeModal();
       
-      // Trigger the global BuzzkoWishlist logic directly
+      // 5. Trigger the global BuzzkoWishlist logic directly
       if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
-        var payload = {
-          productId: activeHeart.dataset.productId,
-          handle: activeHeart.dataset.productHandle,
-          variantId: activeHeart.dataset.variantId,
-          title: activeHeart.dataset.productTitle,
-          url: activeHeart.dataset.productUrl,
-          image: activeHeart.dataset.productImage,
-          price: activeHeart.dataset.productPrice
-        };
         var nowAdded = window.BuzzkoWishlist.toggle(payload);
-        activeHeart.classList.toggle('is-active', nowAdded);
-        activeHeart.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+        heartToUpdate.classList.toggle('is-active', nowAdded);
+        heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
       }
     });
   }
