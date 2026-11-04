@@ -22,9 +22,10 @@
   }
 
   /* ---------- auth state ---------- */
+  // Source of truth: flag set server-side in theme.liquid ({% if customer %}),
+  // or by markSignedIn() after a successful OTP login. No DOM guessing.
   function isCustomerSignedIn() {
-    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
-    return !!document.querySelector('.buzzko-header-wishlist [data-buzzko-wishlist-count]');
+    return document.documentElement.dataset.buzzkoCustomerSignedIn === 'true';
   }
 
   function ensureHeaderBadge() {
