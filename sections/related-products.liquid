@@ -57,13 +57,40 @@
             {%- else -%}{%- assign card_border = '#FF9FC8' -%}
           {%- endcase -%}
 
+          {%- capture variants_json -%}
+            [{% for v in recommendation.variants %}{"id": "{{ v.id }}", "title": "{{ v.title | escape }}", "price": "{{ v.price | money }}", "price_raw": {{ v.price }}, "available": {{ v.available }}, "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ recommendation.featured_image | image_url: width: 600 }}{% endif %}"}{% unless forloop.last %},{% endunless %}{% endfor %}]
+          {%- endcapture -%}
+
           <li class="grid__item">
-            <div class="buzzko-product-card" style="--card-border: {{ card_border }};">
+            <div class="buzzko-product-card" style="--card-border: {{ card_border }};" data-product-id="{{ recommendation.id }}">
               <div class="buzzko-product-card__image-wrapper">
                 
                 {% unless recommendation.available %}
                   <div class="buzzko-product-card__badge buzzko-product-card__badge--soldout">Sold Out</div>
                 {% endunless %}
+
+                {%- comment -%} WISHLIST HEART {%- endcomment -%}
+                <button
+                  type="button"
+                  class="buzzko-related-heart"
+                  data-product-id="{{ recommendation.id }}"
+                  data-product-handle="{{ recommendation.handle }}"
+                  data-product-title="{{ recommendation.title | escape }}"
+                  data-product-url="{{ recommendation.url }}"
+                  data-product-image="{% if recommendation.featured_image %}{{ recommendation.featured_image | image_url: width: 700 }}{% endif %}"
+                  data-product-price="{{ variant.price }}"
+                  data-variant-id="{{ variant.id }}"
+                  {% unless recommendation.has_only_default_variant %}
+                    data-has-variants="true"
+                    data-variants="{{ variants_json | escape }}"
+                  {% endunless %}
+                  aria-label="Add to wishlist"
+                  aria-pressed="false"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+                  </svg>
+                </button>
 
                 <a href="{{ recommendation.url }}" class="buzzko-product-card__image-link" aria-label="{{ recommendation.title | escape }}">
                   {% if recommendation.featured_image != blank %}
@@ -76,10 +103,6 @@
 
                 {%- capture form_content -%}
                   <input type="hidden" name="id" value="{{ variant.id }}">
-                  
-                  {%- capture variants_json -%}
-                    [{% for v in recommendation.variants %}{"id": "{{ v.id }}", "title": "{{ v.title | escape }}", "price": "{{ v.price | money }}", "available": {{ v.available }}, "image": "{% if v.image %}{{ v.image | image_url: width: 600 }}{% else %}{{ recommendation.featured_image | image_url: width: 600 }}{% endif %}"}{% unless forloop.last %},{% endunless %}{% endfor %}]
-                  {%- endcapture -%}
 
                   <button
                     type="{% if recommendation.has_only_default_variant %}submit{% else %}button{% endif %}"
@@ -240,6 +263,41 @@
   .buzzko-modal__add-btn { margin-top: auto; width: 100%; padding: 14px; background-color: #000; color: #fff; border: 1px solid #000; border-radius: 9999px; font-size: 15px; font-weight: 800; cursor: pointer; transition: background-color 0.2s ease; min-height: 4.4rem; }
   .buzzko-modal__add-btn:hover:not(:disabled) { background-color: #222; }
   .buzzko-modal__add-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
+
+  /* Related Wishlist Heart */
+  .buzzko-related-heart {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 15;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.92);
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .buzzko-related-heart:hover { background: #fff; transform: scale(1.06); }
+  .buzzko-related-heart:active { transform: scale(0.94); }
+  .buzzko-related-heart:focus-visible { outline: 2px solid #1A1A1A; outline-offset: 2px; }
+  .buzzko-related-heart svg { width: 18px; height: 18px; display: block; transition: fill .15s ease; }
+  .buzzko-related-heart.is-active,
+  .buzzko-related-heart[aria-pressed="true"] { color: #000; }
+  .buzzko-related-heart.is-active svg,
+  .buzzko-related-heart[aria-pressed="true"] svg { fill: currentColor; }
+  @media screen and (max-width: 749px) {
+    .buzzko-related-heart { width: 30px; height: 30px; top: 6px; right: 6px; }
+    .buzzko-related-heart svg { width: 16px; height: 16px; }
+  }
 </style>
 
 <!-- JAVASCRIPT -->
@@ -364,6 +422,143 @@
 })();
 </script>
 
+<!-- ISOLATED WISHLIST LOGIC FOR RELATED PRODUCTS -->
+<script>
+(function () {
+  if (document.body.dataset.buzzkoRelatedWishlist) return;
+  document.body.dataset.buzzkoRelatedWishlist = 'true';
+
+  // Intercept clicks on the related hearts
+  document.addEventListener('click', function (event) {
+    var heart = event.target.closest('.buzzko-related-heart');
+    if (!heart) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // If it has variants, open the modal (handled by the modal script above)
+    if (heart.dataset.hasVariants === 'true' && !heart.classList.contains('is-active')) {
+      // We manually dispatch the event to the modal logic, but since we already stopped propagation, 
+      // the modal script won't see it unless we trigger it.
+      // Actually, the modal script is listening via `event.target.closest('.buzzko-product-card__atc')` for the card. 
+      // For the heart, we need to trigger the modal here if it has variants.
+      
+      // Wait, the previous script handled the modal. Let's integrate it here to be safe.
+      var modal = document.getElementById('buzzko-variant-modal');
+      if (modal) {
+        var variantsJson = heart.dataset.variants;
+        var productTitle = heart.dataset.productTitle;
+        var defaultImage = heart.dataset.productImage;
+
+        var modalImg = document.getElementById('buzzko-modal-img');
+        var modalTitle = document.getElementById('buzzko-modal-title');
+        var modalPrice = document.getElementById('buzzko-modal-price');
+        var modalVariants = document.getElementById('buzzko-modal-variants');
+        var modalAddBtn = document.getElementById('buzzko-modal-add');
+        var selectedVariantId = null;
+
+        var variants = JSON.parse(variantsJson);
+        modalTitle.textContent = productTitle;
+        modalImg.src = defaultImage || '';
+        modalVariants.innerHTML = '';
+        selectedVariantId = null;
+        var firstAvailableBtn = null;
+
+        variants.forEach(function(v) {
+          var btn = document.createElement('button');
+          btn.type = 'button'; btn.className = 'buzzko-modal-variant-btn'; btn.textContent = v.title;
+          if (!v.available) btn.disabled = true; else if (!firstAvailableBtn) firstAvailableBtn = btn;
+          btn.dataset.variantId = v.id; btn.dataset.image = v.image || defaultImage; btn.dataset.price = v.price;
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            modalVariants.querySelectorAll('.buzzko-modal-variant-btn').forEach(function(b) { b.classList.remove('is-active'); });
+            btn.classList.add('is-active');
+            if (btn.dataset.image) modalImg.src = btn.dataset.image;
+            selectedVariantId = btn.dataset.variantId; modalPrice.textContent = btn.dataset.price;
+            modalAddBtn.disabled = false; modalAddBtn.textContent = 'Add to Wishlist';
+          });
+          modalVariants.appendChild(btn);
+        });
+
+        if (firstAvailableBtn) firstAvailableBtn.click();
+        else { modalPrice.innerHTML = ''; modalAddBtn.disabled = true; modalAddBtn.textContent = 'Sold Out'; }
+
+        // Change the Add button behavior for wishlist
+        modalAddBtn.onclick = function() {
+          if (!selectedVariantId) return;
+          
+          // Find the selected variant and update the heart
+          var selBtn = modalVariants.querySelector('[data-variant-id="' + selectedVariantId + '"]');
+          if (selBtn) {
+            var parsed = JSON.parse(heart.dataset.variants || '[]');
+            var match = parsed.filter(function (v) { return String(v.id) === String(selectedVariantId); })[0];
+            if (match) {
+              heart.dataset.variantId = match.id;
+              heart.dataset.productPrice = match.price_raw || match.price;
+              if (match.image) heart.dataset.productImage = match.image;
+            }
+          }
+
+          modal.close();
+          
+          // Trigger the proxy logic
+          var proxy = document.createElement('button');
+          proxy.className = 'product-form__wishlist buzzko-card-heart';
+          proxy.style.display = 'none';
+          proxy.setAttribute('data-buzzko-wishlist-toggle', '');
+          proxy.setAttribute('aria-pressed', 'false');
+
+          Array.from(heart.attributes).forEach(attr => {
+            if (attr.name.startsWith('data-')) proxy.setAttribute(attr.name, attr.value);
+          });
+
+          document.body.appendChild(proxy);
+          proxy.click();
+          setTimeout(() => proxy.remove(), 1000);
+
+          heart.classList.add('is-active');
+          heart.setAttribute('aria-pressed', 'true');
+        };
+
+        if (typeof modal.showModal === 'function') modal.showModal(); else modal.setAttribute('open', '');
+      }
+      return;
+    }
+
+    // If no variants or already wishlisted, use proxy
+    var isCurrentlyActive = heart.classList.contains('is-active');
+
+    var proxy = document.createElement('button');
+    proxy.className = 'product-form__wishlist buzzko-card-heart';
+    proxy.style.display = 'none';
+    proxy.setAttribute('data-buzzko-wishlist-toggle', '');
+
+    if (isCurrentlyActive) {
+        proxy.classList.add('is-active');
+        proxy.setAttribute('aria-pressed', 'true');
+    }
+
+    Array.from(heart.attributes).forEach(attr => {
+      if (attr.name.startsWith('data-')) proxy.setAttribute(attr.name, attr.value);
+    });
+
+    document.body.appendChild(proxy);
+    proxy.click();
+
+    setTimeout(() => proxy.remove(), 1000);
+
+    // Manually toggle visual state
+    if (isCurrentlyActive) {
+      heart.classList.remove('is-active');
+      heart.setAttribute('aria-pressed', 'false');
+    } else {
+      heart.classList.add('is-active');
+      heart.setAttribute('aria-pressed', 'true');
+    }
+  }, true);
+})();
+</script>
+
 {% schema %}
 {
   "name": "t:sections.related-products.name",
@@ -471,7 +666,7 @@
         },
         {
           "value": "diamond",
-          "label": "t:sections.all.image_shape.options__6.label"
+          "label": "t:sections.all.image_shape.options.__6.label"
         },
         {
           "value": "parallelogram",
