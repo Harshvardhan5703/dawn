@@ -22,31 +22,41 @@
 
   /* ---------- auth state ---------- */
   function isCustomerSignedIn() {
-    // 1. Check Liquid state (Google Login / Native Shopify)
     if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
     
-    // 2. Check native Shopify cookie
-    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) return true;
+    var signedIn = false;
 
-    // 3. THE OTP FIX: Check for OTP frontend signs
-    // If there is a "Log out" link, the OTP library considers them logged in.
-    if (document.querySelector('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]')) {
-      return true;
+    // 1. Check native Shopify cookie (Google Login)
+    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) {
+      signedIn = true;
     }
-    
-    // 4. Check localStorage for OTP session tokens
-    try {
-       for (var i = 0; i < localStorage.length; i++) {
-           var k = localStorage.key(i).toLowerCase();
-           if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
-               var v = localStorage.getItem(localStorage.key(i));
-               // Ensure it's a real token, not just an empty string or "false"
-               if (v && v.length > 10 && v !== 'false' && v !== 'null') return true;
-           }
-       }
-    } catch(e) {}
 
-    return false;
+    // 2. THE OTP FIX: Check for OTP frontend signs
+    if (!signedIn) {
+      if (document.querySelector('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]')) {
+        signedIn = true;
+      } else {
+        try {
+           for (var i = 0; i < localStorage.length; i++) {
+               var k = localStorage.key(i).toLowerCase();
+               if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
+                   var v = localStorage.getItem(localStorage.key(i));
+                   if (v && v.length > 10 && v !== 'false' && v !== 'null') {
+                     signedIn = true;
+                     break;
+                   }
+               }
+           }
+        } catch(e) {}
+      }
+    }
+
+    // 3. HEAL THE DOM STATE
+    if (signedIn) {
+      document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
+    }
+
+    return signedIn;
   }
 
   function ensureHeaderBadge() {
@@ -82,15 +92,6 @@
     }
     
     if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
-
-    // Force the specific heart to fill visually
-    var heartBtns = document.querySelectorAll('[data-buzzko-wishlist-toggle]');
-    heartBtns.forEach(function(btn) {
-      if (btn.dataset.productId === String(payload.productId) || btn.dataset.variantId === String(payload.variantId)) {
-        btn.classList.add('is-active');
-        btn.setAttribute('aria-pressed', 'true');
-      }
-    });
   }
 
   function recoverAfterRedirect() {
@@ -126,8 +127,31 @@
   }
 
   function handleWishlistClick(button, payload) {
-    // If the frontend OTP session exists, return false to let buzzko-wishlist.js do its magic!
-    if (isCustomerSignedIn()) return false; 
+    // If they are signed in (OTP or Google), this returns true and heals the dataset.
+    if (isCustomerSignedIn()) {
+      
+      // 1. Ensure the header badge exists so the count can be seen
+      markSignedIn(); 
+      
+      // 2. We handle the toggle manually so buzzko-wishlist.js doesn't un-fill the heart!
+      if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
+        var nowAdded = window.BuzzkoWishlist.toggle(payload);
+        
+        // 3. Force the heart to fill/unfill instantly
+        if (button) {
+          button.classList.toggle('is-active', nowAdded);
+          button.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+        }
+        
+        // 4. Force the header count to update instantly
+        if (window.BuzzkoWishlist.refresh) {
+          window.BuzzkoWishlist.refresh();
+        }
+      }
+      
+      // Return true tells buzzko-wishlist.js to stop and not interfere
+      return true; 
+    }
     
     if (!payload || !payload.productId || !payload.handle) return true;
 
