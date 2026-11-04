@@ -170,15 +170,15 @@
           <div class="buzzko-category-card__media">
             {% if card_image != blank %}
               {{
-                card_image
-                | image_url: width: 900
-                | image_tag:
-                  loading: 'lazy',
-                  widths: '300,450,600,750,900',
-                  sizes: '(min-width: 990px) 25vw, 76vw',
-                  alt: card_alt,
-                  class: 'buzzko-category-card__img'
-              }}
+  card_image
+  | image_url: width: 750
+  | image_tag:
+    loading: 'lazy',
+    widths: '240,360,480,600,750',
+    sizes: '(min-width: 990px) 18vw, (min-width: 750px) 260px, 60vw',
+    alt: card_alt,
+    class: 'buzzko-category-card__img'
+}}
             {% endif %}
           </div>
 
