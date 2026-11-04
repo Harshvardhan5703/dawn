@@ -22,10 +22,21 @@
   }
 
   /* ---------- auth state ---------- */
-  // Source of truth: flag set server-side in theme.liquid ({% if customer %}),
-  // or by markSignedIn() after a successful OTP login. No DOM guessing.
   function isCustomerSignedIn() {
-    return document.documentElement.dataset.buzzkoCustomerSignedIn === 'true';
+    // 1. Check the server-set data attribute first
+    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') {
+      return true;
+    }
+
+    // 2. MOBILE FALLBACK: Check the actual Shopify login cookie
+    // OTP on mobile sets the cookie but doesn't reload the page, so the dataset stays false.
+    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) {
+      // Self-heal the state so the rest of the page knows they are logged in
+      document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
+      return true;
+    }
+
+    return false;
   }
 
   function ensureHeaderBadge() {
@@ -51,12 +62,25 @@
   /* ---------- pending actions ---------- */
   function applyPendingWishlist(payload) {
     if (!payload || !payload.productId || !window.BuzzkoWishlist) return;
+    
     var alreadySaved = (payload.variantId && window.BuzzkoWishlist.hasVariant) 
       ? window.BuzzkoWishlist.hasVariant(payload.variantId) 
       : window.BuzzkoWishlist.hasProduct(payload.productId);
 
-    if (!alreadySaved) window.BuzzkoWishlist.toggle(payload);
+    if (!alreadySaved) {
+      window.BuzzkoWishlist.toggle(payload);
+    }
+    
     window.BuzzkoWishlist.refresh();
+
+    // Force the specific heart to fill visually
+    var heartBtns = document.querySelectorAll('[data-buzzko-wishlist-toggle]');
+    heartBtns.forEach(function(btn) {
+      if (btn.dataset.productId === String(payload.productId) || btn.dataset.variantId === String(payload.variantId)) {
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    });
   }
 
   function recoverAfterRedirect() {
@@ -104,14 +128,15 @@
   }
 
   function handleWishlistClick(button, payload) {
+    // isCustomerSignedIn now checks the cookie directly, fixing the mobile issue!
     if (isCustomerSignedIn()) return false;
+    
     if (!payload || !payload.productId || !payload.handle) return true;
 
     currentIntent = 'product';
     pendingPayload = payload;
     savePending(payload);
 
-    // Tell the Global Script to use the Product text
     window.__buzzkoAuthIntent = 'product';
 
     if (!openOtpModal()) {
@@ -126,7 +151,6 @@
     event.preventDefault();
     currentIntent = 'view';
     
-    // Tell the Global Script to use the Wishlist text
     window.__buzzkoAuthIntent = 'view';
 
     if (!openOtpModal()) {
@@ -150,6 +174,16 @@
       if (event.target.closest && event.target.closest('.otp-account-modal__close, .otp-account-modal-backdrop')) {
         if (document.getElementById('otp-nca-account-modal')) checkAuthentication();
       }
+    });
+
+    // MOBILE FIX: Check auth when the user switches back to the tab (e.g., from email/SMS app)
+    window.addEventListener('focus', function() {
+      if (currentIntent || getPending()) checkAuthentication();
+    });
+
+    // MOBILE FIX: Check auth when page is restored from cache
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted && (currentIntent || getPending())) checkAuthentication();
     });
   }
 
