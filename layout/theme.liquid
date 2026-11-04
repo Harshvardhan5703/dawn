@@ -317,6 +317,15 @@
         onload="this.media='all'"
       >
     {%- endif -%}
+
+
+
+    <script>
+  {% if customer %}
+    document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
+  {% endif %}
+</script>
+
     {{ 'buzzko-product-card.css' | asset_url | stylesheet_tag }}
     <script>
       if (Shopify.designMode) {

@@ -420,12 +420,16 @@
 
         closeModal();
         
-        if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
-          var nowAdded = window.BuzzkoWishlist.toggle(payload);
+        if (window.BuzzkoWishlist && window.BuzzkoWishlist.hasVariant) {
+          var isAlreadyIn = window.BuzzkoWishlist.hasVariant(heartToUpdate.dataset.variantId);
+          
+          if (!isAlreadyIn) {
+            window.BuzzkoWishlist.toggle(payload);
+          }
           
           // Force manual UI update
-          heartToUpdate.classList.toggle('is-active', nowAdded);
-          heartToUpdate.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
+          heartToUpdate.classList.add('is-active');
+          heartToUpdate.setAttribute('aria-pressed', 'true');
           
           var items = window.BuzzkoWishlist.getItems ? window.BuzzkoWishlist.getItems() : [];
           var count = items.length;
@@ -437,7 +441,7 @@
 
           // Use a tiny timeout to override any late refresh() from buzzko-wishlist.js
           setTimeout(function() {
-            heartToUpdate.classList.toggle('is-active', nowAdded);
+            heartToUpdate.classList.add('is-active');
             document.querySelectorAll('[data-buzzko-wishlist-count]').forEach(function (badge) {
               badge.textContent = count > 99 ? '99+' : String(count);
             });
@@ -528,7 +532,7 @@
     // If it has variants and is NOT already wishlisted
     if (heart.dataset.hasVariants === 'true' && !heart.classList.contains('is-active')) {
       event.preventDefault();
-      event.stopPropagation();
+      event.stopImmediatePropagation(); // Stops buzzko-wishlist.js from firing on this initial click
       openModal(heart.dataset.productTitle, heart.dataset.productImage, heart.dataset.variants, 'wishlist', heart);
     }
   }, true);
