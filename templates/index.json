@@ -23,6 +23,8 @@
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/s2d.jpg",
+            "image_mobile": "shopify://shop_images/s2m.jpg",
             "alt_text": ""
           }
         },
