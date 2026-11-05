@@ -15,24 +15,18 @@
         "slide_DrwhGW": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/slider1desktop.jpg",
-            "image_mobile": "shopify://shop_images/s1.jpg",
             "alt_text": ""
           }
         },
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/s2d.jpg",
-            "image_mobile": "shopify://shop_images/s2m.jpg",
             "alt_text": ""
           }
         },
         "slide_E3RHdz": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/slider3.jpg",
-            "image_mobile": "shopify://shop_images/3slider.jpg",
             "alt_text": ""
           }
         }
@@ -44,7 +38,6 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
-        "left_image": "shopify://shop_images/Glossy_Bubble_Shop_Signage.png",
         "button_label": "Shop Now",
         "button_link": "",
         "button_color": "#ff5ca8",
@@ -62,7 +55,6 @@
           "type": "category",
           "settings": {
             "collection": "charms",
-            "image": "shopify://shop_images/Charm_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -79,7 +71,6 @@
           "type": "category",
           "settings": {
             "collection": "lighters",
-            "image": "shopify://shop_images/Lighter_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -96,7 +87,6 @@
           "type": "category",
           "settings": {
             "collection": "keychains",
-            "image": "shopify://shop_images/Keychains_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -113,7 +103,6 @@
           "type": "category",
           "settings": {
             "collection": "frames",
-            "image": "shopify://shop_images/Frame_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -130,7 +119,6 @@
           "type": "category",
           "settings": {
             "collection": "handcrafted",
-            "image": "shopify://shop_images/Handcraft_nobg.png",
             "image_alt": "Handcrafted",
             "title": "",
             "link": "",
@@ -460,33 +448,23 @@
       "blocks": {
         "media_R9Nrzw": {
           "type": "media",
-          "settings": {
-            "image": "shopify://shop_images/1.jpg"
-          }
+          "settings": {}
         },
         "media_jHHj6q": {
           "type": "media",
-          "settings": {
-            "image": "shopify://shop_images/2.jpg"
-          }
+          "settings": {}
         },
         "media_PwAiHH": {
           "type": "media",
-          "settings": {
-            "image": "shopify://shop_images/3.jpg"
-          }
+          "settings": {}
         },
         "media_gdmNC9": {
           "type": "media",
-          "settings": {
-            "image": "shopify://shop_images/4.jpg"
-          }
+          "settings": {}
         },
         "media_QCca9N": {
           "type": "media",
-          "settings": {
-            "image": "shopify://shop_images/reel1.jpg"
-          }
+          "settings": {}
         }
       },
       "block_order": [
@@ -516,8 +494,7 @@
         "ai_gen_block_8b537d5_HeRzgK": {
           "type": "ai_gen_block_8b537d5",
           "settings": {
-            "image": "shopify://shop_images/flyerdesktop.jpg",
-            "mobile_image": "shopify://shop_images/flyer.jpg",
+            "image": "shopify://shop_images/instagram.png",
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
             "button_color": "#ff5ca8",
