@@ -25,13 +25,8 @@
     if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
     
     var signedIn = false;
+    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) signedIn = true;
 
-    // 1. Check native Shopify cookie (Google Login)
-    if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) {
-      signedIn = true;
-    }
-
-    // 2. THE OTP FIX: Check for OTP frontend signs
     if (!signedIn) {
       if (document.querySelector('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]')) {
         signedIn = true;
@@ -39,6 +34,9 @@
         try {
            for (var i = 0; i < localStorage.length; i++) {
                var k = localStorage.key(i).toLowerCase();
+               // Ignore the wishlist key itself
+               if (k.includes('wishlist')) continue;
+
                if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
                    var v = localStorage.getItem(localStorage.key(i));
                    if (v && v.length > 10 && v !== 'false' && v !== 'null') {
@@ -51,7 +49,6 @@
       }
     }
 
-    // 3. HEAL THE DOM STATE
     if (signedIn) {
       document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
     }
@@ -79,10 +76,38 @@
     }
   }
 
+  /* ---------- THE LOGOUT FIX ---------- */
+  function forceLogout() {
+    // 1. Tell the DOM we are logged out
+    document.documentElement.dataset.buzzkoCustomerSignedIn = 'false';
+    
+    // 2. Clear OTP auth tokens, BUT KEEP THE WISHLIST DATA
+    try {
+       var keysToRemove = [];
+       for (var i = 0; i < localStorage.length; i++) {
+           var k = localStorage.key(i).toLowerCase();
+           if (k.includes('wishlist')) continue; // Do not touch wishlist items!
+           
+           if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
+               keysToRemove.push(localStorage.key(i));
+           }
+       }
+       keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+       sessionStorage.removeItem(PENDING_KEY);
+    } catch(e) {}
+
+    // 3. Refresh the UI (hides bubble count, unfills hearts)
+    if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+      window.BuzzkoWishlist.refresh();
+    }
+
+    // 4. Dispatch event so the Wishlist Page can swap back to the Login Card
+    window.dispatchEvent(new Event('buzzko:logout'));
+  }
+
   /* ---------- pending actions ---------- */
   function applyPendingWishlist(payload) {
     if (!payload || !payload.productId || !window.BuzzkoWishlist) return;
-    
     var alreadySaved = (payload.variantId && window.BuzzkoWishlist.hasVariant) 
       ? window.BuzzkoWishlist.hasVariant(payload.variantId) 
       : window.BuzzkoWishlist.hasProduct(payload.productId);
@@ -90,7 +115,6 @@
     if (!alreadySaved && window.BuzzkoWishlist.toggle) {
       window.BuzzkoWishlist.toggle(payload);
     }
-    
     if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
   }
 
@@ -104,7 +128,6 @@
   function checkAuthentication() {
     var intent = currentIntent;
     currentIntent = null; 
-
     window.setTimeout(function () {
       if (isCustomerSignedIn()) {
         markSignedIn();
@@ -127,29 +150,16 @@
   }
 
   function handleWishlistClick(button, payload) {
-    // If they are signed in (OTP or Google), this returns true and heals the dataset.
     if (isCustomerSignedIn()) {
-      
-      // 1. Ensure the header badge exists so the count can be seen
       markSignedIn(); 
-      
-      // 2. We handle the toggle manually so buzzko-wishlist.js doesn't un-fill the heart!
       if (window.BuzzkoWishlist && window.BuzzkoWishlist.toggle) {
         var nowAdded = window.BuzzkoWishlist.toggle(payload);
-        
-        // 3. Force the heart to fill/unfill instantly
         if (button) {
           button.classList.toggle('is-active', nowAdded);
           button.setAttribute('aria-pressed', nowAdded ? 'true' : 'false');
         }
-        
-        // 4. Force the header count to update instantly
-        if (window.BuzzkoWishlist.refresh) {
-          window.BuzzkoWishlist.refresh();
-        }
+        if (window.BuzzkoWishlist.refresh) window.BuzzkoWishlist.refresh();
       }
-      
-      // Return true tells buzzko-wishlist.js to stop and not interfere
       return true; 
     }
     
@@ -158,7 +168,6 @@
     currentIntent = 'product';
     pendingPayload = payload;
     savePending(payload);
-
     window.__buzzkoAuthIntent = 'product';
 
     if (!openOtpModal()) {
@@ -172,9 +181,7 @@
     if (isCustomerSignedIn()) return;
     event.preventDefault();
     currentIntent = 'view';
-    
     window.__buzzkoAuthIntent = 'view';
-
     if (!openOtpModal()) {
       currentIntent = null; window.__buzzkoAuthIntent = null;
       window.location.assign('/account/login?return_url=' + encodeURIComponent(window.location.pathname));
@@ -187,6 +194,13 @@
     recoverAfterRedirect();
 
     document.addEventListener('click', function (event) {
+      // 1. LOGOUT INTERCEPT
+      var logoutLink = event.target.closest('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]');
+      if (logoutLink) {
+        forceLogout();
+      }
+
+      // 2. WISHLIST HEADER
       var link = event.target.closest && event.target.closest('[data-buzzko-wishlist-link]');
       if (!link) return;
       handleHeaderWishlistClick(event);
@@ -206,7 +220,8 @@
   window.BuzzkoWishlistAuth = {
     handleWishlistClick: handleWishlistClick,
     handleHeaderWishlistClick: handleHeaderWishlistClick,
-    isCustomerSignedIn: isCustomerSignedIn
+    isCustomerSignedIn: isCustomerSignedIn,
+    forceLogout: forceLogout
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
