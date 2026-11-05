@@ -129,11 +129,35 @@
     display: none !important; 
   }
 
+  /* ===== BuzzKo: FIX THE SORT DROPDOWN STRETCHING ===== */
+  .facet-filters.sorting {
+    flex-grow: 0 !important; /* Stop the sort container from expanding */
+  }
+  .facet-filters__field {
+    flex-grow: 0 !important;
+  }
+  .facet-filters__field .select {
+    width: auto !important;
+    min-width: 160px; /* Keeps it looking neat */
+  }
+  .facet-filters__field .select .svg-wrapper {
+    right: 1.2rem !important; /* Keeps the arrow close to the text */
+  }
+
+  /* ===== BuzzKo: FIX THE CUSTOM COUNT PLACEMENT ===== */
   .buzzko-custom-count-wrapper {
-    display: flex; justify-content: flex-end; margin-bottom: 15px; padding-right: 10px;
+    display: flex; 
+    justify-content: flex-end; 
+    margin-bottom: 10px;
+    width: 100%;
   }
   .buzzko-custom-count {
     font-size: 1.4rem; color: #1A1A1A; font-weight: 500;
+  }
+  @media screen and (min-width: 750px) {
+    .buzzko-custom-count-wrapper {
+      padding-right: 15px; /* Aligns it nicely with the grid */
+    }
   }
 </style>
 
