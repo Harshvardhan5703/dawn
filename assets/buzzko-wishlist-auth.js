@@ -22,34 +22,33 @@
 
   /* ---------- auth state ---------- */
   function isCustomerSignedIn() {
-    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') return true;
-    
     var signedIn = false;
+    
+    // 1. Liquid & Native Cookie (OAuth)
+    if (document.documentElement.dataset.buzzkoCustomerSignedIn === 'true') signedIn = true;
     if (/(^|;\s*)logged_in_customer_id=/.test(document.cookie)) signedIn = true;
 
-    if (!signedIn) {
-      if (document.querySelector('a[href*="/account/logout"], [href*="logout"], [data-otp-logout]')) {
-        signedIn = true;
-      } else {
-        try {
-           for (var i = 0; i < localStorage.length; i++) {
-               var k = localStorage.key(i).toLowerCase();
-               // Ignore the wishlist key itself
-               if (k.includes('wishlist')) continue;
-
-               if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
-                   var v = localStorage.getItem(localStorage.key(i));
-                   if (v && v.length > 10 && v !== 'false' && v !== 'null') {
-                     signedIn = true;
-                     break;
-                   }
-               }
-           }
-        } catch(e) {}
-      }
+    // 2. OTP LocalStorage Tokens
+    if (!signedIn && sessionStorage.getItem('buzzko_force_logout') !== 'true') {
+       try {
+          for (var i = 0; i < localStorage.length; i++) {
+              var k = localStorage.key(i).toLowerCase();
+              if (k.includes('wishlist') || k.includes('cart') || k.includes('theme')) continue;
+              
+              if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
+                  var v = localStorage.getItem(localStorage.key(i));
+                  if (v && v.length > 10 && v !== 'false' && v !== 'null') {
+                    signedIn = true;
+                    break;
+                  }
+              }
+          }
+       } catch(e) {}
     }
 
+    // 3. Self-Heal the DOM
     if (signedIn) {
+      sessionStorage.removeItem('buzzko_force_logout');
       document.documentElement.dataset.buzzkoCustomerSignedIn = 'true';
     }
 
@@ -78,15 +77,16 @@
 
   /* ---------- THE LOGOUT FIX ---------- */
   function forceLogout() {
-    // 1. Tell the DOM we are logged out
+    // 1. Set Kill Switch
+    sessionStorage.setItem('buzzko_force_logout', 'true');
     document.documentElement.dataset.buzzkoCustomerSignedIn = 'false';
     
-    // 2. Clear OTP auth tokens, BUT KEEP THE WISHLIST DATA
+    // 2. Clear OTP tokens, BUT KEEP THE WISHLIST DATA
     try {
        var keysToRemove = [];
        for (var i = 0; i < localStorage.length; i++) {
            var k = localStorage.key(i).toLowerCase();
-           if (k.includes('wishlist')) continue; // Do not touch wishlist items!
+           if (k.includes('wishlist')) continue; // Safely keep the wishlist!
            
            if (k.includes('otp') || k.includes('auth') || k.includes('token') || k.includes('customer')) {
                keysToRemove.push(localStorage.key(i));
@@ -96,12 +96,12 @@
        sessionStorage.removeItem(PENDING_KEY);
     } catch(e) {}
 
-    // 3. Refresh the UI (hides bubble count, unfills hearts)
+    // 3. Refresh UI (hides bubble, unfills hearts)
     if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
       window.BuzzkoWishlist.refresh();
     }
 
-    // 4. Dispatch event so the Wishlist Page can swap back to the Login Card
+    // 4. Tell Wishlist Page to swap to Login Card
     window.dispatchEvent(new Event('buzzko:logout'));
   }
 
@@ -208,6 +208,8 @@
 
     document.addEventListener('click', function (event) {
       if (event.target.closest && event.target.closest('.otp-account-modal__close, .otp-account-modal-backdrop')) {
+        // Clear the kill switch if they are trying to log back in
+        sessionStorage.removeItem('buzzko_force_logout');
         if (document.getElementById('otp-nca-account-modal')) checkAuthentication();
       }
     });
