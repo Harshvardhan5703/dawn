@@ -118,7 +118,7 @@
     #ProductGridContainer .product-grid > .grid__item:only-child { grid-column: span 2 !important; }
   }
 
-  /* ===== BuzzKo: Hide native counts (keeps space reserved so layout doesn't break) ===== */
+  /* ===== BuzzKo: Hide native counts initially to prevent flicker ===== */
   #ProductCountDesktop,
   #ProductCount,
   .product-count__text,
@@ -130,23 +130,6 @@
   .pagination-wrapper,
   .pagination { 
     display: none !important; 
-  }
-
-  /* ===== BuzzKo: RESTORED Custom Count Wrapper ===== */
-  .buzzko-custom-count-wrapper {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 12px;
-    padding-right: 15px;
-    width: 100%;
-  }
-  .buzzko-custom-count {
-    font-size: 1.4rem;
-    color: #1A1A1A;
-    font-weight: 500;
-  }
-  @media screen and (max-width: 749px) {
-    .buzzko-custom-count-wrapper { padding-right: 5px; }
   }
 </style>
 
@@ -329,15 +312,6 @@
 
         <div class="product-grid-container" id="ProductGridContainer">
           
-          {%- comment -%} RESTORED: Custom count fetch above the grid {%- endcomment -%}
-          {%- if total_valid_results > 0 -%}
-            <div class="buzzko-custom-count-wrapper page-width">
-              <span class="buzzko-custom-count" role="status">
-                {{ total_valid_results }} {% if total_valid_results == 1 %}result{% else %}results{% endif %}
-              </span>
-            </div>
-          {%- endif -%}
-
           {%- if total_valid_results == 0 and search.filters != empty -%}
             <div class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}" id="product-grid" data-id="{{ section.id }}">
               <div class="loading-overlay gradient"></div>
