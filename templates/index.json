@@ -460,23 +460,33 @@
       "blocks": {
         "media_R9Nrzw": {
           "type": "media",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/2.jpg"
+          }
         },
         "media_jHHj6q": {
           "type": "media",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/1.jpg"
+          }
         },
         "media_PwAiHH": {
           "type": "media",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/3.jpg"
+          }
         },
         "media_gdmNC9": {
           "type": "media",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/4.jpg"
+          }
         },
         "media_QCca9N": {
           "type": "media",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/reel1.jpg"
+          }
         }
       },
       "block_order": [
