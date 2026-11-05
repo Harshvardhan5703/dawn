@@ -22,56 +22,128 @@
     "buzzko_faq_gANgCX": {
       "type": "buzzko-faq",
       "blocks": {
-        "faq_cGgF6j": {
-          "type": "faq",
-          "settings": {
-            "question": "How can I place an order?",
-            "answer": "<p>Browse our collection, choose your favourite products, add them to your cart, and follow the checkout steps to place your order.</p>"
-          }
-        },
         "faq_bn7UUB": {
           "type": "faq",
           "settings": {
-            "question": "What payment methods do you accept?",
-            "answer": "<p>You can pay using the payment options displayed at checkout.</p>"
+            "question": "Which payment methods can I use?",
+            "answer": "<p>We accept all payment methods, including UPI, debit and credit cards, net banking, and wallets. You'll see every option at checkout.</p>"
           }
         },
         "faq_6McXjm": {
           "type": "faq",
           "settings": {
             "question": "How much is shipping?",
-            "answer": "<p>Shipping is ₹49. Orders above ₹500 qualify for free shipping.</p>"
+            "answer": "<p>Shipping is a flat ₹59 per order. Orders above ₹499 get <strong>free shipping</strong>.</p>"
+          }
+        },
+        "faq_gMhQm7": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I place an order?",
+            "answer": "<p>Browse our collection, add your favourite products to the cart, and head to checkout. Enter your delivery details, pick a payment method, and confirm. You'll get an order confirmation right after.</p>"
           }
         },
         "faq_NJxncB": {
           "type": "faq",
           "settings": {
-            "question": "Do you offer Cash on Delivery?",
-            "answer": "<p>Yes. For COD orders, ₹100 is payable in advance for orders above ₹499, and the remaining amount is paid on delivery.</p>"
+            "question": "Do you offer Cash on Delivery (COD)?",
+            "answer": "<p>Yes. COD is available for a flat ₹30 COD handling charge per order. You pay the full amount, including this charge, in cash or online when your order arrives.</p>"
           }
         },
         "faq_pETiBp": {
           "type": "faq",
           "settings": {
-            "question": "Can I return or exchange a product?",
-            "answer": "<p>Please refer to our return policy for the conditions and process for returns.</p>"
+            "question": "Is the COD charge waived on free-shipping orders?",
+            "answer": "<p>No. Free shipping above ₹499 waives only the shipping charge. The ₹30 COD charge still applies. Prepaid orders (UPI or card) don't pay it, so you save ₹30 by paying online.</p>"
           }
         },
         "faq_qcyzMm": {
           "type": "faq",
           "settings": {
-            "question": "What should I do if my order arrives damaged?",
-            "answer": "<p>Please keep the 360° unboxing video as required by our return policy and contact us with the order details.</p>"
+            "question": "Are the prices inclusive of taxes?",
+            "answer": "<p>Yes, all prices on our website are inclusive of taxes. The amount you see at checkout is the amount you pay.</p>"
+          }
+        },
+        "faq_YXckAT": {
+          "type": "faq",
+          "settings": {
+            "question": "How long will delivery take?",
+            "answer": "<p>Orders leave us within 1 to 2 working days. After that, delivery usually takes 2 to 4 working days in Delhi NCR and 4 to 7 working days across the rest of India. Remote pincodes can take a little longer.</p>"
+          }
+        },
+        "faq_Hdp84B": {
+          "type": "faq",
+          "settings": {
+            "question": "How can I track my order?",
+            "answer": "<p>As soon as your order is dispatched, we send you a tracking link. Tracking can take up to 24 hours to start updating. If nothing has moved for more than 48 hours, message us your order ID.</p>"
+          }
+        },
+        "faq_returnExchange": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I return or exchange a product?",
+            "answer": "<p>We don't take returns for a change of mind, so please check the measurements and details on the product page before ordering. If your order arrives damaged, incorrect or incomplete, we'll replace or refund it. See the next question.</p>"
+          }
+        },
+        "faq_xLMDyU": {
+          "type": "faq",
+          "settings": {
+            "question": "What should I do if my order arrives damaged or incorrect?",
+            "answer": "<p>Record an unedited unboxing video before opening the parcel, then message us within 48 hours of delivery with your order ID, the video, and clear photos of the item and the packaging. We'll get back to you within 3 working days.</p>"
+          }
+        },
+        "faq_xGxfJJ": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I cancel my order?",
+            "answer": "<p>Yes, any time before it's dispatched. Message us your order ID as soon as you can. Once the parcel is with the courier, we can't pull it back.</p>"
+          }
+        },
+        "faq_refunds": {
+          "type": "faq",
+          "settings": {
+            "question": "How do refunds work?",
+            "answer": "<p>Once a claim is approved, we process the refund within 3 working days. Prepaid orders go back to your original payment method, usually reaching you within 5 to 7 working days. COD orders are refunded by UPI or bank transfer to details in your own name.</p>"
+          }
+        },
+        "faq_tzAJie": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you deliver all over India?",
+            "answer": "<p>Yes, we ship across India from Noida. If your pincode isn't serviceable, we'll contact you and refund your order in full.</p>"
+          }
+        },
+        "faq_pfkzcL": {
+          "type": "faq",
+          "settings": {
+            "question": "Is it safe to pay on your website?",
+            "answer": "<p>Yes. Online payments go through Razorpay, our secure payment gateway, and we never see or store your card details.</p>"
+          }
+        },
+        "faq_dQdW8P": {
+          "type": "faq",
+          "settings": {
+            "question": "How can I contact BuzzKo?",
+            "answer": "<p>Email buzzko15@gmail.com, call or WhatsApp 9625924179, or message us on Instagram @buzz.ko. We reply between 10 am and 7 pm, Monday to Saturday.</p>"
           }
         }
       },
       "block_order": [
-        "faq_cGgF6j",
         "faq_bn7UUB",
         "faq_6McXjm",
+        "faq_gMhQm7",
         "faq_NJxncB",
         "faq_pETiBp",
-        "faq_qcyzMm"
+        "faq_qcyzMm",
+        "faq_YXckAT",
+        "faq_Hdp84B",
+        "faq_returnExchange",
+        "faq_xLMDyU",
+        "faq_xGxfJJ",
+        "faq_refunds",
+        "faq_tzAJie",
+        "faq_pfkzcL",
+        "faq_dQdW8P"
       ],
       "name": "BuzzKo FAQ",
       "settings": {

@@ -15,40 +15,25 @@
         "slide_DrwhGW": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/WhatsApp_Image_2026-10-17_at_00.47.43.jpg",
-            "image_mobile": "shopify://shop_images/1slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "image": "shopify://shop_images/slider1desktop.jpg",
+            "image_mobile": "shopify://shop_images/s1.jpg",
+            "alt_text": ""
           }
         },
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/IMG20260309142908.jpg",
-            "image_mobile": "shopify://shop_images/2slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "image": "shopify://shop_images/s2d.jpg",
+            "image_mobile": "shopify://shop_images/s2m.jpg",
+            "alt_text": ""
           }
         },
         "slide_E3RHdz": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/IMG20260309142801.jpg",
+            "image": "shopify://shop_images/slider3.jpg",
             "image_mobile": "shopify://shop_images/3slider.jpg",
-            "alt_text": "",
-            "button_label": "Shop Now",
-            "button_link": "",
-            "button_color": "#ff5ca8",
-            "button_text_color": "#111111",
-            "button_hover_color": "#e94a96"
+            "alt_text": ""
           }
         }
       },
@@ -59,28 +44,15 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
+        "left_image": "shopify://shop_images/Glossy_Bubble_Shop_Signage.png",
+        "button_label": "Shop Now",
+        "button_link": "",
+        "button_color": "#ff5ca8",
+        "button_text_color": "#ffffff",
+        "button_hover_color": "#e94a96",
         "autoplay": true,
         "interval": 5,
         "show_slide_controls": true
-      }
-    },
-    "buzzko_customer_proof_PQbTaK": {
-      "type": "buzzko-customer-proof",
-      "name": "BuzzKo Customer Proof",
-      "settings": {
-        "avatar_1": "shopify://shop_images/luthfi-alfarizi-gEf9bOMTZtk-unsplash.jpg",
-        "avatar_2": "shopify://shop_images/ip-creative-8kS_Ft1BJjA-unsplash.jpg",
-        "avatar_3": "shopify://shop_images/Coral_Circle_Bearded_Avatar.png",
-        "avatar_4": "shopify://shop_images/Warm-Toned_Wavy-Haired_Avatar_Portrait.png",
-        "more_text": "+5k",
-        "avatar_size": 52,
-        "show_rating": false,
-        "rating_text": "4.9 from 2,000+ reviews",
-        "text": "Loved by <strong>5,000+</strong> happy customers",
-        "alignment": "center",
-        "background_color": "#fffaf5",
-        "padding_top": 32,
-        "padding_bottom": 32
       }
     },
     "buzzko_category_grid_RK8AjK": {
@@ -90,7 +62,7 @@
           "type": "category",
           "settings": {
             "collection": "charms",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_00_44_PM.png",
+            "image": "shopify://shop_images/Charm_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -107,7 +79,7 @@
           "type": "category",
           "settings": {
             "collection": "lighters",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_48_29_PM.png",
+            "image": "shopify://shop_images/Lighter_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -124,7 +96,7 @@
           "type": "category",
           "settings": {
             "collection": "keychains",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_11_49_PM.png",
+            "image": "shopify://shop_images/Keychains_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -141,7 +113,7 @@
           "type": "category",
           "settings": {
             "collection": "frames",
-            "image": "shopify://shop_images/ChatGPT_Image_Sep_22_2026_10_42_25_PM.png",
+            "image": "shopify://shop_images/Frame_nobg.png",
             "image_alt": "",
             "title": "",
             "link": "",
@@ -158,7 +130,7 @@
           "type": "category",
           "settings": {
             "collection": "handcrafted",
-            "image": "shopify://shop_images/Cute_Crochet_Frog_Hood_Amigurumi_Doll.png",
+            "image": "shopify://shop_images/Handcraft_nobg.png",
             "image_alt": "Handcrafted",
             "title": "",
             "link": "",
@@ -191,69 +163,217 @@
     "buzzko_trending_products_GjexL4": {
       "type": "buzzko-trending-products",
       "blocks": {
-        "product_wxaw4c": {
+        "product_b6dWpp": {
           "type": "product",
           "settings": {
-            "product": "black-monster",
+            "product": "mini-stand",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         },
-        "product_fqW4Le": {
+        "product_qTmgYA": {
           "type": "product",
           "settings": {
-            "product": "iron-man-charm",
+            "product": "rolling-lighter",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         },
-        "product_K3Rr8p": {
+        "product_fzFhJQ": {
           "type": "product",
           "settings": {
-            "product": "11-11-charm",
+            "product": "jaguar-lighter",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#d0f4de"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_A8bbKy": {
+        "product_6MR4wA": {
           "type": "product",
           "settings": {
-            "product": "lighter",
+            "product": "monster-charm",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#ffecb3"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_7QQrHn": {
+        "product_YQzXt8": {
           "type": "product",
           "settings": {
-            "product": "poster",
+            "product": "thanos-spinner-keychains",
+            "variant_id": "",
             "subtitle": "",
-            "border_color": "#bee3f8"
+            "border_color": "#f7cfcf"
           }
         },
-        "product_eit7fK": {
+        "product_UyDmVU": {
           "type": "product",
           "settings": {
-            "product": "black-monster-marlboro",
+            "product": "diet-coke-charm",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_paGqH6": {
+          "type": "product",
+          "settings": {
+            "product": "sunflower-pots",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_zABY4p": {
+          "type": "product",
+          "settings": {
+            "product": "madara-character-keychains",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_MwTYyw": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_qEgnGj": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "variant_id": "",
             "subtitle": "",
             "border_color": "#f7cfcf"
           }
         }
       },
       "block_order": [
-        "product_wxaw4c",
-        "product_fqW4Le",
-        "product_K3Rr8p",
-        "product_A8bbKy",
-        "product_7QQrHn",
-        "product_eit7fK"
+        "product_b6dWpp",
+        "product_qTmgYA",
+        "product_fzFhJQ",
+        "product_6MR4wA",
+        "product_YQzXt8",
+        "product_UyDmVU",
+        "product_paGqH6",
+        "product_zABY4p",
+        "product_MwTYyw",
+        "product_qEgnGj"
       ],
       "name": "BuzzKo Trending Products",
       "settings": {
         "heading": "Trending Now",
+        "section_bg_color": "#fffaf5",
+        "gradient_color_1": "#ffdcef",
+        "gradient_color_2": "#f3f9d2",
+        "gradient_color_3": "#ffdcef",
         "show_view_all": true,
         "view_all_text": "View All",
-        "view_all_link": "shopify://collections/all"
+        "view_all_link": "/collections/all?sort_by=best-selling"
+      }
+    },
+    "buzzko_trending_products_tUrNdx": {
+      "type": "buzzko-trending-products",
+      "blocks": {
+        "product_jFzhbe": {
+          "type": "product",
+          "settings": {
+            "product": "monster-charm",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_eeJkeD": {
+          "type": "product",
+          "settings": {
+            "product": "thanos-spinner-keychains",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_QGD7dE": {
+          "type": "product",
+          "settings": {
+            "product": "harley-davidson-lighter",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_3pdHFq": {
+          "type": "product",
+          "settings": {
+            "product": "butterfly-charm",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_K8cFYW": {
+          "type": "product",
+          "settings": {
+            "product": "kakashi-character-keychains",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_8GhHEQ": {
+          "type": "product",
+          "settings": {
+            "product": "diet-coke-charm",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_gEBen9": {
+          "type": "product",
+          "settings": {
+            "product": "daru-charm",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        },
+        "product_GBmKJ3": {
+          "type": "product",
+          "settings": {
+            "product": "tulip-pots",
+            "variant_id": "",
+            "subtitle": "",
+            "border_color": "#f7cfcf"
+          }
+        }
+      },
+      "block_order": [
+        "product_jFzhbe",
+        "product_eeJkeD",
+        "product_QGD7dE",
+        "product_3pdHFq",
+        "product_K8cFYW",
+        "product_8GhHEQ",
+        "product_gEBen9",
+        "product_GBmKJ3"
+      ],
+      "name": "BuzzKo Trending Products",
+      "settings": {
+        "heading": "Featured",
+        "section_bg_color": "#fffaf5",
+        "gradient_color_1": "#ffdcef",
+        "gradient_color_2": "#f3f9d2",
+        "gradient_color_3": "#ffdcef",
+        "show_view_all": true,
+        "view_all_text": "View All",
+        "view_all_link": "/collections/all?filter.v.price.gte=&filter.v.price.lte=&sort_by=manual"
       }
     },
     "buzzko_benefit_new_4QbDez": {
@@ -341,31 +461,31 @@
         "media_R9Nrzw": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141725.png"
+            "image": "shopify://shop_images/1.jpg"
           }
         },
         "media_jHHj6q": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141923.png"
+            "image": "shopify://shop_images/2.jpg"
           }
         },
         "media_PwAiHH": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141800.png"
+            "image": "shopify://shop_images/3.jpg"
           }
         },
         "media_gdmNC9": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_141834.png"
+            "image": "shopify://shop_images/4.jpg"
           }
         },
         "media_QCca9N": {
           "type": "media",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-09-23_123057.png"
+            "image": "shopify://shop_images/reel1.jpg"
           }
         }
       },
@@ -396,7 +516,7 @@
         "ai_gen_block_8b537d5_HeRzgK": {
           "type": "ai_gen_block_8b537d5",
           "settings": {
-            "image": "shopify://shop_images/Golden_Sunset_Over_Mountain_Lake.png",
+            "image": "shopify://shop_images/flyerdesktop.jpg",
             "mobile_image": "shopify://shop_images/flyer.jpg",
             "button_label": "Explore the collection",
             "button_link": "shopify://collections/all",
@@ -423,9 +543,9 @@
   },
   "order": [
     "buzzko_hero_zCzTHk",
-    "buzzko_customer_proof_PQbTaK",
     "buzzko_category_grid_RK8AjK",
     "buzzko_trending_products_GjexL4",
+    "buzzko_trending_products_tUrNdx",
     "buzzko_benefit_new_4QbDez",
     "buzzko_insta_new_ANz6qA",
     "1790848691c0544c6f",

@@ -99,9 +99,13 @@
     });
   }
 
+  // ---- Modal state ----
   var selectedVariantId = null;
   var lastOpen = null;
   var closeTimer = null;
+  var modalMode = 'cart';          // 'cart' | 'wishlist'
+  var modalTriggerButton = null;   // card heart that opened modal in wishlist mode
+  var skipHeartClick = new WeakSet();
 
   function parts() {
     return {
@@ -114,10 +118,20 @@
     };
   }
 
-  function openVariantModal(productTitle, defaultImage, variantsJson) {
+  function openVariantModal(productTitle, defaultImage, variantsJson, options) {
+    options = options || {};
+    modalMode = options.mode === 'wishlist' ? 'wishlist' : 'cart';
+    modalTriggerButton = options.triggerButton || null;
+
     var P = parts();
     if (!P.modal || !P.variants) return;
-    lastOpen = { title: productTitle, image: defaultImage, json: variantsJson };
+    lastOpen = {
+      title: productTitle,
+      image: defaultImage,
+      json: variantsJson,
+      mode: modalMode,
+      triggerButton: modalTriggerButton
+    };
 
     var variants = JSON.parse(variantsJson);
     P.title.textContent = productTitle;
@@ -130,7 +144,10 @@
       var btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'buzzko-modal-variant-btn'; btn.textContent = v.title;
       if (!v.available) btn.disabled = true; else if (!firstAvailableBtn) firstAvailableBtn = btn;
-      btn.dataset.variantId = v.id; btn.dataset.image = v.image || defaultImage; btn.dataset.price = v.price;
+      btn.dataset.variantId = v.id;
+      btn.dataset.image = v.image || defaultImage;
+      btn.dataset.price = v.price;
+      btn.dataset.priceRaw = (v.price_raw !== undefined && v.price_raw !== null) ? String(v.price_raw) : '';
       btn.setAttribute('aria-pressed', 'false');
 
       btn.addEventListener('click', function () {
@@ -139,7 +156,8 @@
         btn.classList.add('is-active'); btn.setAttribute('aria-pressed', 'true');
         if (btn.dataset.image) P.img.src = btn.dataset.image;
         selectedVariantId = btn.dataset.variantId; P.price.textContent = btn.dataset.price;
-        P.add.disabled = false; P.add.textContent = 'Add to Cart';
+        P.add.disabled = false;
+        P.add.textContent = modalMode === 'wishlist' ? 'Add to Wishlist' : 'Add to Cart';
       });
       P.variants.appendChild(btn);
     });
@@ -154,7 +172,9 @@
     if (!A) return;
     A.style.background = '';
     A.style.color = '';
-    A.textContent = 'Add to Cart';
+    A.style.borderColor = '';
+    A.removeAttribute('data-state');
+    A.textContent = modalMode === 'wishlist' ? 'Add to Wishlist' : 'Add to Cart';
     A.disabled = false;
   }
 
@@ -163,6 +183,18 @@
     if (!P.modal) return;
     if (typeof P.modal.close === 'function') P.modal.close(); else P.modal.removeAttribute('open');
     selectedVariantId = null;
+    modalMode = 'cart';
+    modalTriggerButton = null;
+  }
+
+  // Dispatch a synthetic click on the heart so the existing wishlist handler
+  // (delegated on document, or attached directly per-button) picks it up,
+  // including its sign-in gating for logged-out users.
+  function dispatchHeartClick(heart) {
+    skipHeartClick.add(heart);
+    var evt = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+    heart.dispatchEvent(evt);
+    setTimeout(function () { skipHeartClick.delete(heart); }, 0);
   }
 
   function onModalAdd() {
@@ -170,9 +202,50 @@
     if (!A || A.disabled || !selectedVariantId) return;
     var id = selectedVariantId;
 
+    // ---------- WISHLIST MODE ----------
+    if (modalMode === 'wishlist') {
+      var heart = modalTriggerButton;
+      if (!heart) { closeModal(); return; }
+
+      // Copy the chosen variant onto the heart's data attributes so the
+      // wishlist handler stores the correct variant/price/image.
+      var selBtn = parts().variants.querySelector('[data-variant-id="' + id + '"]');
+      if (selBtn) {
+        var parsed = [];
+        try { parsed = JSON.parse(heart.dataset.variants || '[]'); } catch (e) {}
+        var match = parsed.filter(function (v) { return String(v.id) === String(id); })[0];
+        if (match) {
+          heart.dataset.variantId = match.id;
+          if (match.price_raw !== undefined && match.price_raw !== null) {
+            heart.dataset.productPrice = match.price_raw;
+          }
+          if (match.image) heart.dataset.productImage = match.image;
+        } else {
+          heart.dataset.variantId = id;
+          if (selBtn.dataset.priceRaw) heart.dataset.productPrice = selBtn.dataset.priceRaw;
+          if (selBtn.dataset.image) heart.dataset.productImage = selBtn.dataset.image;
+        }
+      }
+
+      closeModal();
+
+      // Hand off to the existing wishlist handler (sign-in gate lives there).
+      dispatchHeartClick(heart);
+
+      setTimeout(function () {
+        if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+          window.BuzzkoWishlist.refresh();
+        }
+      }, 120);
+      return;
+    }
+
+    // ---------- CART MODE (unchanged behaviour) ----------
     clearTimeout(closeTimer);
     A.textContent = 'Added ✓';
+    A.setAttribute('data-state', 'success');
     A.style.background = '#B9E404';
+    A.style.borderColor = '#B9E404';
     A.style.color = '#111';
     A.disabled = true;
     closeTimer = setTimeout(function () { closeModal(); resetAddButton(); }, 450);
@@ -186,7 +259,10 @@
       clearTimeout(closeTimer);
       var P = parts();
       if (!(P.modal && P.modal.open) && lastOpen) {
-        openVariantModal(lastOpen.title, lastOpen.image, lastOpen.json);
+        openVariantModal(lastOpen.title, lastOpen.image, lastOpen.json, {
+          mode: lastOpen.mode,
+          triggerButton: lastOpen.triggerButton
+        });
         var b = parts().variants.querySelector('[data-variant-id="' + id + '"]');
         if (b) b.click();
       }
@@ -194,12 +270,15 @@
       if (A2) {
         A2.style.background = '';
         A2.style.color = '';
+        A2.style.borderColor = '';
+        A2.removeAttribute('data-state');
         A2.textContent = 'Try again';
         A2.disabled = false;
       }
     });
   }
 
+  // Modal click handling (close button, backdrop, add)
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (!t || !t.closest) return;
@@ -208,14 +287,45 @@
     if (t.closest('#buzzko-modal-add')) { onModalAdd(); }
   });
 
+  /* ============================================================
+     CARD HEART: capture-phase so we win the race against the
+     existing delegated wishlist handler (bubble phase on document).
+     ============================================================ */
+  document.addEventListener('click', function (event) {
+    var heart = event.target.closest && event.target.closest('.buzzko-card-heart');
+    if (!heart) return;
+
+    // Synthetic click we dispatched ourselves → let the wishlist handler process it.
+    if (skipHeartClick.has(heart)) return;
+
+    // No variants → let the existing wishlist handler do its thing (incl. sign-in gate).
+    if (heart.dataset.hasVariants !== 'true') return;
+
+    // Already wishlisted → let the handler toggle it off.
+    if (heart.classList.contains('is-active') || heart.getAttribute('aria-pressed') === 'true') return;
+
+    // Has variants and not yet in wishlist → open modal in wishlist mode.
+    event.preventDefault();
+    event.stopPropagation();
+
+    openVariantModal(
+      heart.dataset.productTitle,
+      heart.dataset.productImage,
+      heart.dataset.variants,
+      { mode: 'wishlist', triggerButton: heart }
+    );
+  }, true /* capture */);
+
+  // Cart ATC on card — unchanged
   document.body.addEventListener('click', function (event) {
     var button = event.target.closest('.buzzko-product-card__atc');
     if (button && !button.disabled && button.dataset.hasVariants === 'true') {
       event.preventDefault();
-      openVariantModal(button.dataset.productTitle, button.dataset.productImage, button.dataset.variants);
+      openVariantModal(button.dataset.productTitle, button.dataset.productImage, button.dataset.variants, { mode: 'cart' });
     }
   });
 
+  // Card ATC form submit — unchanged
   document.body.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form.matches('[data-buzzko-atc]')) return;

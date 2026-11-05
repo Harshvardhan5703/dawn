@@ -1,7 +1,10 @@
+
 {% doc %}
   @prompt
-    make a marquee with the text free shipping over Rs. 499
+    Create a seamless scrolling marquee displaying "Free shipping over Rs. 499".
+    Ensure the message remains visible continuously without blank gaps.
 {% enddoc %}
+
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -18,28 +21,37 @@
   .ai-marquee-{{ ai_gen_id }}__track {
     display: flex;
     width: max-content;
-    white-space: nowrap;
-    animation: ai-marquee-scroll-{{ ai_gen_id }} {{ block.settings.speed }}s linear infinite;
+    flex-wrap: nowrap;
+    will-change: transform;
+    animation: ai-marquee-scroll-{{ ai_gen_id }}
+      {{ block.settings.speed }}s linear infinite;
   }
 
   .ai-marquee-{{ ai_gen_id }}__group {
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
   }
 
   .ai-marquee-{{ ai_gen_id }}__item {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     padding: 0 2rem;
     font-size: {{ block.settings.text_size }}px;
     font-weight: 600;
     line-height: 1.4;
+    white-space: nowrap;
   }
 
   @keyframes ai-marquee-scroll-{{ ai_gen_id }} {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -47,25 +59,43 @@
       animation: none;
       width: 100%;
       justify-content: center;
+      will-change: auto;
     }
+
     .ai-marquee-{{ ai_gen_id }}__group--duplicate {
+      display: none;
+    }
+
+    .ai-marquee-{{ ai_gen_id }}__group:first-child {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ai-marquee-{{ ai_gen_id }}__item:not(:first-child) {
       display: none;
     }
   }
 {% endstyle %}
 
-<div class="ai-marquee-{{ ai_gen_id }}" role="region" aria-label="{{ block.settings.message | escape }}" {{ block.shopify_attributes }}>
+<div
+  class="ai-marquee-{{ ai_gen_id }}"
+  role="region"
+  aria-label="{{ block.settings.message | escape }}"
+  {{ block.shopify_attributes }}
+>
   <div class="ai-marquee-{{ ai_gen_id }}__track">
-    <div class="ai-marquee-{{ ai_gen_id }}__group">
-      {% for i in (1..4) %}
-        <span class="ai-marquee-{{ ai_gen_id }}__item">{{ block.settings.message | escape }}</span>
-      {% endfor %}
-    </div>
-    <div class="ai-marquee-{{ ai_gen_id }}__group ai-marquee-{{ ai_gen_id }}__group--duplicate" aria-hidden="true">
-      {% for i in (1..4) %}
-        <span class="ai-marquee-{{ ai_gen_id }}__item">{{ block.settings.message | escape }}</span>
-      {% endfor %}
-    </div>
+    {% for group in (1..2) %}
+      <div
+        class="ai-marquee-{{ ai_gen_id }}__group{% if group == 2 %} ai-marquee-{{ ai_gen_id }}__group--duplicate{% endif %}"
+        {% if group == 2 %}aria-hidden="true"{% endif %}
+      >
+        {% for i in (1..8) %}
+          <span class="ai-marquee-{{ ai_gen_id }}__item">
+            {{ block.settings.message | escape }}
+          </span>
+        {% endfor %}
+      </div>
+    {% endfor %}
   </div>
 </div>
 

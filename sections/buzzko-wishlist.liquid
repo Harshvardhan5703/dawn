@@ -1,73 +1,71 @@
 <section class="buzzko-wishlist" data-buzzko-wishlist-page>
-  {% if customer %}
-
-    <div class="buzzko-wishlist__inner page-width">
-      <header class="buzzko-wishlist__header">
-        <p class="buzzko-wishlist__eyebrow">YOUR LITTLE COLLECTION</p>
-        <h1 class="buzzko-wishlist__title">
-          {{ section.settings.heading | escape }}
-          <span class="buzzko-wishlist__sparkle" aria-hidden="true">✦</span>
-        </h1>
-        {% if section.settings.description != blank %}
-          <p class="buzzko-wishlist__description">
-            {{ section.settings.description | escape }}
-          </p>
-        {% endif %}
-      </header>
-
-      <div class="buzzko-wishlist__action-row">
-        <p class="buzzko-wishlist__count" data-buzzko-wishlist-page-count>
-          Your saved favourites
+  
+  <!-- WISHLIST VIEW (Hidden initially if Liquid says customer is false) -->
+  <div class="buzzko-wishlist__inner page-width" data-buzzko-wishlist-inner {% unless customer %}style="display: none;"{% endunless %}>
+    <header class="buzzko-wishlist__header">
+      <p class="buzzko-wishlist__eyebrow">YOUR LITTLE COLLECTION</p>
+      <h1 class="buzzko-wishlist__title">
+        {{ section.settings.heading | escape }}
+        <span class="buzzko-wishlist__sparkle" aria-hidden="true">✦</span>
+      </h1>
+      {% if section.settings.description != blank %}
+        <p class="buzzko-wishlist__description">
+          {{ section.settings.description | escape }}
         </p>
-        <a class="buzzko-wishlist__continue" href="{{ routes.all_products_collection_url }}">
-          Continue exploring <span aria-hidden="true">→</span>
-        </a>
-      </div>
+      {% endif %}
+    </header>
 
-      <p class="buzzko-wishlist__loading" data-buzzko-wishlist-loading hidden aria-live="polite">
-        Gathering your favourites…
+    <div class="buzzko-wishlist__action-row">
+      <p class="buzzko-wishlist__count" data-buzzko-wishlist-page-count>
+        Your saved favourites
+      </p>
+      <a class="buzzko-wishlist__continue" href="{{ routes.all_products_collection_url }}">
+        Continue exploring <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <p class="buzzko-wishlist__loading" data-buzzko-wishlist-loading hidden aria-live="polite">
+      Gathering your favourites…
+    </p>
+
+    <div class="buzzko-wishlist__empty" data-buzzko-wishlist-empty hidden>
+      <div class="buzzko-wishlist__empty-icon" aria-hidden="true">♡</div>
+      <h2>Your wishlist is waiting for a little love.</h2>
+      <p>Your favourite finds will live here. Spot something you love? Save it for later.</p>
+      <a href="{{ routes.all_products_collection_url }}" class="buzzko-wishlist__shop">
+        Explore all products
+      </a>
+    </div>
+
+    <div class="buzzko-wishlist__grid" data-buzzko-wishlist-grid></div>
+  </div>
+
+  <!-- LOGGED OUT VIEW (Hidden initially if Liquid says customer is true) -->
+  <div class="buzzko-wishlist__login-wrap" data-buzzko-wishlist-login {% if customer %}style="display: none;"{% endif %}>
+    <div class="buzzko-wishlist__login-card">
+      <span class="buzzko-wishlist__login-heart" aria-hidden="true">♡</span>
+      <p class="buzzko-wishlist__eyebrow">A LITTLE SPACE JUST FOR YOU</p>
+      <h1 class="buzzko-wishlist__login-title">Your favourites deserve a home.</h1>
+      <p class="buzzko-wishlist__login-description">
+        Log in to see your wishlist and keep your favourite finds close.
       </p>
 
-      <div class="buzzko-wishlist__empty" data-buzzko-wishlist-empty hidden>
-        <div class="buzzko-wishlist__empty-icon" aria-hidden="true">♡</div>
-        <h2>Your wishlist is waiting for a little love.</h2>
-        <p>Your favourite finds will live here. Spot something you love? Save it for later.</p>
-        <a href="{{ routes.all_products_collection_url }}" class="buzzko-wishlist__shop">
-          Explore all products
-        </a>
-      </div>
+      <a
+        class="buzzko-wishlist__login-button buzzko-wishlist__login-button--primary"
+        href="{{ routes.storefront_login_url }}"
+      >
+        Log in to your account
+      </a>
 
-      <div class="buzzko-wishlist__grid" data-buzzko-wishlist-grid></div>
+      <a
+        class="buzzko-wishlist__login-button buzzko-wishlist__login-button--secondary"
+        href="{{ routes.storefront_login_url }}"
+      >
+        Create an account
+      </a>
     </div>
+  </div>
 
-  {% else %}
-
-    <div class="buzzko-wishlist__login-wrap">
-      <div class="buzzko-wishlist__login-card">
-        <span class="buzzko-wishlist__login-heart" aria-hidden="true">♡</span>
-        <p class="buzzko-wishlist__eyebrow">A LITTLE SPACE JUST FOR YOU</p>
-        <h1 class="buzzko-wishlist__login-title">Your favourites deserve a home.</h1>
-        <p class="buzzko-wishlist__login-description">
-          Log in to see your wishlist and keep your favourite finds close.
-        </p>
-
-        <a
-          class="buzzko-wishlist__login-button buzzko-wishlist__login-button--primary"
-          href="{{ routes.storefront_login_url }}"
-        >
-          Log in to your account
-        </a>
-
-        <a
-          class="buzzko-wishlist__login-button buzzko-wishlist__login-button--secondary"
-          href="{{ routes.storefront_login_url }}"
-        >
-          Create an account
-        </a>
-      </div>
-    </div>
-
-  {% endif %}
 </section>
 
 <style>
@@ -257,6 +255,57 @@
     .buzzko-wishlist__login-button { max-width: 240px; }
   }
 </style>
+
+<script>
+(function() {
+  function checkOtpWishlistState() {
+    // 1. Check if the user is actually signed in via OTP
+    var isSignedIn = false;
+    if (window.BuzzkoWishlistAuth && typeof window.BuzzkoWishlistAuth.isCustomerSignedIn === 'function') {
+      isSignedIn = window.BuzzkoWishlistAuth.isCustomerSignedIn();
+    } else {
+      // Fallback check
+      isSignedIn = document.documentElement.dataset.buzzkoCustomerSignedIn === 'true' || /(^|;\s*)logged_in_customer_id=/.test(document.cookie);
+    }
+    
+    if (isSignedIn) {
+      var inner = document.querySelector('[data-buzzko-wishlist-inner]');
+      var login = document.querySelector('[data-buzzko-wishlist-login]');
+      
+      if (inner && login) {
+        // Swap views: Hide login card, show wishlist grid
+        login.style.display = 'none';
+        inner.style.display = 'block';
+        
+        // Tell the wishlist script to render the items now that the grid is visible
+        if (window.BuzzkoWishlist && typeof window.BuzzkoWishlist.refresh === 'function') {
+          window.BuzzkoWishlist.refresh();
+        }
+      }
+    }
+  }
+
+  // Run on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkOtpWishlistState);
+  } else {
+    checkOtpWishlistState();
+  }
+
+  // If the user logs in via OTP while on this page, the modal closes.
+  // We need to re-check the auth state after the modal closes.
+  document.addEventListener('click', function(e) {
+    if (e.target.closest && e.target.closest('.otp-account-modal__close, .otp-account-modal-backdrop')) {
+      setTimeout(checkOtpWishlistState, 600);
+    }
+  });
+  
+  // Also check when window gets focus back (e.g. mobile SMS OTP flow)
+  window.addEventListener('focus', function() {
+    setTimeout(checkOtpWishlistState, 600);
+  });
+})();
+</script>
 
 {% schema %}
 {

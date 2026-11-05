@@ -345,7 +345,7 @@
   BuzzKo: figure out which filter groups must be hidden on this collection,
   so we can pre-hide them via CSS before they paint (no flash).
 {%- endcomment -%}
-{%- assign buzzko_category_handles = 'charms,lighters,frames,handicrafts,keychains' | split: ',' -%}
+{%- assign buzzko_category_handles = 'charms,lighters,frames,handcrafted,keychains' | split: ',' -%}
 {%- assign buzzko_is_category_page = false -%}
 {%- if buzzko_category_handles contains collection.handle -%}
   {%- assign buzzko_is_category_page = true -%}

@@ -1,98 +1,42 @@
 {% comment %}
   BuzzKo About Page
-  Single section: hero, story, and newsletter signup.
+  Single image, newspaper-style text wrap.
 {% endcomment %}
 
 <section id="buzzko-about-{{ section.id }}" class="buzzko-about">
   <div class="buzzko-about__hero page-width">
-    <div class="buzzko-about__hero-copy">
-      {% if section.settings.hero_eyebrow != blank %}
-        <p class="buzzko-about__eyebrow">
-          {{ section.settings.hero_eyebrow | escape }}
-        </p>
-      {% endif %}
-
-      <h1 class="buzzko-about__hero-title">
-        {{ section.settings.hero_title | escape | newline_to_br }}
-      </h1>
-
-      <span class="buzzko-about__squiggle" aria-hidden="true"></span>
-
-      {% if section.settings.hero_text != blank %}
-        <div class="buzzko-about__body">
-          {{ section.settings.hero_text }}
-        </div>
-      {% endif %}
-    </div>
-
-    <div class="buzzko-about__hero-art">
-      {% if section.settings.hero_image != blank %}
-        {{
-          section.settings.hero_image
-          | image_url: width: 1200
-          | image_tag:
-            class: 'buzzko-about__hero-image',
-            loading: 'lazy',
-            widths: '400, 600, 800, 1000, 1200',
-            alt: section.settings.hero_image.alt
-            | default: section.settings.hero_title
-            | escape
-        }}
-      {% else %}
-        <div class="buzzko-about__image-placeholder">
-          <span>Add a hero image in the section settings</span>
-        </div>
-      {% endif %}
-
-      <span class="buzzko-about__hero-sticker buzzko-about__hero-sticker--top" aria-hidden="true">♡</span>
-      <span class="buzzko-about__hero-note" aria-hidden="true">
-        {{ section.settings.hero_note | escape | newline_to_br }}
-      </span>
-      <span class="buzzko-about__hero-sticker buzzko-about__hero-sticker--flower" aria-hidden="true">✿</span>
-    </div>
+    {% if section.settings.hero_eyebrow != blank %}
+      <p class="buzzko-about__eyebrow">{{ section.settings.hero_eyebrow | escape }}</p>
+    {% endif %}
+    <h1 class="buzzko-about__hero-title">{{ section.settings.hero_title | escape | newline_to_br }}</h1>
+    <span class="buzzko-about__squiggle" aria-hidden="true"></span>
   </div>
 
-  <div class="buzzko-about__story-wrap">
-    <div class="buzzko-about__story page-width">
-      <div class="buzzko-about__story-art">
-        {% if section.settings.story_image != blank %}
+  <div class="buzzko-about__story page-width">
+    <div class="buzzko-about__story-content">
+      {% if section.settings.story_image != blank %}
+        <figure class="buzzko-about__float-figure">
           {{
             section.settings.story_image
-            | image_url: width: 1000
+            | image_url: width: 1200
             | image_tag:
-              class: 'buzzko-about__story-image',
+              class: 'buzzko-about__float-image',
               loading: 'lazy',
-              widths: '360, 540, 720, 900, 1000',
-              alt: section.settings.story_image.alt
-              | default: section.settings.story_title
-              | escape
+              widths: '400, 600, 800, 1000, 1200',
+              alt: section.settings.story_image.alt | default: 'BuzzKo'
           }}
-        {% else %}
-          <div class="buzzko-about__image-placeholder buzzko-about__image-placeholder--story">
+          <span class="buzzko-about__story-tape" aria-hidden="true"></span>
+        </figure>
+      {% else %}
+        <figure class="buzzko-about__float-figure buzzko-about__float-figure--empty">
+          <div class="buzzko-about__image-placeholder">
             <span>Add a story image in the section settings</span>
           </div>
-        {% endif %}
+        </figure>
+      {% endif %}
 
-        <span class="buzzko-about__story-tape" aria-hidden="true"></span>
-        <span class="buzzko-about__story-caption" aria-hidden="true">
-          {{ section.settings.story_note | escape | newline_to_br }}
-        </span>
-      </div>
-
-      <div class="buzzko-about__story-copy">
-        <p class="buzzko-about__eyebrow">
-          {{ section.settings.story_eyebrow | escape }}
-        </p>
-
-        <h2 class="buzzko-about__section-title">
-          {{ section.settings.story_title | escape }}
-        </h2>
-
-        <div class="buzzko-about__body">
-          {{ section.settings.story_text }}
-        </div>
-
-        <span class="buzzko-about__story-doodle" aria-hidden="true">♡</span>
+      <div class="buzzko-about__body">
+        {{ section.settings.story_content }}
       </div>
     </div>
   </div>
@@ -178,19 +122,7 @@
   /* HERO */
 
   #buzzko-about-{{ section.id }} .buzzko-about__hero {
-    min-height: 470px;
-    display: grid;
-    grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
-    align-items: center;
-    gap: clamp(30px, 6vw, 90px);
-    padding-block: 54px 64px;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-copy {
-    max-width: 440px;
-    padding-left: clamp(0px, 3vw, 42px);
-    position: relative;
-    z-index: 1;
+    padding-block: 54px 40px;
   }
 
   #buzzko-about-{{ section.id }} .buzzko-about__eyebrow {
@@ -203,182 +135,66 @@
     text-transform: uppercase;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-title,
-  #buzzko-about-{{ section.id }} .buzzko-about__section-title {
+  #buzzko-about-{{ section.id }} .buzzko-about__hero-title {
     margin: 0;
+    max-width: 720px;
     color: var(--buzzko-ink);
+    font-size: clamp(42px, 5.5vw, 76px);
     font-weight: 800;
     letter-spacing: -.045em;
-    line-height: 1.08;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-title {
-    font-size: clamp(42px, 5.2vw, 70px);
-    max-width: 470px;
+    line-height: 1.04;
   }
 
   #buzzko-about-{{ section.id }} .buzzko-about__squiggle {
     display: block;
     width: 104px;
     height: 13px;
-    margin: 19px 0 18px;
+    margin: 22px 0 0;
     border-top: 5px solid var(--buzzko-pink);
     border-radius: 50%;
     transform: rotate(-2deg);
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__body {
-    color: var(--buzzko-muted);
-    font-size: 15px;
-    line-height: 1.62;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__body p {
-    margin: 0 0 17px;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__body p:last-child {
-    margin-bottom: 0;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-art {
-    min-height: 330px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px 24px;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-art::before {
-    content: "";
-    position: absolute;
-    inset: 6% 9% 5% 5%;
-    background: #FFFAF5;
-    border-radius: 48% 52% 42% 58% / 51% 43% 57% 49%;
-    transform: rotate(-3deg);
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-image {
-    position: relative;
-    z-index: 1;
-    display: block;
-    width: min(100%, 610px);
-    max-height: 390px;
-    aspect-ratio: 1.35 / 1;
-    object-fit: cover;
-    border: 12px solid #fffdfa;
-    box-shadow: 0 9px 24px rgba(26, 26, 26, .12);
-    transform: rotate(-3deg);
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__image-placeholder {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: min(100%, 610px);
-    min-height: 290px;
-    padding: 24px;
-    border: 2px dashed #e5cbd2;
-    border-radius: 18px;
-    background: #FFFAF5;
-    color: #77716b;
-    text-align: center;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker {
-    position: absolute;
-    z-index: 2;
-    color: var(--buzzko-pink);
-    font-size: 58px;
-    line-height: 1;
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--top {
-    top: 0;
-    left: 6%;
-    transform: rotate(-14deg);
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--flower {
-    right: 1%;
-    bottom: 5%;
-    font-size: 48px;
-    transform: rotate(12deg);
-  }
-
-  #buzzko-about-{{ section.id }} .buzzko-about__hero-note {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    top: 10%;
-    max-width: 115px;
-    color: var(--buzzko-ink);
-    font-size: 18px;
-    line-height: 1.18;
-    text-align: center;
-    transform: rotate(5deg);
-  }
-
-  /* STORY */
-
-  #buzzko-about-{{ section.id }} .buzzko-about__story-wrap {
-    background: #FFFAF5;
-    border-block: 1px solid rgba(233, 226, 219, .65);
-  }
+  /* STORY — newspaper-style float */
 
   #buzzko-about-{{ section.id }} .buzzko-about__story {
-    min-height: 390px;
-    display: grid;
-    grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr);
-    align-items: center;
-    gap: clamp(40px, 8vw, 120px);
-    padding-block: 56px 64px;
+    padding-block: 24px 56px;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-art {
-    position: relative;
-    min-height: 270px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
+  #buzzko-about-{{ section.id }} .buzzko-about__story-content {
+    max-width: 900px;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-art::before {
+  #buzzko-about-{{ section.id }} .buzzko-about__story-content::after {
     content: "";
-    position: absolute;
-    inset: 9% 5% 3% 8%;
-    background: #FFFAF5;
-    border-radius: 20px 34px 20px 34px;
-    transform: rotate(-4deg);
+    display: table;
+    clear: both;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-image {
+  #buzzko-about-{{ section.id }} .buzzko-about__float-figure {
+    float: right;
+    width: min(42%, 400px);
+    margin: 8px 0 24px 32px;
     position: relative;
-    z-index: 1;
-    display: block;
-    width: min(100%, 420px);
-    aspect-ratio: 1.12 / 1;
-    object-fit: cover;
-    border: 10px solid #fffdfa;
-    box-shadow: 0 8px 22px rgba(26, 26, 26, .13);
-    transform: rotate(3deg);
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__image-placeholder--story {
-    width: min(100%, 420px);
-    min-height: 260px;
+  #buzzko-about-{{ section.id }} .buzzko-about__float-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 8px solid #fffdfa;
+    border-radius: 4px;
+    box-shadow: 0 9px 24px rgba(26, 26, 26, .13);
+    transform: rotate(2deg);
   }
 
   #buzzko-about-{{ section.id }} .buzzko-about__story-tape {
     position: absolute;
     z-index: 2;
-    top: 5px;
-    left: 23%;
-    width: 100px;
-    height: 25px;
+    top: -8px;
+    left: 20%;
+    width: 90px;
+    height: 22px;
     background: repeating-linear-gradient(
       90deg,
       #f6b8c8 0 13px,
@@ -388,50 +204,62 @@
     transform: rotate(-8deg);
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-caption {
-    position: absolute;
-    z-index: 2;
-    left: 0;
-    bottom: 4px;
-    max-width: 130px;
-    padding: 10px 12px;
-    background: #fffdfa;
-    color: var(--buzzko-ink);
-    font-size: 16px;
-    line-height: 1.2;
+  #buzzko-about-{{ section.id }} .buzzko-about__float-figure--empty {
+    margin-bottom: 24px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__image-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1.1 / 1;
+    padding: 24px;
+    border: 2px dashed #e5cbd2;
+    border-radius: 10px;
+    background: #fff;
+    color: #77716b;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(26, 26, 26, .08);
-    transform: rotate(-5deg);
+    font-size: 14px;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-copy {
-    position: relative;
-    max-width: 650px;
-    padding-right: 20px;
+  /* BODY TEXT */
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body {
+    color: var(--buzzko-muted);
+    font-size: 15px;
+    line-height: 1.75;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__section-title {
-    margin-bottom: 22px;
-    font-size: clamp(30px, 3.3vw, 43px);
+  #buzzko-about-{{ section.id }} .buzzko-about__body h3 {
+    margin: 32px 0 12px;
+    color: var(--buzzko-ink);
+    font-size: clamp(22px, 2.2vw, 27px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.25;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-copy .buzzko-about__body p + p {
-    margin-top: 18px;
+  #buzzko-about-{{ section.id }} .buzzko-about__body h3:first-child {
+    margin-top: 0;
   }
 
-  #buzzko-about-{{ section.id }} .buzzko-about__story-doodle {
-    position: absolute;
-    right: -4px;
-    top: 40%;
-    color: var(--buzzko-pink);
-    font-size: 62px;
-    transform: rotate(12deg);
+  #buzzko-about-{{ section.id }} .buzzko-about__body p {
+    margin: 0 0 16px;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  #buzzko-about-{{ section.id }} .buzzko-about__body strong {
+    color: var(--buzzko-ink);
+    font-weight: 800;
   }
 
   /* NEWSLETTER */
 
   #buzzko-about-{{ section.id }} .buzzko-about__newsletter-wrap {
-    padding: 34px 0 42px;
+    padding: 20px 0 42px;
   }
 
   #buzzko-about-{{ section.id }} .buzzko-about__newsletter {
@@ -539,78 +367,31 @@
     }
 
     #buzzko-about-{{ section.id }} .buzzko-about__hero {
-      min-height: 0;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      padding-block: 42px 34px;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-copy {
-      max-width: 520px;
-      padding-left: 0;
+      padding-block: 42px 28px;
     }
 
     #buzzko-about-{{ section.id }} .buzzko-about__hero-title {
-      max-width: 430px;
+      max-width: 460px;
       font-size: clamp(42px, 12vw, 60px);
     }
 
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-art {
-      min-height: 260px;
-      padding: 14px 22px;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-image {
-      max-height: 300px;
-      border-width: 8px;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-note {
-      right: -2px;
-      top: 0;
-      font-size: 15px;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--top {
-      left: 0;
-      top: -4px;
-      font-size: 42px;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__hero-sticker--flower {
-      right: 0;
-      bottom: 0;
-      font-size: 38px;
-    }
-
     #buzzko-about-{{ section.id }} .buzzko-about__story {
-      grid-template-columns: 1fr;
-      gap: 22px;
-      padding-block: 38px 42px;
+      padding-block: 16px 40px;
     }
 
-    #buzzko-about-{{ section.id }} .buzzko-about__story-art {
-      min-height: 240px;
-      order: 2;
+    #buzzko-about-{{ section.id }} .buzzko-about__float-figure {
+      float: none;
+      width: 100%;
+      max-width: 460px;
+      margin: 0 auto 24px;
     }
 
-    #buzzko-about-{{ section.id }} .buzzko-about__story-copy {
-      order: 1;
-      padding-right: 0;
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__section-title {
-      font-size: clamp(30px, 8vw, 39px);
-    }
-
-    #buzzko-about-{{ section.id }} .buzzko-about__story-doodle {
-      right: 0;
-      top: 0;
-      font-size: 42px;
+    #buzzko-about-{{ section.id }} .buzzko-about__body h3 {
+      margin-top: 26px;
     }
 
     #buzzko-about-{{ section.id }} .buzzko-about__newsletter-wrap {
-      padding: 24px 0 32px;
+      padding: 12px 0 32px;
     }
 
     #buzzko-about-{{ section.id }} .buzzko-about__newsletter {
@@ -662,42 +443,7 @@
       "type": "textarea",
       "id": "hero_title",
       "label": "Hero heading",
-      "default": "A Little Charm Goes a Long Way"
-    },
-    {
-      "type": "richtext",
-      "id": "hero_text",
-      "label": "Hero text",
-      "default": "<p>At BuzzKo, we believe the little things make life brighter. From charms to keychains, frames to posters, every piece is a way to carry your story, your style and your happiness wherever you go.</p>"
-    },
-    {
-      "type": "image_picker",
-      "id": "hero_image",
-      "label": "Hero image"
-    },
-    {
-      "type": "textarea",
-      "id": "hero_note",
-      "label": "Hero handwritten note",
-      "default": "carry your joy ♡"
-    },
-    {
-      "type": "text",
-      "id": "story_eyebrow",
-      "label": "Story eyebrow",
-      "default": "Our story"
-    },
-    {
-      "type": "text",
-      "id": "story_title",
-      "label": "Story heading",
-      "default": "From a Love for Little Things"
-    },
-    {
-      "type": "richtext",
-      "id": "story_text",
-      "label": "Story text",
-      "default": "<p>BuzzKo started with a simple idea: everyday essentials can be more personal, more fun and a little more you. What began as a love for collecting and customising small accessories slowly turned into a brand that celebrates self-expression and creativity.</p><p>Today, we curate and create charms, keychains, photo frames, posters and more, designed to add a spark of joy to your everyday life. Each piece is carefully chosen to be cute, high-quality and full of personality, because we know it's never just an accessory; it's a part of your story.</p>"
+      "default": "Small things.\nBig buzz."
     },
     {
       "type": "image_picker",
@@ -705,10 +451,10 @@
       "label": "Story image"
     },
     {
-      "type": "textarea",
-      "id": "story_note",
-      "label": "Story image caption",
-      "default": "more than just charms ♡"
+      "type": "richtext",
+      "id": "story_content",
+      "label": "Story content",
+      "default": "<h3>It started with a stall (and a sister who had enough of my nonsense)</h3><p>Picture this: a crowded stall, fairy lights, a table full of beautiful jewelry, and me, standing next to it with nothing to sell. Just vibes. Moral support. Occasionally holding things.</p><p>My sister was the one with the brand. I was the one who tagged along to help set up, then stood around while she did the actual work.</p><p>Until one day she looked at me and said, \"Why are you just coming along and doing nothing? You should sell something too. Be productive.\"</p><p>Rude? A little. Fair? Completely.</p><h3>The first little experiments</h3><p>So, I did. I started small, with the things I loved: posters that made a wall feel like a personality, stickers you'd slap on a laptop without thinking twice, bookmarks for people who read (or want to look like they do), and a few little keychains.</p><p>No grand plan. No business course. Just a table, a handful of products, and a lot of curiosity about whether anyone else would love this stuff as much as I did.</p><p>They did. Then the buzz began!!!</p><p>People stopped. They picked things up. They smiled. They came back with friends. Someone bought a keychain for themselves, then came back for three more as gifts.</p><p>That's when it clicked: the little things people carry, stick, hang, and gift are never really \"little.\" They're the things that make a day, a bag, a desk, or a wall feel like yours.</p><p>So Buzzko was born. The name says it all: that spark of excitement you feel when you find something you didn't know you needed.</p><h3>From keychains to a whole universe</h3><p>What began with four products has grown, one obsession at a time: charms, crochet pieces, lighters and plenty more trending finds that make us go \"okay, we need this.\"</p><p>Some of it is quirky. Some are cute. Some are a little chaotic. All of it has one thing in common: I only sell what I'm genuinely passionate about. If I wouldn't buy it, gift it, or proudly display it, it doesn't make the cut. No filler, no \"this will probably sell.\" Just stuff with personality.</p><h3>Yes, there's an engineer behind this!!!</h3><p>Here's the plot twist: I'm an engineer by profession. My days are about logic, systems, and things that must work properly.</p><p>Buzzko is my other side. It's where I get to be creative, playful, and a little unpredictable. It's the side hustle that doesn't feel like work, built in the margins of a busy life: evenings, weekends, and every bit of spare energy I have.</p><p>That means Buzzko is built bit by bit, and I'm proud of that. Every order, every restock, every new product has been grown with care, not rushed out by a corporation. Behind every package is a real person who is genuinely excited that you picked it.</p><h3>What we believe</h3><p>Everyday things shouldn't be boring. Your keys, your bag, your desk, your walls: all of them deserve some personality.</p><p>Passion beats trends. We follow what's hot, but only if we love it too.</p><p>Small brands have big hearts. Every purchase supports a dream being built from scratch.</p><p>Fun is a feature, not a bonus. If it doesn't make you smile, we're not interested.</p><p>Every brand has a few people working quietly in the background, and mine has one who deserves a spotlight, even if she prefers to stay in the shadows.</p><p>She helped me turn Buzzko from a table full of products into an actual website you can visit, scroll, and shop from. She believed in this idea when it was still small, backed me when I was juggling a day job and a side hustle, and gave her time and energy without being asked twice.</p><p>She knows who she is. Her support has shaped Buzzko more than she probably realizes, and every order that comes through this site exists partly because of her.</p><p>Thank you. This brand has your fingerprints on it. 💛</p><h3>Thank you to my customers!!!</h3><p>Every person who has bought, shared, gifted, or just cheered us on has helped this tiny idea grow. You're the reason a stall-side side-quest turned into a brand.</p><p>And to my sister, who told me to stop standing around and start selling, Thank you. This is all your fault. 🙂</p><p>So, scroll around, find something that makes you grin, and take a little piece of Buzzko home.</p><p><strong>Stay curious. Stay quirky. Stay Buzzing. 🐝</strong></p>"
     },
     {
       "type": "text",

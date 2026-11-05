@@ -11,26 +11,73 @@
     overflow: hidden;
   }
 
+  /* DESKTOP SPLIT LAYOUT */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
     width: min(1400px, calc(100% - 64px));
     margin: 0 auto;
-    padding: 32px 0 40px;
+    padding: 20px 0 40px; 
+    display: grid;
+    grid-template-columns: 1fr 1.4fr; 
+    gap: 60px; 
+    align-items: center;
   }
 
-  /* SLIDESHOW */
+  /* LEFT SIDE STATIC CONTENT */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 32px; 
+  }
 
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__slideshow {
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__left-img {
     width: 100%;
+    max-width: 450px; 
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  /* BUTTON */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--btn-text, #fff);
+    background: var(--btn-bg, var(--buzzko-pink));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  }
+
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    background: var(--btn-hover, #e94a96);
+  }
+
+  /* RIGHT SIDE SLIDESHOW */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__slideshow {
+    position: relative;
+    width: 100%;
+    border-radius: var(--buzzko-radius);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
     position: relative;
     width: 100%;
-    aspect-ratio: 2.4 / 1;
-    max-height: 480px;
+    aspect-ratio: 1.5 / 1; 
+    max-height: 520px; 
+    background-color: #fdf3f5;
     overflow: hidden;
-    border-radius: var(--buzzko-radius);
-    background-color: #fdf3f5; /* Added a fallback pink background just in case */
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slide {
@@ -38,9 +85,7 @@
     inset: 0;
     opacity: 0;
     visibility: hidden;
-    transition:
-      opacity 500ms ease,
-      visibility 500ms ease;
+    transition: opacity 500ms ease, visibility 500ms ease;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slide.is-active {
@@ -48,7 +93,6 @@
     visibility: visible;
   }
 
-  /* Added picture tag CSS so the image doesn't collapse */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__slide picture {
     display: block;
     width: 100%;
@@ -60,118 +104,70 @@
     height: 100%;
     display: block;
     object-fit: cover;
+    object-position: center;
   }
 
-  /* FLOATING CTA — always bottom-left, small + translucent */
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
-    position: absolute;
-    z-index: 2;
-    left: 28px;
-    bottom: 28px;
-    display: flex;
-    pointer-events: none;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn {
-    pointer-events: auto;
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 40px;
-    padding: 0 20px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.005em;
-    line-height: 1;
-    color: var(--btn-text, #111);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
-  }
-
-  /* Translucent colour layer — text stays crisp, background fades */
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--btn-bg, var(--buzzko-pink));
-    opacity: 0.82;
-    transition: opacity 180ms ease, background 180ms ease;
-    z-index: -1;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn:hover::before {
-    opacity: 1;
-    background: var(--btn-hover, var(--btn-bg, #e94a96));
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn:active {
-    transform: translateY(0);
-  }
-
-  /* CONTROLS */
-
+  /* CONTROLS CONTAINER (Arrows & Dots at Bottom) */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
-    margin-top: 14px;
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* WHITE TRANSLUCENT ARROWS */
+  #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6); 
+    color: #111111; 
+    cursor: pointer;
+    pointer-events: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-  }
-
-  #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
-    width: 36px;
-    height: 36px;
-    border: 1px solid #222;
-    border-radius: 50%;
-    background: transparent;
-    color: #111;
-    cursor: pointer;
-    transition: background 180ms ease, color 180ms ease;
+    transition: background 180ms ease;
+    backdrop-filter: blur(4px);
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__control:hover {
-    background: #111;
-    color: #fff;
+    background: rgba(255, 255, 255, 0.9); 
   }
 
+  /* WHITE TRANSLUCENT DOTS */
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dots {
+    position: relative;
     display: flex;
-    gap: 7px;
+    gap: 8px;
+    pointer-events: auto;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: #ccc;
+    background: rgba(255, 255, 255, 0.5); 
     cursor: pointer;
     transition: background 180ms ease, width 180ms ease;
   }
 
   #BuzzkoHero-{{ section.id }} .buzzko-hero__dot.is-active {
-    background: #111;
-    width: 22px;
+    background: #ffffff; 
+    width: 24px;
     border-radius: 999px;
   }
 
   /* EMPTY STATE */
-
   #BuzzkoHero-{{ section.id }} .buzzko-hero__empty {
     min-height: 400px;
     display: flex;
@@ -183,31 +179,35 @@
   }
 
   /* TABLET */
-
   @media screen and (max-width: 989px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
-      width: min(100% - 40px, 700px);
-      padding: 24px 0 36px;
+      display: block; 
+      width: calc(100% - 40px);
+      max-width: 900px; 
+      padding: 20px 0 40px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
+      display: none; 
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 16 / 9;
       max-height: none;
       border-radius: 24px;
     }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
-      left: 22px;
-      bottom: 22px;
-    }
   }
 
-  /* MOBILE — still bottom-left, just smaller */
-
+  /* MOBILE */
   @media screen and (max-width: 749px) {
     #BuzzkoHero-{{ section.id }} .buzzko-hero__container {
+      display: block; 
       width: calc(100% - 28px);
       padding: 16px 0 32px;
+    }
+
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__left {
+      display: none;
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__slides {
@@ -215,32 +215,45 @@
       border-radius: 20px;
     }
 
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta {
-      left: 16px;
+    /* Center the dots on mobile since arrows are hidden */
+    #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
       bottom: 16px;
-    }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__cta-btn {
-      min-height: 38px;
-      padding: 0 18px;
-      font-size: 12px;
+      left: 16px;
+      right: 16px;
+      justify-content: center; 
     }
 
     #BuzzkoHero-{{ section.id }} .buzzko-hero__control {
       display: none;
     }
-
-    #BuzzkoHero-{{ section.id }} .buzzko-hero__controls {
-      margin-top: 12px;
-    }
   }
 {% endstyle %}
 
-<section
-  id="BuzzkoHero-{{ section.id }}"
-  class="buzzko-hero"
->
+<section id="BuzzkoHero-{{ section.id }}" class="buzzko-hero">
   <div class="buzzko-hero__container">
+    
+    <!-- LEFT SIDE (Single Combined Image + Button) -->
+    <div class="buzzko-hero__left">
+      {% if section.settings.left_image != blank %}
+        {{ section.settings.left_image | image_url: width: 800 | image_tag: class: 'buzzko-hero__left-img', loading: 'eager', alt: 'Hero Left Image' }}
+      {% endif %}
+
+      {% if section.settings.button_label != blank %}
+        <a
+          href="{{ section.settings.button_link | default: routes.all_products_collection_url }}"
+          class="buzzko-hero__cta-btn"
+          style="
+            --btn-bg: {{ section.settings.button_color }};
+            --btn-text: {{ section.settings.button_text_color }};
+            --btn-hover: {{ section.settings.button_hover_color }};
+          "
+        >
+          {{ section.settings.button_label }}
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT SIDE SLIDER -->
     <div
       class="buzzko-hero__slideshow"
       data-buzzko-slideshow
@@ -248,85 +261,61 @@
       data-interval="{{ section.settings.interval | times: 1000 }}"
     >
       {% if section.blocks.size > 0 %}
-
         <div class="buzzko-hero__slides">
-
           {% for block in section.blocks %}
-
             {% if block.settings.image != blank %}
-
               {% liquid
                 assign slide_loading = 'lazy'
+                assign slide_fetchpriority = 'auto'
+                assign slide_preload = false
+
                 if forloop.first
                   assign slide_loading = 'eager'
+                  assign slide_fetchpriority = 'high'
+
+                  unless section.index > 1
+                    assign slide_preload = true
+                  endunless
                 endif
               %}
-
-              <div
-                class="buzzko-hero__slide{% if forloop.first %} is-active{% endif %}"
-                data-slide
-                {{ block.shopify_attributes }}
-              >
+              <div class="buzzko-hero__slide{% if forloop.first %} is-active{% endif %}" data-slide {{ block.shopify_attributes }}>
                 <picture>
-                  {% comment %} Mobile image fallback logic {% endcomment %}
                   {% if block.settings.image_mobile != blank %}
                     <source
                       media="(max-width: 749px)"
                       srcset="
                         {{ block.settings.image_mobile | image_url: width: 600 }} 600w,
                         {{ block.settings.image_mobile | image_url: width: 800 }} 800w,
-                        {{ block.settings.image_mobile | image_url: width: 1080 }} 1080w,
-                        {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
+                        {{ block.settings.image_mobile | image_url: width: 1080 }} 1080w
                       "
                       sizes="100vw"
                     >
                   {% endif %}
-                  
                   {{ block.settings.image
                     | image_url: width: 2400
                     | image_tag:
                       loading: slide_loading,
+                      fetchpriority: slide_fetchpriority,
+                      preload: slide_preload,
                       widths: '600,800,1000,1200,1400,1600,1800,2000,2400',
-                      sizes: '(min-width: 990px) 90vw, 100vw',
+                      sizes: '(min-width: 990px) 60vw, 100vw',
                       alt: block.settings.alt_text
                   }}
                 </picture>
-
-                {% if block.settings.button_label != blank %}
-                  <div class="buzzko-hero__cta">
-                    <a
-                      href="{{ block.settings.button_link | default: routes.all_products_collection_url }}"
-                      class="buzzko-hero__cta-btn"
-                      style="
-                        --btn-bg: {{ block.settings.button_color }};
-                        --btn-text: {{ block.settings.button_text_color }};
-                        --btn-hover: {{ block.settings.button_hover_color }};
-                      "
-                    >
-                      {{ block.settings.button_label }}
-                    </a>
-                  </div>
-                {% endif %}
               </div>
-
             {% endif %}
-
           {% endfor %}
-
         </div>
 
         {% if section.settings.show_slide_controls and section.blocks.size > 1 %}
           <div class="buzzko-hero__controls">
-
-            <button
-              type="button"
-              class="buzzko-hero__control buzzko-hero__control--prev"
-              data-slide-prev
-              aria-label="Previous slide"
-            >
-              ←
+            
+            <button type="button" class="buzzko-hero__control buzzko-hero__control--prev" data-slide-prev aria-label="Previous slide">
+              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
             </button>
-
+            
             <div class="buzzko-hero__dots">
               {% for block in section.blocks %}
                 {% if block.settings.image != blank %}
@@ -339,25 +328,18 @@
                 {% endif %}
               {% endfor %}
             </div>
-
-            <button
-              type="button"
-              class="buzzko-hero__control buzzko-hero__control--next"
-              data-slide-next
-              aria-label="Next slide"
-            >
-              →
+            
+            <button type="button" class="buzzko-hero__control buzzko-hero__control--next" data-slide-next aria-label="Next slide">
+              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </button>
 
           </div>
         {% endif %}
 
       {% else %}
-
-        <div class="buzzko-hero__empty">
-          Add a hero slide from the theme editor.
-        </div>
-
+        <div class="buzzko-hero__empty">Add a hero slide from the theme editor.</div>
       {% endif %}
     </div>
   </div>
@@ -413,6 +395,31 @@
       });
     });
 
+    /* MOBILE SWIPE */
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    slideshow.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    slideshow.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    const handleSwipe = () => {
+      const swipeThreshold = 50;
+      if (touchEndX < touchStartX - swipeThreshold) {
+        nextSlide();
+        startAutoplay();
+      }
+      if (touchEndX > touchStartX + swipeThreshold) {
+        prevSlide();
+        startAutoplay();
+      }
+    };
+
     showSlide(0);
     startAutoplay();
 
@@ -432,7 +439,46 @@
   "settings": [
     {
       "type": "header",
-      "content": "Slideshow"
+      "content": "Left Side Content (Desktop Only)"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Combined Left Image",
+      "info": "Upload a single image with both 'NOW OPEN' and 'Cute Essentials'"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button background",
+      "default": "#ff5ca8"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button background on hover",
+      "default": "#e94a96"
+    },
+    {
+      "type": "header",
+      "content": "Slideshow Settings"
     },
     {
       "type": "checkbox",
@@ -454,7 +500,7 @@
       "type": "checkbox",
       "id": "show_slide_controls",
       "label": "Show arrows and dots",
-      "default": false
+      "default": true
     }
   ],
   "blocks": [
@@ -466,7 +512,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Desktop slide image",
-          "info": "Recommended: 2400 x 1000px (2.4:1)"
+          "info": "Recommended: 1600 x 1066px (1.5:1)"
         },
         {
           "type": "image_picker",
@@ -478,40 +524,6 @@
           "type": "text",
           "id": "alt_text",
           "label": "Image alt text"
-        },
-        {
-          "type": "header",
-          "content": "Button"
-        },
-        {
-          "type": "text",
-          "id": "button_label",
-          "label": "Button label",
-          "default": "Shop New Collection",
-          "info": "Leave empty to hide the button on this slide"
-        },
-        {
-          "type": "url",
-          "id": "button_link",
-          "label": "Button link"
-        },
-        {
-          "type": "color",
-          "id": "button_color",
-          "label": "Button background",
-          "default": "#ff5ca8"
-        },
-        {
-          "type": "color",
-          "id": "button_text_color",
-          "label": "Button text",
-          "default": "#111111"
-        },
-        {
-          "type": "color",
-          "id": "button_hover_color",
-          "label": "Button background on hover",
-          "default": "#e94a96"
         }
       ]
     }
