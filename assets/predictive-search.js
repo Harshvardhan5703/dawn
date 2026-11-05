@@ -28,9 +28,12 @@ class PredictiveSearch extends SearchForm {
     super.onChange();
     const newSearchTerm = this.getQuery();
     if (!this.searchTerm || !newSearchTerm.startsWith(this.searchTerm)) {
+      // Remove the results when they are no longer relevant for the new search term
+      // so they don't show up when the dropdown opens again
       this.querySelector('#predictive-search-results-groups-wrapper')?.remove();
     }
 
+    // Update the term asap, don't wait for the predictive search query to finish loading
     this.updateSearchForTerm(this.searchTerm, newSearchTerm);
 
     this.searchTerm = newSearchTerm;
@@ -63,6 +66,7 @@ class PredictiveSearch extends SearchForm {
     if (!currentSearchTerm.length) return;
 
     if (this.searchTerm !== currentSearchTerm) {
+      // Search term was changed from other search input, treat it as a user change
       this.onChange();
     } else if (this.getAttribute('results') === 'true') {
       this.open();
@@ -95,6 +99,7 @@ class PredictiveSearch extends SearchForm {
   }
 
   onKeydown(event) {
+    // Prevent the cursor from moving in the input when using the up and down arrow keys
     if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
       event.preventDefault();
     }
@@ -105,6 +110,7 @@ class PredictiveSearch extends SearchForm {
     const currentButtonText = searchForTextElement?.innerText;
     if (currentButtonText) {
       if (currentButtonText.match(new RegExp(previousTerm, 'g')).length > 1) {
+        // The new term matches part of the button text and not just the search term, do not replace to avoid mistakes
         return;
       }
       const newButtonText = currentButtonText.replace(previousTerm, newTerm);
@@ -118,6 +124,8 @@ class PredictiveSearch extends SearchForm {
     const moveUp = direction === 'up';
     const selectedElement = this.querySelector('[aria-selected="true"]');
 
+    // Filter out hidden elements (duplicated page and article resources) thanks
+    // to this https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
     const allVisibleElements = Array.from(this.querySelectorAll('li, button.predictive-search__item')).filter(
       (element) => element.offsetParent !== null
     );
@@ -160,7 +168,7 @@ class PredictiveSearch extends SearchForm {
   }
 
   getSearchResults(searchTerm) {
-    const queryKey = searchTerm.replace(/\s+/g, '-').toLowerCase();
+    const queryKey = searchTerm.replace(' ', '-').toLowerCase();
     this.setLiveRegionLoadingState();
 
     if (this.cachedResults[queryKey]) {
@@ -172,14 +180,7 @@ class PredictiveSearch extends SearchForm {
 
     const searchDeferred = this.dispatchSearchUpdateEvent(searchTerm);
 
-    // Restrict search to meaningful fields only to reduce fuzzy/gibberish matches.
-    // Combined with the strict Liquid filter, this eliminates nonsense results.
-    const searchUrl =
-      `${routes.predictive_search_url}?q=${encodeURIComponent(searchTerm)}` +
-      `&resources[options][fields]=title,product_type,tag,variants.title,vendor` +
-      `&section_id=predictive-search`;
-
-    fetch(searchUrl, {
+    fetch(`${routes.predictive_search_url}?q=${encodeURIComponent(searchTerm)}&section_id=predictive-search`, {
       signal: this.abortController.signal,
     })
       .then((response) => {
@@ -195,6 +196,7 @@ class PredictiveSearch extends SearchForm {
         const resultsMarkup = new DOMParser()
           .parseFromString(text, 'text/html')
           .querySelector('#shopify-section-predictive-search').innerHTML;
+        // Save bandwidth keeping the cache in all instances synced
         this.allPredictiveSearchInstances.forEach((predictiveSearchInstance) => {
           predictiveSearchInstance.cachedResults[queryKey] = resultsMarkup;
         });
@@ -204,6 +206,7 @@ class PredictiveSearch extends SearchForm {
       })
       .catch((error) => {
         if (error?.code === 20) {
+          // Code 20 means the call was aborted
           searchDeferred?.reject(error);
           return;
         }

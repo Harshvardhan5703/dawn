@@ -138,73 +138,20 @@
 {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
 <div id="predictive-search-results" role="listbox">
   {%- if predictive_search.performed -%}
-
-    {%- comment -%}
-      STRICT MATCHING — Prevents gibberish queries from returning products.
-
-      A product is only considered a valid match if every search term is not
-      empty AND the term appears as a substring in the product's title,
-      vendor, product_type, tags, or variant titles.
-
-      Adjust the fields below to change what "counts" as a match.
-    {%- endcomment -%}
-    {%- assign strict_terms = predictive_search.terms | downcase | split: ' ' -%}
-    {%- assign matched_product_count = 0 -%}
-    {%- assign matched_product_handles = ',' -%}
-
-    {%- for product in predictive_search.resources.products -%}
-      {%- assign p_title_down = product.title | downcase -%}
-      {%- assign p_vendor_down = product.vendor | downcase -%}
-      {%- assign p_type_down = product.type | downcase -%}
-      {%- assign p_tags_down = product.tags | join: ' ' | downcase -%}
-      {%- assign product_matched = false -%}
-
-      {%- for term in strict_terms -%}
-        {%- if term == '' -%}{%- continue -%}{%- endif -%}
-
-        {%- if p_title_down contains term
-          or p_vendor_down contains term
-          or p_type_down contains term
-          or p_tags_down contains term
-        -%}
-          {%- assign product_matched = true -%}
-          {%- break -%}
-        {%- endif -%}
-
-        {%- for variant in product.variants -%}
-          {%- assign v_title_down = variant.title | downcase -%}
-          {%- if v_title_down contains term -%}
-            {%- assign product_matched = true -%}
-            {%- break -%}
-          {%- endif -%}
-        {%- endfor -%}
-
-        {%- if product_matched -%}{%- break -%}{%- endif -%}
-      {%- endfor -%}
-
-      {%- if product_matched -%}
-        {%- assign matched_product_count = matched_product_count | plus: 1 -%}
-        {%- assign matched_product_handles = matched_product_handles | append: product.handle | append: ',' -%}
-      {%- endif -%}
-    {%- endfor -%}
-
     {% assign first_column_results_size = predictive_search.resources.queries.size
       | plus: predictive_search.resources.collections.size
       | plus: predictive_search.resources.pages.size
       | plus: predictive_search.resources.articles.size
     %}
-
-    {%- if first_column_results_size > 0 or matched_product_count > 0 -%}
+    {%- if first_column_results_size > 0 or predictive_search.resources.products.size > 0 -%}
       <div
         id="predictive-search-results-groups-wrapper"
-        class="predictive-search__results-groups-wrapper{% unless matched_product_count > 0 %} predictive-search__results-groups-wrapper--no-products{% endunless %}{% unless predictive_search.resources.queries.size > 0 or predictive_search.resources.collections.size > 0 %} predictive-search__results-groups-wrapper--no-suggestions{% endunless %}"
+        class="predictive-search__results-groups-wrapper{% unless predictive_search.resources.products.size > 0 %} predictive-search__results-groups-wrapper--no-products{% endunless %}{% unless predictive_search.resources.queries.size > 0 or predictive_search.resources.collections.size > 0 %} predictive-search__results-groups-wrapper--no-suggestions{% endunless %}"
       >
     {%- endif -%}
-
     {%- if first_column_results_size > 0 -%}
       <div class="predictive-search__result-group">
     {%- endif -%}
-
     {%- if predictive_search.resources.queries.size > 0 or predictive_search.resources.collections.size > 0 -%}
       <div>
         <h2 id="predictive-search-queries" class="predictive-search__heading text-body caption-with-letter-spacing">
@@ -252,7 +199,6 @@
         </ul>
       </div>
     {%- endif -%}
-
     {%- if predictive_search.resources.articles.size > 0 or predictive_search.resources.pages.size > 0 -%}
       <div class="predictive-search__pages-wrapper">
         <h2
@@ -298,17 +244,15 @@
         </ul>
       </div>
     {%- endif -%}
-
     {%- if first_column_results_size > 0 -%}
       </div>
     {%- endif -%}
-
-    {%- if matched_product_count > 0
+    {%- if predictive_search.resources.products.size > 0
       or predictive_search.resources.articles.size > 0
       or predictive_search.resources.pages.size > 0
     -%}
       <div class="predictive-search__result-group">
-        {%- if matched_product_count > 0 -%}
+        {%- if predictive_search.resources.products.size > 0 -%}
           <div>
             <h2
               id="predictive-search-products"
@@ -323,50 +267,46 @@
               aria-labelledby="predictive-search-products"
             >
               {%- for product in predictive_search.resources.products -%}
-                {%- assign handle_check = ',' | append: product.handle | append: ',' -%}
-                {%- if matched_product_handles contains handle_check -%}
-                  <li
-                    id="predictive-search-option-product-{{ forloop.index }}"
-                    class="predictive-search__list-item"
-                    role="option"
-                    aria-selected="false"
-                  >
-                    <product-component view-event-payload="{{ product | standard_event_data: 'view', context: 'search' | escape }}">
-                      <a
-                        href="{{ product.url }}"
-                        class="predictive-search__item predictive-search__item--link-with-thumbnail link link--text"
-                        tabindex="-1"
-                      >
-                        {%- if product.featured_media != blank -%}
-                          <img
-                            class="predictive-search__image"
-                            src="{{ product.featured_media | image_url: width: 150 }}"
-                            alt="{{ product.featured_media.alt | escape }}"
-                            width="50"
-                            height="{{ 50 | divided_by: product.featured_media.preview_image.aspect_ratio }}"
-                          >
+                <li
+                  id="predictive-search-option-product-{{ forloop.index }}"
+                  class="predictive-search__list-item"
+                  role="option"
+                  aria-selected="false"
+                >
+                  <product-component view-event-payload="{{ product | standard_event_data: 'view', context: 'search' | escape }}">
+                    <a
+                      href="{{ product.url }}"
+                      class="predictive-search__item predictive-search__item--link-with-thumbnail link link--text"
+                      tabindex="-1"
+                    >
+                      {%- if product.featured_media != blank -%}
+                        <img
+                          class="predictive-search__image"
+                          src="{{ product.featured_media | image_url: width: 150 }}"
+                          alt="{{ product.featured_media.alt | escape }}"
+                          width="50"
+                          height="{{ 50 | divided_by: product.featured_media.preview_image.aspect_ratio }}"
+                        >
+                      {%- endif -%}
+                      <div class="predictive-search__item-content{% unless settings.predictive_search_show_vendor or settings.predictive_search_show_price %} predictive-search__item-content--centered{% endunless %}">
+                        {%- if settings.predictive_search_show_vendor -%}
+                          <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
+                          <div class="predictive-search__item-vendor caption-with-letter-spacing">
+                            {{ product.vendor }}
+                          </div>
                         {%- endif -%}
-                        <div class="predictive-search__item-content{% unless settings.predictive_search_show_vendor or settings.predictive_search_show_price %} predictive-search__item-content--centered{% endunless %}">
-                          {%- if settings.predictive_search_show_vendor -%}
-                            <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
-                            <div class="predictive-search__item-vendor caption-with-letter-spacing">
-                              {{ product.vendor }}
-                            </div>
-                          {%- endif -%}
-                          <p class="predictive-search__item-heading h5">{{ product.title | escape }}</p>
-                          {%- if settings.predictive_search_show_price -%}
-                            {% render 'price', product: product, use_variant: true, show_badges: false %}
-                          {%- endif -%}
-                        </div>
-                      </a>
-                    </product-component>
-                  </li>
-                {%- endif -%}
+                        <p class="predictive-search__item-heading h5">{{ product.title | escape }}</p>
+                        {%- if settings.predictive_search_show_price -%}
+                          {% render 'price', product: product, use_variant: true, show_badges: false %}
+                        {%- endif -%}
+                      </div>
+                    </a>
+                  </product-component>
+                </li>
               {%- endfor -%}
             </ul>
           </div>
         {%- endif -%}
-
         {%- if predictive_search.resources.articles.size > 0 or predictive_search.resources.pages.size > 0 -%}
           <div class="predictive-search__pages-wrapper">
             <h2
@@ -414,8 +354,7 @@
         {%- endif -%}
       </div>
     {%- endif -%}
-
-    {%- if first_column_results_size > 0 or matched_product_count > 0 -%}
+    {%- if first_column_results_size > 0 or predictive_search.resources.products.size > 0 -%}
       </div>
     {%- endif -%}
 
@@ -440,10 +379,10 @@
     <span
       class="hidden"
       data-predictive-search-live-region-count-value
-      data-total-results="{{ matched_product_count | plus: first_column_results_size }}"
+      data-total-results="{{ predictive_search.resources.products.size | plus: first_column_results_size }}"
     >
       {% liquid
-        assign total_results = matched_product_count | plus: first_column_results_size
+        assign total_results = predictive_search.resources.products.size | plus: first_column_results_size
         if total_results == 0
           echo 'templates.search.no_results' | t: terms: predictive_search.terms
         else
@@ -456,8 +395,8 @@
             assign count = predictive_search.resources.pages.size | plus: predictive_search.resources.articles.size
             echo 'templates.search.results_pages_with_count' | t: count: count | append: ', '
           endif
-          if matched_product_count > 0
-            echo 'templates.search.results_products_with_count' | t: count: matched_product_count
+          if predictive_search.resources.products.size > 0
+            echo 'templates.search.results_products_with_count' | t: count: predictive_search.resources.products.size
           endif
         endif
       %}
