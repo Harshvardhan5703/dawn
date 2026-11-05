@@ -118,46 +118,10 @@
     #ProductGridContainer .product-grid > .grid__item:only-child { grid-column: span 2 !important; }
   }
 
-  /* ===== BuzzKo: KILL NATIVE COUNT & PAGINATION ===== */
-  .product-count, 
-  .product-count-vertical,
-  .facets__form .product-count,
-  #ProductCountDesktop,
-  .product-count__text,
+  /* ===== BuzzKo: ONLY hide pagination ===== */
   .pagination-wrapper,
   .pagination { 
     display: none !important; 
-  }
-
-  /* ===== BuzzKo: FIX THE SORT DROPDOWN STRETCHING ===== */
-  .facet-filters.sorting {
-    flex-grow: 0 !important; /* Stop the sort container from expanding */
-  }
-  .facet-filters__field {
-    flex-grow: 0 !important;
-  }
-  .facet-filters__field .select {
-    width: auto !important;
-    min-width: 160px; /* Keeps it looking neat */
-  }
-  .facet-filters__field .select .svg-wrapper {
-    right: 1.2rem !important; /* Keeps the arrow close to the text */
-  }
-
-  /* ===== BuzzKo: FIX THE CUSTOM COUNT PLACEMENT ===== */
-  .buzzko-custom-count-wrapper {
-    display: flex; 
-    justify-content: flex-end; 
-    margin-bottom: 10px;
-    width: 100%;
-  }
-  .buzzko-custom-count {
-    font-size: 1.4rem; color: #1A1A1A; font-weight: 500;
-  }
-  @media screen and (min-width: 750px) {
-    .buzzko-custom-count-wrapper {
-      padding-right: 15px; /* Aligns it nicely with the grid */
-    }
   }
 </style>
 
@@ -340,14 +304,6 @@
 
         <div class="product-grid-container" id="ProductGridContainer">
           
-          {%- if total_valid_results > 0 -%}
-            <div class="buzzko-custom-count-wrapper page-width">
-              <span class="buzzko-custom-count" role="status">
-                {{ total_valid_results }} {% if total_valid_results == 1 %}result{% else %}results{% endif %}
-              </span>
-            </div>
-          {%- endif -%}
-
           {%- if total_valid_results == 0 and search.filters != empty -%}
             <div class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}" id="product-grid" data-id="{{ section.id }}">
               <div class="loading-overlay gradient"></div>
@@ -428,6 +384,20 @@
     {%- endif -%}
   </div>
 {% endpaginate %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const validCount = parseInt("{{ total_valid_results }}");
+    const countText = validCount + (validCount === 1 ? ' result' : ' results');
+    
+    // Target the native Shopify count elements and overwrite their text
+    const countTextEl = document.querySelector('.product-count__text');
+    if (countTextEl) countTextEl.innerHTML = countText;
+
+    const countDesktopEl = document.querySelector('#ProductCountDesktop');
+    if (countDesktopEl) countDesktopEl.innerHTML = countText;
+  });
+</script>
 
 {% if section.settings.image_shape == 'arch' %}
   {{ 'mask-arch.svg' | inline_asset_content }}
