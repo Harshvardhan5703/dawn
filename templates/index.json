@@ -31,6 +31,8 @@
         "slide_E3RHdz": {
           "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/slider3.jpg",
+            "image_mobile": "shopify://shop_images/3slider.jpg",
             "alt_text": ""
           }
         }
