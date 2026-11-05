@@ -19,6 +19,11 @@
       <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
     {%- endunless -%}
 
+
+    {%- if request.page_type == 'search' and search.performed -%}
+  {%- assign page_title = 'Search' -%}
+{%- endif -%}
+    
     <title>
       {{ page_title }}
       {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
