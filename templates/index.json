@@ -16,15 +16,15 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/slider1desktop.jpg",
-            "image_mobile": "shopify://shop_images/1slider.jpg",
+            "image_mobile": "shopify://shop_images/s1.jpg",
             "alt_text": ""
           }
         },
         "slide_RyUJNF": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/slider2.jpg",
-            "image_mobile": "shopify://shop_images/2slider.jpg",
+            "image": "shopify://shop_images/s2d.jpg",
+            "image_mobile": "shopify://shop_images/s2m.jpg",
             "alt_text": ""
           }
         },
