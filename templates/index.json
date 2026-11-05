@@ -15,6 +15,8 @@
         "slide_DrwhGW": {
           "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/slider1desktop.jpg",
+            "image_mobile": "shopify://shop_images/s1.jpg",
             "alt_text": ""
           }
         },
@@ -38,6 +40,7 @@
       ],
       "name": "BuzzKo Hero",
       "settings": {
+        "left_image": "shopify://shop_images/Glossy_Bubble_Shop_Signage.png",
         "button_label": "Shop Now",
         "button_link": "",
         "button_color": "#ff5ca8",
