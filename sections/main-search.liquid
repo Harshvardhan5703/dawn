@@ -383,7 +383,7 @@
 {%- liquid
   assign sort_by = search.sort_by | default: search.default_sort_by
   assign terms = search.terms | escape
-  assign search_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  assign search_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=none&sort_by=' | append: sort_by
 -%}
 
 {%- style -%}
@@ -418,43 +418,7 @@
 {%- endstyle -%}
 
 {% paginate search.results by 24 %}
-  
-  {%- comment -%} 
-    PRE-LOOP: Check how many results actually contain the search term in 
-    their title or product type. This ensures the Empty State works correctly.
-  {%- endcomment -%}
-  {%- assign strict_terms = search.terms | downcase | split: ' ' -%}
-  {%- assign total_valid_results = 0 -%}
-
-  {%- if search.performed -%}
-    {%- for item in search.results -%}
-      {%- assign item_matched = false -%}
-      {%- assign item_title_down = item.title | downcase -%}
-      
-      {%- if item.object_type == 'product' -%}
-        {%- assign item_type_down = item.type | downcase -%}
-        {%- for term in strict_terms -%}
-          {%- if term != '' and item_title_down contains term or item_type_down contains term -%}
-            {%- assign item_matched = true -%}
-            {%- break -%}
-          {%- endif -%}
-        {%- endfor -%}
-      {%- else -%}
-        {%- for term in strict_terms -%}
-          {%- if term != '' and item_title_down contains term -%}
-            {%- assign item_matched = true -%}
-            {%- break -%}
-          {%- endif -%}
-        {%- endfor -%}
-      {%- endif -%}
-
-      {%- if item_matched -%}
-        {%- assign total_valid_results = total_valid_results | plus: 1 -%}
-      {%- endif -%}
-    {%- endfor -%}
-  {%- endif -%}
-
-  <div class="template-search{% unless search.performed and total_valid_results > 0 %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
+  <div class="template-search{% unless search.performed and search.results_count > 0 %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
     <div class="template-search__header page-width{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
       <h1 class="buzzko-search-title">
         {%- if search.performed -%}
@@ -491,7 +455,9 @@
                 {%- endif -%}
               >
 
-              <input name="options[prefix]" type="hidden" value="last">
+              {%- comment -%} Force search to only look at title and product_type, and disable partial matching for the last term {%- endcomment -%}
+              <input type="hidden" name="resources[options][fields]" value="title,product_type">
+              <input name="options[prefix]" type="hidden" value="none">
 
               {%- if settings.predictive_search_enabled -%}
                 <div class="predictive-search predictive-search--search-template" tabindex="-1" data-predictive-search>
@@ -525,14 +491,14 @@
 
       {%- if search.performed -%}
         {%- unless section.settings.enable_filtering or section.settings.enable_sorting -%}
-          {%- if total_valid_results > 0 -%}
+          {%- if search.results_count > 0 -%}
             <p role="status">
-              {{ 'templates.search.results_with_count_and_term' | t: terms: search.terms, count: total_valid_results }}
+              {{ 'templates.search.results_with_count_and_term' | t: terms: search.terms, count: search.results_count }}
             </p>
           {%- endif -%}
         {%- endunless -%}
 
-        {%- if total_valid_results == 0 and search.filters == empty -%}
+        {%- if search.results_count == 0 and search.filters == empty -%}
           <div class="buzzko-search-empty" role="status">
             <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
             <h2>Didn't find your little favourite?</h2>
@@ -593,11 +559,11 @@
             <div class="product-count-vertical light" role="status">
               <h2 class="product-count__text text-body">
                 <span id="ProductCountDesktop">
-                  {{ total_valid_results }} 
-                  {% if total_valid_results == 1 %}
-                    result
+                  {{ search.products_count }} 
+                  {% if search.products_count == 1 %}
+                    product
                   {% else %}
-                    results
+                    products
                   {% endif %}
                 </span>
               </h2>
@@ -617,10 +583,6 @@
 
             {%- comment -%}
               BuzzKo: hide the "Charm Style" filter on the search page.
-              Match by label, then pre-hide by data-index — for BOTH the
-              desktop copy (data-index="N") and the mobile drawer copy
-              (data-index="mobile-N"). Emitted before facets render, so
-              there is zero flash.
             {%- endcomment -%}
             {%- assign buzzko_search_hidden = '' -%}
             {%- for buzzko_filter in search.filters -%}
@@ -665,7 +627,7 @@
         {%- endif -%}
 
         <div class="product-grid-container" id="ProductGridContainer">
-          {%- if total_valid_results == 0 and search.filters != empty -%}
+          {%- if search.results_count == 0 and search.filters != empty -%}
             <div
               class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
               id="product-grid"
@@ -702,84 +664,60 @@
                 {%- assign skip_card_product_styles = false -%}
                 {%- assign buzzko_index = 0 -%}
                 {%- for item in search.results -%}
-                  
-                  {%- comment -%} Apply strict match check for the visible loop {%- endcomment -%}
-                  {%- assign item_matched = false -%}
-                  {%- assign item_title_down = item.title | downcase -%}
-                  
-                  {%- if item.object_type == 'product' -%}
-                    {%- assign item_type_down = item.type | downcase -%}
-                    {%- for term in strict_terms -%}
-                      {%- if term != '' and item_title_down contains term or item_type_down contains term -%}
-                        {%- assign item_matched = true -%}
-                        {%- break -%}
-                      {%- endif -%}
-                    {%- endfor -%}
-                  {%- else -%}
-                    {%- for term in strict_terms -%}
-                      {%- if term != '' and item_title_down contains term -%}
-                        {%- assign item_matched = true -%}
-                        {%- break -%}
-                      {%- endif -%}
-                    {%- endfor -%}
-                  {%- endif -%}
+                  {% assign lazy_load = false %}
+                  {%- if forloop.index > 2 -%}
+                    {%- assign lazy_load = true -%}
+                  {%- endif %}
 
-                  {%- if item_matched -%}
-                    {% assign lazy_load = false %}
-                    {%- if forloop.index > 2 -%}
-                      {%- assign lazy_load = true -%}
-                    {%- endif %}
+                  <li
+                    class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                    {% if settings.animations_reveal_on_scroll %}
+                      data-cascade
+                    {% endif %}
+                  >
+                    {%- case item.object_type -%}
+                      {%- when 'product' -%}
+                        {%- assign product = item -%}
+                        
+                        {% render 'buzzko-product-card', product: product, index: buzzko_index, card_subtitle: section.settings.card_subtitle %}
+                        
+                        {%- assign buzzko_index = buzzko_index | plus: 1 -%}
 
-                    <li
-                      class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-                      {% if settings.animations_reveal_on_scroll %}
-                        data-cascade
-                      {% endif %}
-                    >
-                      {%- case item.object_type -%}
-                        {%- when 'product' -%}
-                          {%- assign product = item -%}
-                          
-                          {% render 'buzzko-product-card', product: product, index: buzzko_index, card_subtitle: section.settings.card_subtitle %}
-                          
-                          {%- assign buzzko_index = buzzko_index | plus: 1 -%}
+                      {%- when 'article' -%}
+                        {% render 'article-card',
+                          article: item,
+                          show_image: true,
+                          show_date: section.settings.article_show_date,
+                          show_author: section.settings.article_show_author,
+                          show_badge: true,
+                          media_aspect_ratio: 1,
+                          lazy_load: lazy_load
+                        %}
 
-                        {%- when 'article' -%}
-                          {% render 'article-card',
-                            article: item,
-                            show_image: true,
-                            show_date: section.settings.article_show_date,
-                            show_author: section.settings.article_show_author,
-                            show_badge: true,
-                            media_aspect_ratio: 1,
-                            lazy_load: lazy_load
-                          %}
-
-                        {%- when 'page' -%}
-                          <div class="article-card-wrapper card-wrapper underline-links-hover">
-                            <div
-                              class="card card--card card--text ratio color-{{ settings.blog_card_color_scheme }}"
-                              style="--ratio-percent: 100%;"
-                            >
-                              <div class="card__content">
-                                <div class="card__information">
-                                  <h3 class="card__heading">
-                                    <a href="{{ item.url }}" class="full-unstyled-link">
-                                      {{ item.title | truncate: 50 | escape }}
-                                    </a>
-                                  </h3>
-                                </div>
-                                <div class="card__badge {{ settings.badge_position }}">
-                                  <span class="badge color-{{ settings.color_schemes | first }}">
-                                    {{- 'templates.search.page' | t -}}
-                                  </span>
-                                </div>
+                      {%- when 'page' -%}
+                        <div class="article-card-wrapper card-wrapper underline-links-hover">
+                          <div
+                            class="card card--card card--text ratio color-{{ settings.blog_card_color_scheme }}"
+                            style="--ratio-percent: 100%;"
+                          >
+                            <div class="card__content">
+                              <div class="card__information">
+                                <h3 class="card__heading">
+                                  <a href="{{ item.url }}" class="full-unstyled-link">
+                                    {{ item.title | truncate: 50 | escape }}
+                                  </a>
+                                </h3>
+                              </div>
+                              <div class="card__badge {{ settings.badge_position }}">
+                                <span class="badge color-{{ settings.color_schemes | first }}">
+                                  {{- 'templates.search.page' | t -}}
+                                </span>
                               </div>
                             </div>
                           </div>
-                      {%- endcase -%}
-                    </li>
-                  {%- endif -%}
+                        </div>
+                    {%- endcase -%}
+                  </li>
                 {%- endfor -%}
               </ul>
 
