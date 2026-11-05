@@ -161,21 +161,6 @@
     height: 1.25rem;
   }
 
-  /* ===== BuzzKo: minimum character hint ===== */
-  .template-search__search .search-min-chars-message {
-    display: none;
-    margin: 1rem 0 0;
-    padding: 0 2rem;
-    color: #B05A2B;
-    font-size: 1.3rem;
-    line-height: 1.5;
-    text-align: left;
-  }
-
-  .template-search__search .search-min-chars-message.is-visible {
-    display: block;
-  }
-
   /* ===== BuzzKo empty search state ===== */
   .buzzko-search-empty {
     position: relative;
@@ -325,11 +310,6 @@
       height: 1.4rem;
     }
 
-    .template-search__search .search-min-chars-message {
-      padding: 0 1.6rem;
-      font-size: 1.25rem;
-    }
-
     .buzzko-search-empty {
       min-height: 27rem;
       margin: 2rem 1.5rem 3rem;
@@ -438,14 +418,43 @@
 {%- endstyle -%}
 
 {% paginate search.results by 24 %}
-  {%- liquid
-    assign buzzko_search_term_length = search.terms | size
-    assign buzzko_short_search = false
-    if search.performed and buzzko_search_term_length > 0 and buzzko_search_term_length < 4
-      assign buzzko_short_search = true
-    endif
-  -%}
-  <div class="template-search{% unless search.performed and search.results_count > 0 and buzzko_short_search == false %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
+  
+  {%- comment -%} 
+    PRE-LOOP: Check how many results actually contain the search term in 
+    their title or product type. This ensures the Empty State works correctly.
+  {%- endcomment -%}
+  {%- assign strict_terms = search.terms | downcase | split: ' ' -%}
+  {%- assign total_valid_results = 0 -%}
+
+  {%- if search.performed -%}
+    {%- for item in search.results -%}
+      {%- assign item_matched = false -%}
+      {%- assign item_title_down = item.title | downcase -%}
+      
+      {%- if item.object_type == 'product' -%}
+        {%- assign item_type_down = item.type | downcase -%}
+        {%- for term in strict_terms -%}
+          {%- if term != '' and item_title_down contains term or item_type_down contains term -%}
+            {%- assign item_matched = true -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for term in strict_terms -%}
+          {%- if term != '' and item_title_down contains term -%}
+            {%- assign item_matched = true -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if item_matched -%}
+        {%- assign total_valid_results = total_valid_results | plus: 1 -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  <div class="template-search{% unless search.performed and total_valid_results > 0 %} template-search--empty{% endunless %} section-{{ section.id }}-padding">
     <div class="template-search__header page-width{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
       <h1 class="buzzko-search-title">
         {%- if search.performed -%}
@@ -512,22 +521,18 @@
         {%- if settings.predictive_search_enabled -%}
           </predictive-search>
         {%- endif -%}
-
-        <p id="SearchMinCharsMessage" class="search-min-chars-message" role="status" aria-live="polite">
-          Please type at least 4 characters to search.
-        </p>
       </div>
 
       {%- if search.performed -%}
         {%- unless section.settings.enable_filtering or section.settings.enable_sorting -%}
-          {%- if search.results_count > 0 and buzzko_short_search == false -%}
+          {%- if total_valid_results > 0 -%}
             <p role="status">
-              {{ 'templates.search.results_with_count_and_term' | t: terms: search.terms, count: search.results_count }}
+              {{ 'templates.search.results_with_count_and_term' | t: terms: search.terms, count: total_valid_results }}
             </p>
           {%- endif -%}
         {%- endunless -%}
 
-        {%- if search.results_count == 0 and search.filters == empty and buzzko_short_search == false -%}
+        {%- if total_valid_results == 0 and search.filters == empty -%}
           <div class="buzzko-search-empty" role="status">
             <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
             <h2>Didn't find your little favourite?</h2>
@@ -551,7 +556,6 @@
       {%- if section.settings.enable_sorting
         and section.settings.filter_type == 'vertical'
         and search.filters != empty
-        and buzzko_short_search == false
       -%}
         <facet-filters-form class="facets facets-vertical-sort page-width small-hide">
           <form class="facets-vertical-form" id="FacetSortForm">
@@ -589,13 +593,13 @@
             <div class="product-count-vertical light" role="status">
               <h2 class="product-count__text text-body">
                 <span id="ProductCountDesktop">
-  {{ search.products_count }} 
-  {% if search.products_count == 1 %}
-    product
-  {% else %}
-    products
-  {% endif %}
-</span>
+                  {{ total_valid_results }} 
+                  {% if total_valid_results == 1 %}
+                    result
+                  {% else %}
+                    results
+                  {% endif %}
+                </span>
               </h2>
               {%- render 'loading-spinner' -%}
             </div>
@@ -608,7 +612,7 @@
           class="facets-vertical page-width"
         {% endif %}
       >
-                {%- if search.filters != empty and buzzko_short_search == false -%}
+        {%- if search.filters != empty -%}
           {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
 
             {%- comment -%}
@@ -661,11 +665,7 @@
         {%- endif -%}
 
         <div class="product-grid-container" id="ProductGridContainer">
-                    {%- assign buzzko_show_empty_grid = buzzko_short_search -%}
-          {%- if search.results.size == 0 and search.filters != empty -%}
-            {%- assign buzzko_show_empty_grid = true -%}
-          {%- endif -%}
-          {%- if buzzko_show_empty_grid -%}
+          {%- if total_valid_results == 0 and search.filters != empty -%}
             <div
               class="template-search__results collection collection--empty{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
               id="product-grid"
@@ -676,12 +676,8 @@
                 <span class="buzzko-search-empty__emoji" aria-hidden="true">🔎</span>
                 <h2>Didn't find your little favourite?</h2>
                 <p>
-                  {%- if buzzko_short_search -%}
-                    Please type at least 4 characters so we can find something for you.
-                  {%- else -%}
-                    We couldn't find anything for “{{ search.terms | escape }}”.
-                    But don't worry, we're here to help you find it!
-                  {%- endif -%}
+                  We couldn't find anything for “{{ search.terms | escape }}”.
+                  But don't worry, we're here to help you find it!
                 </p>
                 <a href="/pages/contact" class="buzzko-search-contact">
                   Contact us
@@ -706,63 +702,84 @@
                 {%- assign skip_card_product_styles = false -%}
                 {%- assign buzzko_index = 0 -%}
                 {%- for item in search.results -%}
-                  {% assign lazy_load = false %}
-                  {%- if forloop.index > 2 -%}
-                    {%- assign lazy_load = true -%}
-                  {%- endif %}
+                  
+                  {%- comment -%} Apply strict match check for the visible loop {%- endcomment -%}
+                  {%- assign item_matched = false -%}
+                  {%- assign item_title_down = item.title | downcase -%}
+                  
+                  {%- if item.object_type == 'product' -%}
+                    {%- assign item_type_down = item.type | downcase -%}
+                    {%- for term in strict_terms -%}
+                      {%- if term != '' and item_title_down contains term or item_type_down contains term -%}
+                        {%- assign item_matched = true -%}
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- for term in strict_terms -%}
+                      {%- if term != '' and item_title_down contains term -%}
+                        {%- assign item_matched = true -%}
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
 
-                  <li
-                    class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-                    {% if settings.animations_reveal_on_scroll %}
-                      data-cascade
-                    {% endif %}
-                  >
-                    {%- case item.object_type -%}
-                      {%- when 'product' -%}
-                        {%- assign product = item -%}
-                        
-                        {% comment %} 
-                          RENDER THE GLOBAL PRODUCT CARD SNIPPET HERE 
-                        {% endcomment %}
-                        {% render 'buzzko-product-card', product: product, index: buzzko_index, card_subtitle: section.settings.card_subtitle %}
-                        
-                        {%- assign buzzko_index = buzzko_index | plus: 1 -%}
+                  {%- if item_matched -%}
+                    {% assign lazy_load = false %}
+                    {%- if forloop.index > 2 -%}
+                      {%- assign lazy_load = true -%}
+                    {%- endif %}
 
-                      {%- when 'article' -%}
-                        {% render 'article-card',
-                          article: item,
-                          show_image: true,
-                          show_date: section.settings.article_show_date,
-                          show_author: section.settings.article_show_author,
-                          show_badge: true,
-                          media_aspect_ratio: 1,
-                          lazy_load: lazy_load
-                        %}
+                    <li
+                      class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                      {% if settings.animations_reveal_on_scroll %}
+                        data-cascade
+                      {% endif %}
+                    >
+                      {%- case item.object_type -%}
+                        {%- when 'product' -%}
+                          {%- assign product = item -%}
+                          
+                          {% render 'buzzko-product-card', product: product, index: buzzko_index, card_subtitle: section.settings.card_subtitle %}
+                          
+                          {%- assign buzzko_index = buzzko_index | plus: 1 -%}
 
-                      {%- when 'page' -%}
-                        <div class="article-card-wrapper card-wrapper underline-links-hover">
-                          <div
-                            class="card card--card card--text ratio color-{{ settings.blog_card_color_scheme }}"
-                            style="--ratio-percent: 100%;"
-                          >
-                            <div class="card__content">
-                              <div class="card__information">
-                                <h3 class="card__heading">
-                                  <a href="{{ item.url }}" class="full-unstyled-link">
-                                    {{ item.title | truncate: 50 | escape }}
-                                  </a>
-                                </h3>
-                              </div>
-                              <div class="card__badge {{ settings.badge_position }}">
-                                <span class="badge color-{{ settings.color_schemes | first }}">
-                                  {{- 'templates.search.page' | t -}}
-                                </span>
+                        {%- when 'article' -%}
+                          {% render 'article-card',
+                            article: item,
+                            show_image: true,
+                            show_date: section.settings.article_show_date,
+                            show_author: section.settings.article_show_author,
+                            show_badge: true,
+                            media_aspect_ratio: 1,
+                            lazy_load: lazy_load
+                          %}
+
+                        {%- when 'page' -%}
+                          <div class="article-card-wrapper card-wrapper underline-links-hover">
+                            <div
+                              class="card card--card card--text ratio color-{{ settings.blog_card_color_scheme }}"
+                              style="--ratio-percent: 100%;"
+                            >
+                              <div class="card__content">
+                                <div class="card__information">
+                                  <h3 class="card__heading">
+                                    <a href="{{ item.url }}" class="full-unstyled-link">
+                                      {{ item.title | truncate: 50 | escape }}
+                                    </a>
+                                  </h3>
+                                </div>
+                                <div class="card__badge {{ settings.badge_position }}">
+                                  <span class="badge color-{{ settings.color_schemes | first }}">
+                                    {{- 'templates.search.page' | t -}}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                    {%- endcase -%}
-                  </li>
+                      {%- endcase -%}
+                    </li>
+                  {%- endif -%}
                 {%- endfor -%}
               </ul>
 
@@ -776,72 +793,6 @@
     {%- endif -%}
   </div>
 {% endpaginate %}
-
-<script>
-  (function () {
-    function init() {
-      // Minimum characters required. Set to 4 for strictly "more than 3".
-      var MIN_CHARS = 4;
-
-      var form = document.querySelector('.template-search__search form.search');
-      if (!form) return;
-      var input = form.querySelector('input[name="q"]');
-      if (!input) return;
-
-      var predictive = document.querySelector('predictive-search');
-      var message = document.getElementById('SearchMinCharsMessage');
-
-      function showMessage() {
-        if (message) message.classList.add('is-visible');
-      }
-      function hideMessage() {
-        if (message) message.classList.remove('is-visible');
-      }
-
-      // 1. Block form submit for 1–3 character queries
-      document.addEventListener(
-        'submit',
-        function (e) {
-          if (e.target !== form) return;
-          var q = (input.value || '').trim();
-          if (q.length > 0 && q.length < MIN_CHARS) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            showMessage();
-            input.focus();
-          }
-        },
-        true
-      );
-
-      // 2. Block predictive search (live results) for 1–3 character queries
-      document.addEventListener(
-        'input',
-        function (e) {
-          if (e.target !== input) return;
-          var q = (input.value || '').trim();
-          if (q.length > 0 && q.length < MIN_CHARS) {
-            // Stop the event so predictive-search.js never fires a request
-            e.stopImmediatePropagation();
-            if (predictive && typeof predictive.close === 'function') {
-              predictive.close();
-            }
-            showMessage();
-          } else {
-            hideMessage();
-          }
-        },
-        true
-      );
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  })();
-</script>
 
 {% if section.settings.image_shape == 'arch' %}
   {{ 'mask-arch.svg' | inline_asset_content }}
