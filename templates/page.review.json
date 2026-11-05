@@ -22,60 +22,6 @@
     "customer_photo_gallery_7geFwf": {
       "type": "customer-photo-gallery",
       "blocks": {
-        "image_iie7yy": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_bdX98C": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_NnUGgK": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_6ANQyP": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_X4xyRc": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_kFcM6c": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_6NWLRx": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_xLjrC6": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
-        "image_Xi7KiX": {
-          "type": "image",
-          "settings": {
-            "link": ""
-          }
-        },
         "image_p8LKTn": {
           "type": "image",
           "settings": {
@@ -174,15 +120,6 @@
         }
       },
       "block_order": [
-        "image_iie7yy",
-        "image_bdX98C",
-        "image_NnUGgK",
-        "image_6ANQyP",
-        "image_X4xyRc",
-        "image_kFcM6c",
-        "image_6NWLRx",
-        "image_xLjrC6",
-        "image_Xi7KiX",
         "image_p8LKTn",
         "image_7BG7Kn",
         "image_MrCDFi",
